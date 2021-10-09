@@ -25,7 +25,7 @@ public class NewAssetForm extends FormLayout {
 
     public NewAssetForm(MainView mainView) {
         this.mainView = mainView;
-        amount.setPattern("[0-9]*(?<=\\d+)\\.?[0-9]*");
+        amount.setPattern("(?!0\\d)[0-9]*(?<=\\d+)\\.?[0-9]*");
         amount.setPreventInvalidInput(true);
         ticker.setItems(Ticker.values());
         save.addClickListener(event -> save());
