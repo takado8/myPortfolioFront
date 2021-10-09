@@ -1,7 +1,7 @@
-package com.takado.myportfoliofront.views;
+package com.takado.myportfoliofront.view;
 
-import com.takado.myportfoliofront.domain.Asset;
-import com.takado.myportfoliofront.domain.Ticker;
+import com.takado.myportfoliofront.model.Asset;
+import com.takado.myportfoliofront.model.Ticker;
 import com.takado.myportfoliofront.service.AssetService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -25,6 +25,8 @@ public class NewAssetForm extends FormLayout {
 
     public NewAssetForm(MainView mainView) {
         this.mainView = mainView;
+        amount.setPattern("[0-9]*(?<=\\d+)\\.?[0-9]*");
+        amount.setPreventInvalidInput(true);
         ticker.setItems(Ticker.values());
         save.addClickListener(event -> save());
         delete.addClickListener(event -> delete());
@@ -48,6 +50,9 @@ public class NewAssetForm extends FormLayout {
     }
 
     private void delete() {
+        var ticker = this.ticker.getValue();
+        if (ticker == null) return;
+
         Asset asset = binder.getBean();
         assetService.delete(asset);
         mainView.refresh();
@@ -61,7 +66,16 @@ public class NewAssetForm extends FormLayout {
             setVisible(false);
         } else {
             setVisible(true);
-            ticker.focus();
+
+            if (asset.getTicker() != null){
+                ticker.setEnabled(false);
+            }
+            else {
+                if (!ticker.isEnabled()){
+                    ticker.setEnabled(true);
+                }
+            }
+            amount.focus();
         }
     }
 }

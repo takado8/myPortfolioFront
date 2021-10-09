@@ -1,6 +1,7 @@
-package com.takado.myportfoliofront.domain;
+package com.takado.myportfoliofront.model;
 
 public class Asset {
+
     private Ticker ticker;
     private String amount;
     private String valueIn;

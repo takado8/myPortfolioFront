@@ -1,4 +1,5 @@
-package com.takado.myportfoliofront.domain;
+package com.takado.myportfoliofront.model;
+
 
 public enum Ticker {
     BTC("BTC"),

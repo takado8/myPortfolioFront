@@ -1,6 +1,6 @@
-package com.takado.myportfoliofront.views;
+package com.takado.myportfoliofront.view;
 
-import com.takado.myportfoliofront.domain.Asset;
+import com.takado.myportfoliofront.model.Asset;
 import com.takado.myportfoliofront.service.AssetService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;

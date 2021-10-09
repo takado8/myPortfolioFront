@@ -1,12 +1,12 @@
 package com.takado.myportfoliofront.service;
 
-import com.takado.myportfoliofront.domain.Asset;
+import com.takado.myportfoliofront.model.Asset;
 
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.takado.myportfoliofront.domain.Ticker.*;
+import static com.takado.myportfoliofront.model.Ticker.*;
 
 public class AssetService {
     private final Set<Asset> assets;
