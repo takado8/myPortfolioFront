@@ -1,6 +1,7 @@
 package com.takado.myportfoliofront.service;
 
 import com.takado.myportfoliofront.model.Asset;
+import com.takado.myportfoliofront.model.Ticker;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -35,17 +36,23 @@ public class AssetService {
         Set<Asset> assets = new HashSet<>();
         assets.add(new Asset(BTC, "0.01", "1000"));
         assets.add(new Asset(ETH, "0.5", "500"));
-        assets.add(new Asset(ADA, "1000","300"));
+        assets.add(new Asset(ADA, "1000", "300"));
         return assets;
     }
 
-    public Set<Asset> findByTicker(String ticker) {
-        return assets.stream()
-                .filter(asset -> asset.getTicker().getString().toUpperCase().contains(ticker.toUpperCase()))
-                .collect(Collectors.toSet());
+    public Asset findByTicker(String ticker) {
+        Asset result;
+        try {
+            result = assets.stream()
+                    .filter(asset -> asset.getTicker().getString().toUpperCase().contains(ticker.toUpperCase()))
+                    .collect(Collectors.toList()).get(0);
+        } catch (IndexOutOfBoundsException ex) {
+            result = null;
+        }
+        return result;
     }
 
-    public void delete(Asset asset) {
-        this.assets.remove(asset);
+    public void delete(Ticker assetTicker) {
+        this.assets.remove(new Asset(assetTicker, "", ""));
     }
 }
