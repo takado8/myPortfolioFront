@@ -1,42 +1,44 @@
 package com.takado.myportfoliofront.service;
 
+import com.takado.myportfoliofront.client.AssetClient;
+import com.takado.myportfoliofront.mapper.AssetMapper;
 import com.takado.myportfoliofront.model.Asset;
-import com.takado.myportfoliofront.model.Ticker;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.takado.myportfoliofront.model.Ticker.*;
 
+@Service
+@RequiredArgsConstructor
 public class AssetService {
+    private final AssetClient assetClient;
+    private final AssetMapper assetMapper;
     private final Set<Asset> assets;
-    private static AssetService assetService;
 
-    private AssetService() {
-        this.assets = exampleData();
+    public void createAsset(Asset asset) {
+        Asset newAsset = assetMapper.mapToAsset(assetClient.createAsset(assetMapper.mapToDto(asset)));
+        assets.add(newAsset);
     }
 
-    public static AssetService getInstance() {
-        if (assetService == null) {
-            assetService = new AssetService();
+    public void deleteAsset(String assetTicker) {
+        var asset = assets.stream()
+                .filter(asset1 -> asset1.getTicker().equals(assetTicker))
+                .findFirst()
+                .orElse(null);
+        if (asset != null) {
+            assets.remove(asset);
+            assetClient.deleteAsset(asset.getId());
         }
-        return assetService;
     }
 
-    public void addAsset(Asset asset) {
-        assets.add(asset);
+    public void fetchAssets() {
+        assets.clear();
+        assets.addAll(assetMapper.mapToAssetSet(assetClient.getAssets()));
     }
 
     public Set<Asset> getAssets() {
-        return assets;
-    }
-
-    private Set<Asset> exampleData() {
-        Set<Asset> assets = new HashSet<>();
-        assets.add(new Asset(BTC, "0.01", "1000"));
-        assets.add(new Asset(ETH, "0.5", "500"));
-        assets.add(new Asset(ADA, "1000", "300"));
         return assets;
     }
 
@@ -44,7 +46,7 @@ public class AssetService {
         Asset result;
         try {
             result = assets.stream()
-                    .filter(asset -> asset.getTicker().getString().toUpperCase().contains(ticker.toUpperCase()))
+                    .filter(asset -> asset.getTicker().toUpperCase().contains(ticker.toUpperCase()))
                     .collect(Collectors.toList()).get(0);
         } catch (IndexOutOfBoundsException ex) {
             result = null;
@@ -52,7 +54,5 @@ public class AssetService {
         return result;
     }
 
-    public void delete(Ticker assetTicker) {
-        this.assets.remove(new Asset(assetTicker, "", ""));
-    }
+
 }

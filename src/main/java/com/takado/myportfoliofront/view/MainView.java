@@ -17,12 +17,15 @@ import com.vaadin.flow.theme.lumo.Lumo;
 @Route
 @Theme(value = Lumo.class, variant = Lumo.DARK)
 public class MainView extends VerticalLayout {
-    private final AssetService assetService = AssetService.getInstance();
+    private final AssetService assetService;
     private final Grid<Asset> grid = new Grid<>(Asset.class);
     private final TextField filter = new TextField();
-    private final NewAssetForm form = new NewAssetForm(this);
+    private final NewAssetForm newAssetForm;
 
-    public MainView() {
+    public MainView(AssetService assetService) {
+        this.assetService = assetService;
+        this.newAssetForm = new NewAssetForm(this, assetService);
+
         grid.setColumns("ticker", "amount", "valueIn", "valueNow", "profit", "avgPrice", "priceNow");
         grid.getColumnByKey("valueIn").setHeader("Value In [$]");
         grid.getColumnByKey("valueNow").setHeader("Value Now [$]");
@@ -39,18 +42,19 @@ public class MainView extends VerticalLayout {
         addNewAssetButton.getStyle().set("cursor", "pointer");
         addNewAssetButton.addThemeVariants(ButtonVariant.LUMO_CONTRAST, ButtonVariant.LUMO_PRIMARY);
         HorizontalLayout toolbar = new HorizontalLayout(filter, addNewAssetButton);
-        HorizontalLayout mainContent = new HorizontalLayout(grid, form);
+        HorizontalLayout mainContent = new HorizontalLayout(grid, newAssetForm);
         mainContent.setSizeFull();
         grid.setSizeFull();
         add(toolbar, mainContent);
         setSizeFull();
-        form.setAsset(null);
-        grid.asSingleSelect().addValueChangeListener(event -> form.setAsset(grid.asSingleSelect().getValue()));
+        newAssetForm.setAsset(null);
+        grid.asSingleSelect().addValueChangeListener(event -> newAssetForm.setAsset(grid.asSingleSelect().getValue()));
 
         addNewAssetButton.addClickListener(e -> {
             grid.asSingleSelect().clear();
-            form.setAsset(new Asset());
+            newAssetForm.setAsset(new Asset());
         });
+        assetService.fetchAssets();
         refresh();
 
     }

@@ -1,8 +1,8 @@
 package com.takado.myportfoliofront.view;
 
 import com.takado.myportfoliofront.model.Asset;
-import com.takado.myportfoliofront.model.Ticker;
 import com.takado.myportfoliofront.service.AssetService;
+import com.takado.myportfoliofront.service.TickerService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -17,28 +17,30 @@ import java.math.BigDecimal;
 public class NewAssetForm extends FormLayout {
     private final static String regexValidationPattern = "(?!0\\d)[0-9]*(?<=\\d+)\\.?[0-9]*";
 
-    private final ComboBox<Ticker> ticker = new ComboBox<>("Ticker");
-    private final TextField amount = new TextField("Amount");
-    private final TextField valueIn = new TextField("Value in");
-    //    private Binder<Asset> binder = new Binder<>(Asset.class);
+    private final ComboBox<String> tickerBox = new ComboBox<>("Ticker");
+    private final TextField amountField = new TextField("Amount");
+    private final TextField valueInField = new TextField("Value in");
     private final MainView mainView;
-    private final AssetService assetService = AssetService.getInstance();
+    private final AssetService assetService;
+    private final TickerService tickerService = TickerService.getInstance();
 
 
-    public NewAssetForm(MainView mainView) {
+    public NewAssetForm(MainView mainView, AssetService assetService) {
         this.mainView = mainView;
-        amount.setPattern(regexValidationPattern);
-        amount.setPreventInvalidInput(true);
-        valueIn.setPattern(regexValidationPattern);
-        valueIn.setPreventInvalidInput(true);
-        ticker.setItems(Ticker.values());
-        ticker.getStyle().set("cursor", "pointer");
-        Button addButton = new Button("Add to asset", new Icon(VaadinIcon.PLUS));
-        addButton.addClickListener(event -> addToAsset());
+        this.assetService = assetService;
+
+        amountField.setPattern(regexValidationPattern);
+        amountField.setPreventInvalidInput(true);
+        valueInField.setPattern(regexValidationPattern);
+        valueInField.setPreventInvalidInput(true);
+        tickerBox.setItems(tickerService.getTickers());
+        tickerBox.getStyle().set("cursor", "pointer");
+        Button addButton = new Button("Add to position", new Icon(VaadinIcon.PLUS));
+        addButton.addClickListener(event -> addToAssetButtonClicked());
         addButton.addThemeVariants(ButtonVariant.LUMO_CONTRAST);
         addButton.getStyle().set("cursor", "pointer");
-        Button subtractButton = new Button("Subtract from asset", new Icon(VaadinIcon.MINUS));
-        subtractButton.addClickListener(event -> subtract());
+        Button subtractButton = new Button("Subtract from position", new Icon(VaadinIcon.MINUS));
+        subtractButton.addClickListener(event -> subtractFromAssetButtonClicked());
         subtractButton.addThemeVariants(ButtonVariant.LUMO_CONTRAST);
         subtractButton.getStyle().set("cursor", "pointer");
         Button deleteButton = new Button("Delete asset");
@@ -46,76 +48,93 @@ public class NewAssetForm extends FormLayout {
         deleteButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
         deleteButton.getStyle().set("cursor", "pointer");
         deleteButton.addClickListener(event -> deleteAsset());
-//        binder.bindInstanceFields(this);
-        add(ticker, amount, valueIn, buttons);
-
+        add(tickerBox, amountField, valueInField, buttons);
     }
 
-    private void addToAsset() {
-        var ticker = this.ticker.getValue();
-        var amount = this.amount.getValue();
-        var valueIn = this.valueIn.getValue();
-        if (amount == null || valueIn == null || ticker == null || amount.isEmpty() || valueIn.isEmpty()) return;
-        Asset asset = assetService.findByTicker(ticker.getString());
+    private void addToAssetButtonClicked() {
+        if (fieldsEmpty()) return;
+
+        var ticker = this.tickerBox.getValue();
+        var amount = this.amountField.getValue();
+        var valueIn = this.valueInField.getValue();
+        Asset asset = assetService.findByTicker(ticker);
+
         if (asset == null) {
-            asset = new Asset(ticker, amount, valueIn);
-            assetService.addAsset(asset);
+            createAsset(ticker, amount, valueIn);
         } else {
-            asset.setAmount((new BigDecimal(asset.getAmount()).add(new BigDecimal(amount))).toString());
-            asset.setValueIn((new BigDecimal(asset.getValueIn()).add(new BigDecimal(valueIn))).toString());
+            addToAssetPosition(asset, amount, valueIn);
         }
-        mainView.refresh();
-        setAsset(null);
-        this.valueIn.setValue("");
-        this.amount.setValue("");
-        this.ticker.setValue(null);
+        refresh();
     }
 
-    private void subtract() {
-        var ticker = this.ticker.getValue();
-        var amount = this.amount.getValue();
-        var valueIn = this.valueIn.getValue();
-        if (amount == null || valueIn == null || ticker == null || amount.isEmpty() || valueIn.isEmpty()) return;
-        Asset asset = assetService.findByTicker(ticker.getString());
-        if (asset == null) {
-            return;
-        } else {
-            asset.setAmount((new BigDecimal(asset.getAmount()).subtract(new BigDecimal(amount))).toString());
-            asset.setValueIn((new BigDecimal(asset.getValueIn()).subtract(new BigDecimal(valueIn))).toString());
+    private void subtractFromAssetButtonClicked() {
+        if (fieldsEmpty()) return;
+
+        var ticker = this.tickerBox.getValue();
+        Asset asset = assetService.findByTicker(ticker);
+
+        if (asset != null) {
+            var amount = this.amountField.getValue();
+            var valueIn = this.valueInField.getValue();
+            subtractFromAssetPosition(asset, amount, valueIn);
+            refresh();
         }
-        mainView.refresh();
-        setAsset(null);
-        this.valueIn.setValue("");
-        this.amount.setValue("");
-        this.ticker.setValue(null);
+    }
+
+    private void createAsset(String ticker, String amount, String valueIn) {
+        assetService.createAsset(new Asset(ticker, amount, valueIn));
     }
 
     private void deleteAsset() {
-        var ticker = this.ticker.getValue();
-        if (ticker != null)
-            assetService.delete(ticker);
-        mainView.refresh();
-        setAsset(null);
-        this.valueIn.setValue("");
-        this.amount.setValue("");
-        this.ticker.setValue(null);
+        String ticker = this.tickerBox.getValue();
+        if (ticker != null && !ticker.isBlank()) {
+            assetService.deleteAsset(ticker);
+            refresh();
+        }
     }
 
+    private void addToAssetPosition(Asset asset, String amount, String valueIn) {
+        asset.setAmount((new BigDecimal(asset.getAmount()).add(new BigDecimal(amount))).toString());
+        asset.setValueIn((new BigDecimal(asset.getValueIn()).add(new BigDecimal(valueIn))).toString());
+    }
+
+    private void subtractFromAssetPosition(Asset asset, String amount, String valueIn) {
+        asset.setAmount((new BigDecimal(asset.getAmount()).subtract(new BigDecimal(amount))).toString());
+        asset.setValueIn((new BigDecimal(asset.getValueIn()).subtract(new BigDecimal(valueIn))).toString());
+    }
+
+    private boolean fieldsEmpty() {
+        var ticker = this.tickerBox.getValue();
+        var amount = this.amountField.getValue();
+        var valueIn = this.valueInField.getValue();
+        return amount == null || valueIn == null || ticker == null || amount.isBlank() || valueIn.isBlank();
+    }
+
+
+    private void refresh() {
+        mainView.refresh();
+        setAsset(null);
+        this.valueInField.setValue("");
+        this.amountField.setValue("");
+        this.tickerBox.setValue(null);
+    }
+
+
+
     public void setAsset(Asset asset) {
-//        binder.setBean(asset);
         if (asset == null) {
             setVisible(false);
         } else {
             setVisible(true);
             if (asset.getTicker() != null) {
-                ticker.setValue(asset.getTicker());
-                ticker.setEnabled(false);
+                tickerBox.setValue(asset.getTicker());
+                tickerBox.setEnabled(false);
             } else {
-                if (!ticker.isEnabled()) {
-                    ticker.setEnabled(true);
+                if (!tickerBox.isEnabled()) {
+                    tickerBox.setEnabled(true);
                 }
             }
-            amount.focus();
+            amountField.focus();
         }
     }
 }
