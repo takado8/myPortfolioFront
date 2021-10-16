@@ -17,9 +17,18 @@ public class AssetService {
     private final AssetMapper assetMapper;
     private final Set<Asset> assets;
 
+    public void fetchAssets() {
+        assets.clear();
+        assets.addAll(assetMapper.mapToAssetSet(assetClient.getAssets()));
+    }
+
     public void createAsset(Asset asset) {
         Asset newAsset = assetMapper.mapToAsset(assetClient.createAsset(assetMapper.mapToDto(asset)));
         assets.add(newAsset);
+    }
+
+    public void updateAsset(Asset asset) {
+        assetClient.updateAsset(assetMapper.mapToDto(asset));
     }
 
     public void deleteAsset(String assetTicker) {
@@ -31,11 +40,6 @@ public class AssetService {
             assets.remove(asset);
             assetClient.deleteAsset(asset.getId());
         }
-    }
-
-    public void fetchAssets() {
-        assets.clear();
-        assets.addAll(assetMapper.mapToAssetSet(assetClient.getAssets()));
     }
 
     public Set<Asset> getAssets() {

@@ -13,12 +13,14 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
 
+import java.util.Comparator;
+
 
 @Route
 @Theme(value = Lumo.class, variant = Lumo.DARK)
 public class MainView extends VerticalLayout {
     private final AssetService assetService;
-    private final Grid<Asset> grid = new Grid<>(Asset.class);
+    private final Grid<Asset> grid = new Grid<>();
     private final TextField filter = new TextField();
     private final NewAssetForm newAssetForm;
 
@@ -26,12 +28,21 @@ public class MainView extends VerticalLayout {
         this.assetService = assetService;
         this.newAssetForm = new NewAssetForm(this, assetService);
 
-        grid.setColumns("ticker", "amount", "valueIn", "valueNow", "profit", "avgPrice", "priceNow");
-        grid.getColumnByKey("valueIn").setHeader("Value In [$]");
-        grid.getColumnByKey("valueNow").setHeader("Value Now [$]");
-        grid.getColumnByKey("profit").setHeader("Profit [+%]");
-        grid.getColumnByKey("avgPrice").setHeader("Avg Price [$]");
-        grid.getColumnByKey("priceNow").setHeader("Price Now [$]");
+        grid.addColumn(Asset::getTicker).setHeader("Ticker");
+        grid.addColumn(Asset::getAmountFormatted).setHeader("Amount").setComparator(
+                Comparator.comparingDouble(asset -> Double.parseDouble(asset.getAmount())));
+        grid.addColumn(Asset::getValueInFormatted).setHeader("Value In [$]").setComparator(
+                Comparator.comparingDouble(asset -> Double.parseDouble(asset.getValueIn())));
+
+        grid.addColumn(Asset::valueNowFormatted).setHeader("Value Now [$]").setComparator(
+                Comparator.comparingDouble(asset -> asset.valueNow().doubleValue()));
+        grid.addColumn(Asset::profitFormatted).setHeader("Profit [+%]").setComparator(
+                Comparator.comparingDouble(asset -> Double.parseDouble(asset.profit())));
+
+        grid.addColumn(Asset::avgPriceFormatted).setHeader("Avg Price [$]").setComparator(
+                Comparator.comparingDouble(asset -> Double.parseDouble(asset.avgPrice())));
+        grid.addColumn(Asset::getPriceNowFormatted).setHeader("Price Now [$]").setComparator(
+                Comparator.comparingDouble(asset -> Double.parseDouble(asset.getPriceNow())));
 
 
         filter.setPlaceholder("Filter by ticker");

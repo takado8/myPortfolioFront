@@ -28,7 +28,6 @@ public class NewAssetForm extends FormLayout {
     public NewAssetForm(MainView mainView, AssetService assetService) {
         this.mainView = mainView;
         this.assetService = assetService;
-
         amountField.setPattern(regexValidationPattern);
         amountField.setPreventInvalidInput(true);
         valueInField.setPattern(regexValidationPattern);
@@ -52,7 +51,7 @@ public class NewAssetForm extends FormLayout {
     }
 
     private void addToAssetButtonClicked() {
-        if (fieldsEmpty()) return;
+        if (fieldsAreEmpty()) return;
 
         var ticker = this.tickerBox.getValue();
         var amount = this.amountField.getValue();
@@ -68,7 +67,7 @@ public class NewAssetForm extends FormLayout {
     }
 
     private void subtractFromAssetButtonClicked() {
-        if (fieldsEmpty()) return;
+        if (fieldsAreEmpty()) return;
 
         var ticker = this.tickerBox.getValue();
         Asset asset = assetService.findByTicker(ticker);
@@ -96,20 +95,21 @@ public class NewAssetForm extends FormLayout {
     private void addToAssetPosition(Asset asset, String amount, String valueIn) {
         asset.setAmount((new BigDecimal(asset.getAmount()).add(new BigDecimal(amount))).toString());
         asset.setValueIn((new BigDecimal(asset.getValueIn()).add(new BigDecimal(valueIn))).toString());
+        assetService.updateAsset(asset);
     }
 
     private void subtractFromAssetPosition(Asset asset, String amount, String valueIn) {
         asset.setAmount((new BigDecimal(asset.getAmount()).subtract(new BigDecimal(amount))).toString());
         asset.setValueIn((new BigDecimal(asset.getValueIn()).subtract(new BigDecimal(valueIn))).toString());
+        assetService.updateAsset(asset);
     }
 
-    private boolean fieldsEmpty() {
+    private boolean fieldsAreEmpty() {
         var ticker = this.tickerBox.getValue();
         var amount = this.amountField.getValue();
         var valueIn = this.valueInField.getValue();
         return amount == null || valueIn == null || ticker == null || amount.isBlank() || valueIn.isBlank();
     }
-
 
     private void refresh() {
         mainView.refresh();
@@ -118,8 +118,6 @@ public class NewAssetForm extends FormLayout {
         this.amountField.setValue("");
         this.tickerBox.setValue(null);
     }
-
-
 
     public void setAsset(Asset asset) {
         if (asset == null) {
