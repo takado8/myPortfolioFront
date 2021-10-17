@@ -1,14 +1,14 @@
 package com.takado.myportfoliofront.service;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class TickerService {
     private static TickerService instance;
-    private final List<String> tickers;
+    private final Map<String, String> tickersWithNames;
 
     private TickerService() {
-        this.tickers = exampleData();
+        this.tickersWithNames = exampleData();
     }
 
     public static TickerService getInstance() {
@@ -18,11 +18,20 @@ public class TickerService {
         return instance;
     }
 
-    private List<String> exampleData() {
-        return Arrays.asList("ADA", "BTC", "ETH");
+    private HashMap<String,String> exampleData() {
+        var map = new HashMap<String, String>();
+        map.put("ADA", "cardano");
+        map.put("BTC", "bitcoin");
+        map.put("ETH", "ethereum");
+        map.put("LINK", "chainlink");
+        return map;
     }
 
     public List<String> getTickers() {
-        return tickers;
+        return new ArrayList<>(tickersWithNames.keySet());
+    }
+
+    public String getTickerName(String ticker) {
+        return tickersWithNames.get(ticker);
     }
 }

@@ -1,6 +1,7 @@
 package com.takado.myportfoliofront.service;
 
 import com.takado.myportfoliofront.client.AssetClient;
+import com.takado.myportfoliofront.client.PriceClient;
 import com.takado.myportfoliofront.mapper.AssetMapper;
 import com.takado.myportfoliofront.model.Asset;
 import lombok.RequiredArgsConstructor;
@@ -14,12 +15,22 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class AssetService {
     private final AssetClient assetClient;
+    private final PriceClient priceClient;
     private final AssetMapper assetMapper;
     private final Set<Asset> assets;
 
     public void fetchAssets() {
         assets.clear();
         assets.addAll(assetMapper.mapToAssetSet(assetClient.getAssets()));
+    }
+
+    public void fetchPrices() {
+        String[] coinsIds = assets.stream().map(Asset::getCoinId).toArray(String[]::new);
+        var prices = priceClient.getCoinsPrices("usd", coinsIds);
+
+        for (Asset asset : assets) {
+            asset.setPriceNow(prices.get(asset.getCoinId()).get("usd"));
+        }
     }
 
     public void createAsset(Asset asset) {
@@ -46,6 +57,12 @@ public class AssetService {
         return assets;
     }
 
+    public Set<Asset> filterByTicker(String ticker){
+        return assets.stream()
+                .filter(asset -> asset.getTicker().toUpperCase().contains(ticker.toUpperCase()))
+                .collect(Collectors.toSet());
+    }
+
     public Asset findByTicker(String ticker) {
         Asset result;
         try {
@@ -57,6 +74,4 @@ public class AssetService {
         }
         return result;
     }
-
-
 }

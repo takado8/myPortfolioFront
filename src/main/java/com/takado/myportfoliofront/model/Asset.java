@@ -13,13 +13,23 @@ import java.text.DecimalFormat;
 @AllArgsConstructor
 public class Asset {
     private Long id;
+    private String coinId;
     private String ticker;
     private String amount;
     private String valueIn;
 
-    private final BigDecimal priceNow = BigDecimal.valueOf(60950.0);
+    private BigDecimal priceNow = BigDecimal.ONE;
 
-    public Asset(String ticker, String amount, String valueIn) {
+    public Asset(String coinId, String ticker, String amount, String valueIn) {
+        this.coinId = coinId;
+        this.ticker = ticker;
+        this.amount = amount;
+        this.valueIn = valueIn;
+    }
+
+    public Asset(Long id, String coinId, String ticker, String amount, String valueIn) {
+        this.id = id;
+        this.coinId = coinId;
         this.ticker = ticker;
         this.amount = amount;
         this.valueIn = valueIn;
@@ -81,12 +91,16 @@ public class Asset {
         this.valueIn = valueIn;
     }
 
-    private String formatProfitString(BigDecimal profit) {
+    public void setPriceNow(BigDecimal priceNow) {
+        this.priceNow = priceNow;
+    }
+
+    public static String formatProfitString(BigDecimal profit) {
         DecimalFormat formatter = new DecimalFormat("#,###");
         return formatter.format(profit);
     }
 
-    private String formatPriceString(BigDecimal price) {
+    public static String formatPriceString(BigDecimal price) {
         DecimalFormat formatter = price.compareTo(BigDecimal.ONE) >= 0 ?
                 new DecimalFormat("#,###.##") : new DecimalFormat("0.########");
         return formatter.format(price);

@@ -46,10 +46,7 @@ public class AssetClient {
                 .encode()
                 .toUri();
         try {
-            var result = restTemplate.postForObject(uri, assetDto, AssetDto.class);
-            if (result != null) {
-                return result;
-            }
+            return restTemplate.postForObject(uri, assetDto, AssetDto.class);
         } catch (RestClientException e) {
             printException(e);
         }

@@ -17,10 +17,10 @@ public class AssetMapper {
     }
 
     public Asset mapToAsset(AssetDto assetDto) {
-        return new Asset(assetDto.getId(), assetDto.getTicker(), assetDto.getAmount(), assetDto.getValueIn());
+        return new Asset(assetDto.getId(), assetDto.getCoinId(), assetDto.getTicker(), assetDto.getAmount(), assetDto.getValueIn());
     }
 
     public AssetDto mapToDto(Asset asset) {
-        return new AssetDto(asset.getId(), asset.getTicker(), asset.getAmount(), asset.getValueIn());
+        return new AssetDto(asset.getId(), asset.getCoinId(), asset.getTicker(), asset.getAmount(), asset.getValueIn());
     }
 }
