@@ -53,6 +53,7 @@ public class Asset {
     public String valueNowFormatted() {
         return formatPriceString(valueNow());
     }
+
     public String getPriceNow() {
         return priceNow.toString();
     }

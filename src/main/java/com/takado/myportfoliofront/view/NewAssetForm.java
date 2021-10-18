@@ -34,6 +34,8 @@ public class NewAssetForm extends FormLayout {
         valueInField.setPreventInvalidInput(true);
         tickerBox.setItems(tickerService.getTickers());
         tickerBox.getStyle().set("cursor", "pointer");
+        tickerBox.setAllowCustomValue(false);
+
         Button addButton = new Button("Add to position", new Icon(VaadinIcon.PLUS));
         addButton.addClickListener(event -> addToAssetButtonClicked());
         addButton.addThemeVariants(ButtonVariant.LUMO_CONTRAST);

@@ -30,8 +30,19 @@ public class PriceClient {
                     restTemplate.exchange(uri, HttpMethod.GET, null,
                             new ParameterizedTypeReference<HashMap<String, HashMap<String, BigDecimal>>>() {
                             }).getBody());
-        } catch (RestClientException e){
+        } catch (RestClientException e) {
             return null;
+        }
+    }
+
+    public BigDecimal getExchangeRate() {
+        URI uri = UriComponentsBuilder.fromHttpUrl(pricesApiRoot + "/exchangeRate").build().encode().toUri();
+        try {
+            BigDecimal response = restTemplate.getForObject(uri, BigDecimal.class);
+            return response == null ? BigDecimal.ONE : response;
+        } catch (RestClientException e) {
+            System.out.println(e.getMessage());
+            return BigDecimal.ONE;
         }
     }
 }

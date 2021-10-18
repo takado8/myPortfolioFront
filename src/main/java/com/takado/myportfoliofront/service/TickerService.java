@@ -1,7 +1,7 @@
 package com.takado.myportfoliofront.service;
 
+
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class TickerService {
     private static TickerService instance;

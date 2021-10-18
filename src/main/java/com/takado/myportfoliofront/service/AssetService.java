@@ -14,6 +14,10 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class AssetService {
+    private final static String USD = "usd";
+    private final static String PLN = "pln";
+
+    private String vsCurrency = PLN;
     private final AssetClient assetClient;
     private final PriceClient priceClient;
     private final AssetMapper assetMapper;
@@ -26,10 +30,10 @@ public class AssetService {
 
     public void fetchPrices() {
         String[] coinsIds = assets.stream().map(Asset::getCoinId).toArray(String[]::new);
-        var prices = priceClient.getCoinsPrices("usd", coinsIds);
+        var prices = priceClient.getCoinsPrices(vsCurrency, coinsIds);
 
         for (Asset asset : assets) {
-            asset.setPriceNow(prices.get(asset.getCoinId()).get("usd"));
+            asset.setPriceNow(prices.get(asset.getCoinId()).get(vsCurrency));
         }
     }
 
@@ -73,5 +77,13 @@ public class AssetService {
             result = null;
         }
         return result;
+    }
+
+    public String getVsCurrency() {
+        return vsCurrency.toUpperCase();
+    }
+
+    public void setVsCurrency(String vsCurrency) {
+        this.vsCurrency = vsCurrency;
     }
 }
