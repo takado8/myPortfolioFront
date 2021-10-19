@@ -5,8 +5,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
-import java.text.DecimalFormat;
 
 @Getter
 @NoArgsConstructor
@@ -17,7 +15,6 @@ public class Asset {
     private String ticker;
     private String amount;
     private String valueIn;
-
     private BigDecimal priceNow = BigDecimal.ONE;
 
     public Asset(String coinId, String ticker, String amount, String valueIn) {
@@ -35,47 +32,8 @@ public class Asset {
         this.valueIn = valueIn;
     }
 
-    public BigDecimal valueNow() {
-        return new BigDecimal(amount).multiply(priceNow);
-    }
-
-    public String profit() {
-        return valueNow()
-                .divide(new BigDecimal(valueIn), MathContext.DECIMAL128)
-                .multiply(BigDecimal.valueOf(100))
-                .subtract(BigDecimal.valueOf(100)).toString();
-    }
-
-    public String avgPrice() {
-        return new BigDecimal(valueIn).divide(new BigDecimal(amount), MathContext.DECIMAL128).toPlainString();
-    }
-
-    public String valueNowFormatted() {
-        return formatPriceString(valueNow());
-    }
-
-    public String getPriceNow() {
-        return priceNow.toString();
-    }
-
-    public String getPriceNowFormatted() {
-        return formatPriceString(priceNow);
-    }
-
-    public String getAmountFormatted() {
-        return formatPriceString(amount);
-    }
-
-    public String getValueInFormatted() {
-        return formatPriceString(valueIn);
-    }
-
-    public String profitFormatted() {
-        return Double.parseDouble(valueIn) <= 0 ? "..." : formatProfitString(new BigDecimal(profit()));
-    }
-
-    public String avgPriceFormatted() {
-        return formatPriceString(avgPrice());
+    public BigDecimal getPriceNow() {
+        return priceNow;
     }
 
     public void setTicker(String ticker) {
@@ -94,21 +52,6 @@ public class Asset {
 
     public void setPriceNow(BigDecimal priceNow) {
         this.priceNow = priceNow;
-    }
-
-    public static String formatProfitString(BigDecimal profit) {
-        DecimalFormat formatter = new DecimalFormat("#,###");
-        return formatter.format(profit);
-    }
-
-    public static String formatPriceString(BigDecimal price) {
-        DecimalFormat formatter = price.compareTo(BigDecimal.ONE) >= 0 ?
-                new DecimalFormat("#,###.##") : new DecimalFormat("0.########");
-        return formatter.format(price);
-    }
-
-    private String formatPriceString(String price) {
-        return formatPriceString(new BigDecimal(price));
     }
 
     @Override

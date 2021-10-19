@@ -22,12 +22,13 @@ public class NewAssetForm extends FormLayout {
     private final TextField valueInField = new TextField("Value in");
     private final MainView mainView;
     private final AssetService assetService;
-    private final TickerService tickerService = TickerService.getInstance();
+    private final TickerService tickerService;
 
 
-    public NewAssetForm(MainView mainView, AssetService assetService) {
+    public NewAssetForm(MainView mainView, AssetService assetService, TickerService tickerService) {
         this.mainView = mainView;
         this.assetService = assetService;
+        this.tickerService = tickerService;
         amountField.setPattern(regexValidationPattern);
         amountField.setPreventInvalidInput(true);
         valueInField.setPattern(regexValidationPattern);

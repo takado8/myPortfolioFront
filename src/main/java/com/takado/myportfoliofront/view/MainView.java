@@ -2,6 +2,8 @@ package com.takado.myportfoliofront.view;
 
 import com.takado.myportfoliofront.model.Asset;
 import com.takado.myportfoliofront.service.AssetService;
+import com.takado.myportfoliofront.service.GridValueProvider;
+import com.takado.myportfoliofront.service.TickerService;
 import com.takado.myportfoliofront.service.VsCurrencyService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -23,12 +25,16 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.takado.myportfoliofront.service.PriceFormatter.formatPriceString;
+import static com.takado.myportfoliofront.service.PriceFormatter.formatProfitString;
+
 
 @Route
 @Theme(value = Lumo.class, variant = Lumo.DARK)
 public class MainView extends VerticalLayout {
     private final AssetService assetService;
     private final VsCurrencyService vsCurrencyService;
+    private final GridValueProvider gridValueProvider;
     private final Grid<Asset> grid = new Grid<>();
     private FooterRow footerRow;
     private final TextField filter = new TextField();
@@ -38,10 +44,12 @@ public class MainView extends VerticalLayout {
     private boolean lockPriceCurrencyChanged = false;
     private boolean lockValueCurrencyChanged = false;
 
-    public MainView(AssetService assetService, VsCurrencyService vsCurrencyService) {
+    public MainView(AssetService assetService, VsCurrencyService vsCurrencyService, GridValueProvider gridValueProvider,
+                    TickerService tickerService) {
         this.assetService = assetService;
         this.vsCurrencyService = vsCurrencyService;
-        this.newAssetForm = new NewAssetForm(this, assetService);
+        this.gridValueProvider = gridValueProvider;
+        this.newAssetForm = new NewAssetForm(this, assetService, tickerService);
 
         makeGrid();
 
@@ -82,36 +90,39 @@ public class MainView extends VerticalLayout {
     }
 
     private void valueCurrencyChanged() {
-        var value = valueCurrency.getValue();
-        if (value == null || lockValueCurrencyChanged) return;
-        vsCurrencyService.putCurrencyOnTop(value);
-        vsCurrencyService.setCurrentValueCurrency(value);
+        String valueCurrency = this.valueCurrency.getValue();
+        if (valueCurrency == null || lockValueCurrencyChanged) return;
+        vsCurrencyService.putCurrencyOnTop(valueCurrency);
+        gridValueProvider.setCurrentValueCurrency(vsCurrencyService.getCurrencyFromLabel(valueCurrency));
+
         grid.getColumnByKey("valueIn")
-                .setHeader("Value In [" + vsCurrencyService.getCurrentValueCurrency() + "]");
+                .setHeader("Value In [" + gridValueProvider.getCurrentValueCurrency() + "]");
 
         grid.getColumnByKey("valueNow")
-                .setHeader("Value Now [" + vsCurrencyService.getCurrentValueCurrency() + "]");
+                .setHeader("Value Now [" + gridValueProvider.getCurrentValueCurrency() + "]");
 
         lockValueCurrencyChanged = true;
-        valueCurrency.setItems(vsCurrencyService.getCurrenciesValueLabels());
-        valueCurrency.setValue(value);
+        this.valueCurrency.setItems(vsCurrencyService.getCurrenciesValueLabels());
+        this.valueCurrency.setValue(valueCurrency);
         lockValueCurrencyChanged = false;
+        refresh();
     }
 
     private void priceCurrencyChanged() {
-        var value = priceCurrency.getValue();
-        if (value == null || lockPriceCurrencyChanged) return;
-        vsCurrencyService.putCurrencyOnTop(value);
-        vsCurrencyService.setCurrentPriceCurrency(value);
+        String priceCurrency = this.priceCurrency.getValue();
+        if (priceCurrency == null || lockPriceCurrencyChanged) return;
+        vsCurrencyService.putCurrencyOnTop(priceCurrency);
+        gridValueProvider.setCurrentPriceCurrency(vsCurrencyService.getCurrencyFromLabel(priceCurrency));
         grid.getColumnByKey("avgPrice")
-                .setHeader("Avg Price [" + vsCurrencyService.getCurrentPriceCurrency() + "]");
+                .setHeader("Avg Price [" + gridValueProvider.getCurrentPriceCurrency() + "]");
         grid.getColumnByKey("priceNow")
-                .setHeader("Price Now [" + vsCurrencyService.getCurrentPriceCurrency() + "]");
+                .setHeader("Price Now [" + gridValueProvider.getCurrentPriceCurrency() + "]");
 
         lockPriceCurrencyChanged = true;
-        priceCurrency.setItems(vsCurrencyService.getCurrenciesPriceLabels());
-        priceCurrency.setValue(value);
+        this.priceCurrency.setItems(vsCurrencyService.getCurrenciesPriceLabels());
+        this.priceCurrency.setValue(priceCurrency);
         lockPriceCurrencyChanged = false;
+        refresh();
     }
 
     private void filtering() {
@@ -127,9 +138,9 @@ public class MainView extends VerticalLayout {
 
     public void refreshFooterRow() {
         footerRow.getCell(grid.getColumnByKey("ticker")).setText("Total:");
-        footerRow.getCell(grid.getColumnByKey("valueIn")).setText(Asset.formatPriceString(totalValueIn()));
-        footerRow.getCell(grid.getColumnByKey("valueNow")).setText(Asset.formatPriceString(totalValueNow()));
-        footerRow.getCell(grid.getColumnByKey("profit")).setText(Asset.formatProfitString(totalProfit()));
+        footerRow.getCell(grid.getColumnByKey("valueIn")).setText(formatPriceString(totalValueIn()));
+        footerRow.getCell(grid.getColumnByKey("valueNow")).setText(formatPriceString(totalValueNow()));
+        footerRow.getCell(grid.getColumnByKey("profit")).setText(formatProfitString(totalProfit()));
     }
 
     private List<Asset> getAssetsFromGrid() {
@@ -138,13 +149,13 @@ public class MainView extends VerticalLayout {
 
     private BigDecimal totalValueIn() {
         return getAssetsFromGrid().stream()
-                .map(asset -> new BigDecimal(asset.getValueIn()))
+                .map(gridValueProvider::valueIn)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     private BigDecimal totalValueNow() {
         return getAssetsFromGrid().stream()
-                .map(Asset::valueNow)
+                .map(gridValueProvider::valueNow)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
@@ -160,34 +171,34 @@ public class MainView extends VerticalLayout {
     }
 
     private void makeGrid() {
-        grid.addColumn(Asset::getTicker)
+        grid.addColumn(gridValueProvider::getTicker)
                 .setHeader("Ticker")
                 .setSortable(true)
                 .setKey("ticker");
-        grid.addColumn(Asset::getAmountFormatted)
+        grid.addColumn(gridValueProvider::getAmount)
                 .setHeader("Amount")
                 .setKey("amount")
                 .setComparator(Comparator.comparingDouble(asset -> Double.parseDouble(asset.getAmount())));
-        grid.addColumn(Asset::avgPriceFormatted)
-                .setHeader("Avg Price [" + vsCurrencyService.getCurrentPriceCurrency() + "]")
+        grid.addColumn(gridValueProvider::getAvgPrice)
+                .setHeader("Avg Price [" + gridValueProvider.getCurrentPriceCurrency() + "]")
                 .setKey("avgPrice")
-                .setComparator(Comparator.comparingDouble(asset -> Double.parseDouble(asset.avgPrice())));
-        grid.addColumn(Asset::getPriceNowFormatted)
-                .setHeader("Price Now [" + vsCurrencyService.getCurrentPriceCurrency() + "]")
+                .setComparator(Comparator.comparingDouble(asset -> Double.parseDouble(gridValueProvider.avgPrice(asset))));
+        grid.addColumn(gridValueProvider::getPriceNow)
+                .setHeader("Price Now [" + gridValueProvider.getCurrentPriceCurrency() + "]")
                 .setKey("priceNow")
-                .setComparator(Comparator.comparingDouble(asset -> Double.parseDouble(asset.getPriceNow())));
-        grid.addColumn(Asset::getValueInFormatted)
-                .setHeader("Value In [" + vsCurrencyService.getCurrentValueCurrency() + "]")
+                .setComparator(Comparator.comparingDouble(asset -> Double.parseDouble(asset.getPriceNow().toPlainString())));
+        grid.addColumn(gridValueProvider::getValueIn)
+                .setHeader("Value In [" + gridValueProvider.getCurrentValueCurrency() + "]")
                 .setKey("valueIn")
                 .setComparator(Comparator.comparingDouble(asset -> Double.parseDouble(asset.getValueIn())));
-        grid.addColumn(Asset::valueNowFormatted)
-                .setHeader("Value Now [" + vsCurrencyService.getCurrentValueCurrency() + "]")
+        grid.addColumn(gridValueProvider::getValueNow)
+                .setHeader("Value Now [" + gridValueProvider.getCurrentValueCurrency() + "]")
                 .setKey("valueNow")
-                .setComparator(Comparator.comparingDouble(asset -> asset.valueNow().doubleValue()));
-        grid.addColumn(Asset::profitFormatted)
+                .setComparator(Comparator.comparingDouble(asset -> gridValueProvider.valueNow(asset).doubleValue()));
+        grid.addColumn(gridValueProvider::getProfit)
                 .setHeader("Profit [+%]")
                 .setKey("profit")
-                .setComparator(Comparator.comparingDouble(asset -> Double.parseDouble(asset.profit())));
+                .setComparator(Comparator.comparingDouble(asset -> Double.parseDouble(gridValueProvider.profit(asset))));
         footerRow = grid.appendFooterRow();
     }
 }

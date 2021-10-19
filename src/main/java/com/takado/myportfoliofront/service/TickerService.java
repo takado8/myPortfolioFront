@@ -1,34 +1,33 @@
 package com.takado.myportfoliofront.service;
 
+import com.takado.myportfoliofront.client.TickerClient;
+import org.springframework.stereotype.Service;
 
 import java.util.*;
 
+
+@Service
 public class TickerService {
-    private static TickerService instance;
+    private final TickerClient tickerClient;
     private final Map<String, String> tickersWithNames;
 
-    private TickerService() {
-        this.tickersWithNames = exampleData();
+    public TickerService(TickerClient tickerClient) {
+        this.tickerClient = tickerClient;
+        this.tickersWithNames = fetchData();
     }
 
-    public static TickerService getInstance() {
-        if (instance == null) {
-            instance = new TickerService();
-        }
-        return instance;
-    }
-
-    private HashMap<String,String> exampleData() {
+    private HashMap<String, String> fetchData() {
         var map = new HashMap<String, String>();
-        map.put("ADA", "cardano");
-        map.put("BTC", "bitcoin");
-        map.put("ETH", "ethereum");
-        map.put("LINK", "chainlink");
+        for (var ticker : tickerClient.getAllTickers()){
+            map.put(ticker.getTicker(), ticker.getCoinId());
+        }
         return map;
     }
 
     public List<String> getTickers() {
-        return new ArrayList<>(tickersWithNames.keySet());
+        var list = new ArrayList<>(tickersWithNames.keySet());
+        Collections.sort(list);
+        return list;
     }
 
     public String getTickerName(String ticker) {
