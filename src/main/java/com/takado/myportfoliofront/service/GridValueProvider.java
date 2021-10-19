@@ -29,8 +29,7 @@ public class GridValueProvider {
     public String avgPrice(Asset asset) {
         return (currentPriceCurrency.equals("PLN") ? new BigDecimal(asset.getValueIn())
                 : new BigDecimal(asset.getValueIn()).divide(priceClient.getExchangeRate(), MathContext.DECIMAL128))
-                .divide(new BigDecimal(asset.getAmount()),
-                        MathContext.DECIMAL128).toPlainString();
+                .divide(new BigDecimal(asset.getAmount()), MathContext.DECIMAL128).toPlainString();
     }
 
     public String getAvgPrice(Asset asset) {
