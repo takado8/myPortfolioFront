@@ -1,5 +1,6 @@
 package com.takado.myportfoliofront.model;
 
+import com.takado.myportfoliofront.domain.Ticker;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,22 +12,19 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class Asset {
     private Long id;
-    private String coinId;
-    private String ticker;
+    private Ticker ticker;
     private String amount;
     private String valueIn;
     private BigDecimal priceNow = BigDecimal.ONE;
 
-    public Asset(String coinId, String ticker, String amount, String valueIn) {
-        this.coinId = coinId;
+    public Asset(Ticker ticker, String amount, String valueIn) {
         this.ticker = ticker;
         this.amount = amount;
         this.valueIn = valueIn;
     }
 
-    public Asset(Long id, String coinId, String ticker, String amount, String valueIn) {
+    public Asset(Long id, Ticker ticker, String amount, String valueIn) {
         this.id = id;
-        this.coinId = coinId;
         this.ticker = ticker;
         this.amount = amount;
         this.valueIn = valueIn;
@@ -36,7 +34,7 @@ public class Asset {
         return priceNow;
     }
 
-    public void setTicker(String ticker) {
+    public void setTicker(Ticker ticker) {
         if (this.ticker == null) {
             this.ticker = ticker;
         }
@@ -60,6 +58,7 @@ public class Asset {
         if (o == null || getClass() != o.getClass()) return false;
 
         Asset asset = (Asset) o;
+        var ticker = asset.getTicker().getTicker();
         return ticker == null ? asset.ticker == null : ticker.equals(asset.ticker);
     }
 

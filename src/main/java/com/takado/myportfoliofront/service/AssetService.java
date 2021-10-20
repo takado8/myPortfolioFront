@@ -2,6 +2,7 @@ package com.takado.myportfoliofront.service;
 
 import com.takado.myportfoliofront.client.AssetClient;
 import com.takado.myportfoliofront.client.PriceClient;
+import com.takado.myportfoliofront.domain.Ticker;
 import com.takado.myportfoliofront.mapper.AssetMapper;
 import com.takado.myportfoliofront.model.Asset;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +16,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class AssetService {
     private final static String USD = "usd";
-
+    private final TickerService tickerService;
     private final AssetClient assetClient;
     private final PriceClient priceClient;
     private final AssetMapper assetMapper;
@@ -27,18 +28,20 @@ public class AssetService {
     }
 
     public void fetchPrices() {
-        String[] coinsIds = assets.stream().map(Asset::getCoinId).toArray(String[]::new);
+        String[] coinsIds = assets.stream().map(asset -> asset.getTicker().getCoinId()).toArray(String[]::new);
         var prices = priceClient.getCoinsPrices(USD, coinsIds);
 
         for (Asset asset : assets) {
-            asset.setPriceNow(prices.get(asset.getCoinId()).get(USD));
+            asset.setPriceNow(prices.get(asset.getTicker().getCoinId()).get(USD));
         }
     }
-
-    public void createAsset(Asset asset) {
+    public void createAsset(String tickerString, String amount, String valueIn) {
+        Ticker ticker = tickerService.getTicker(tickerString);
+        Asset asset = new Asset(ticker, amount, valueIn);
         Asset newAsset = assetMapper.mapToAsset(assetClient.createAsset(assetMapper.mapToDto(asset)));
         assets.add(newAsset);
     }
+
 
     public void updateAsset(Asset asset) {
         assetClient.updateAsset(assetMapper.mapToDto(asset));
@@ -46,7 +49,7 @@ public class AssetService {
 
     public void deleteAsset(String assetTicker) {
         var asset = assets.stream()
-                .filter(asset1 -> asset1.getTicker().equals(assetTicker))
+                .filter(asset1 -> asset1.getTicker().getTicker().equals(assetTicker))
                 .findFirst()
                 .orElse(null);
         if (asset != null) {
@@ -61,7 +64,7 @@ public class AssetService {
 
     public Set<Asset> filterByTicker(String ticker){
         return assets.stream()
-                .filter(asset -> asset.getTicker().toUpperCase().contains(ticker.toUpperCase()))
+                .filter(asset -> asset.getTicker().getTicker().toUpperCase().contains(ticker.toUpperCase()))
                 .collect(Collectors.toSet());
     }
 
@@ -69,11 +72,13 @@ public class AssetService {
         Asset result;
         try {
             result = assets.stream()
-                    .filter(asset -> asset.getTicker().toUpperCase().contains(ticker.toUpperCase()))
+                    .filter(asset -> asset.getTicker().getTicker().toUpperCase().contains(ticker.toUpperCase()))
                     .collect(Collectors.toList()).get(0);
         } catch (IndexOutOfBoundsException ex) {
             result = null;
         }
         return result;
     }
+
+
 }

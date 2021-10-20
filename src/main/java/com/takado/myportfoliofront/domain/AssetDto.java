@@ -14,8 +14,7 @@ import lombok.ToString;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class AssetDto {
     private Long id;
-    private String coinId;
-    private String ticker;
+    private Long tickerId;
     private String amount;
     private String valueIn;
 }

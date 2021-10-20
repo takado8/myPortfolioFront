@@ -31,7 +31,7 @@ public class AssetClient {
             var result = restTemplate.getForObject(uri, AssetDto[].class);
             if (result != null) {
                 return Arrays.stream(result)
-                        .filter(assetDto -> assetDto.getTicker() != null)
+                        .filter(assetDto -> assetDto.getTickerId() != null)
                         .collect(Collectors.toList());
             }
         } catch (RestClientException e) {

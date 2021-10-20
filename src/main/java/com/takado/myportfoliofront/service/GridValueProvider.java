@@ -19,7 +19,7 @@ public class GridValueProvider {
     private String currentPriceCurrency;
 
     public String getTicker(Asset asset) {
-        return asset.getTicker();
+        return asset.getTicker().getTicker();
     }
 
     public String getAmount(Asset asset) {

@@ -62,7 +62,7 @@ public class NewAssetForm extends FormLayout {
         Asset asset = assetService.findByTicker(ticker);
 
         if (asset == null) {
-            createAsset(tickerService.getTickerName(ticker), ticker, amount, valueIn);
+            createAsset(ticker, amount, valueIn);
         } else {
             addToAssetPosition(asset, amount, valueIn);
         }
@@ -83,8 +83,8 @@ public class NewAssetForm extends FormLayout {
         }
     }
 
-    private void createAsset(String coinId, String ticker, String amount, String valueIn) {
-        assetService.createAsset(new Asset(coinId, ticker, amount, valueIn));
+    private void createAsset(String ticker, String amount, String valueIn) {
+        assetService.createAsset(ticker, amount, valueIn);
     }
 
     private void deleteAsset() {
@@ -128,7 +128,7 @@ public class NewAssetForm extends FormLayout {
         } else {
             setVisible(true);
             if (asset.getTicker() != null) {
-                tickerBox.setValue(asset.getTicker());
+                tickerBox.setValue(asset.getTicker().getTicker());
                 tickerBox.setEnabled(false);
             } else {
                 if (!tickerBox.isEnabled()) {
