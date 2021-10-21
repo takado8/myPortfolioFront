@@ -11,6 +11,7 @@ import com.vaadin.flow.component.grid.FooterRow;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.Query;
@@ -18,6 +19,7 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
+import org.springframework.scheduling.annotation.Scheduled;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -28,7 +30,7 @@ import java.util.stream.Collectors;
 import static com.takado.myportfoliofront.service.PriceFormatter.formatPriceString;
 import static com.takado.myportfoliofront.service.PriceFormatter.formatProfitString;
 
-
+@Push
 @Route
 @Theme(value = Lumo.class, variant = Lumo.DARK)
 public class MainView extends VerticalLayout {
@@ -128,6 +130,20 @@ public class MainView extends VerticalLayout {
     private void filtering() {
         grid.setItems(assetService.filterByTicker(filter.getValue()));
         refreshFooterRow();
+    }
+
+    @Scheduled(fixedDelay = 20000L)
+    public void scheduledRefresh() {
+        try {
+            getUI().ifPresent(ui -> ui.access(() -> {
+                refresh();
+                try {
+                    Thread.sleep(300L);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }));
+        } catch (IllegalStateException | NullPointerException ignored) { }
     }
 
     public void refresh() {

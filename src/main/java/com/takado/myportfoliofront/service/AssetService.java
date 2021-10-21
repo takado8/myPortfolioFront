@@ -35,13 +35,13 @@ public class AssetService {
             asset.setPriceNow(prices.get(asset.getTicker().getCoinId()).get(USD));
         }
     }
+
     public void createAsset(String tickerString, String amount, String valueIn) {
         Ticker ticker = tickerService.getTicker(tickerString);
         Asset asset = new Asset(ticker, amount, valueIn);
         Asset newAsset = assetMapper.mapToAsset(assetClient.createAsset(assetMapper.mapToDto(asset)));
         assets.add(newAsset);
     }
-
 
     public void updateAsset(Asset asset) {
         assetClient.updateAsset(assetMapper.mapToDto(asset));
