@@ -56,7 +56,7 @@ public class GridValueProvider {
         return valueNow(asset)
                 .divide(valueIn(asset), MathContext.DECIMAL128)
                 .multiply(BigDecimal.valueOf(100))
-                .subtract(BigDecimal.valueOf(100)).toString();
+                .subtract(BigDecimal.valueOf(100)).toPlainString();
     }
 
     public String getProfit(Asset asset) {

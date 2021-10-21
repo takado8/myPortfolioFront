@@ -27,6 +27,6 @@ class PriceClientTest {
         System.out.println(exchangeRate);
         System.out.println("\nend test exchangeRate\n");
         assertNotNull(exchangeRate);
-        assertTrue(exchangeRate.compareTo(BigDecimal.ZERO) > 0);
+        assertTrue(exchangeRate.compareTo(BigDecimal.ONE) > 0);
     }
 }
