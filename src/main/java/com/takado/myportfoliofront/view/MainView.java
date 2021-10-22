@@ -1,13 +1,12 @@
 package com.takado.myportfoliofront.view;
 
 import com.takado.myportfoliofront.model.Asset;
-import com.takado.myportfoliofront.service.AssetService;
-import com.takado.myportfoliofront.service.GridValueProvider;
-import com.takado.myportfoliofront.service.TickerService;
-import com.takado.myportfoliofront.service.VsCurrencyService;
+import com.takado.myportfoliofront.service.*;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UIDetachedException;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.FooterRow;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -38,6 +37,7 @@ public class MainView extends VerticalLayout {
     private final AssetService assetService;
     private final VsCurrencyService vsCurrencyService;
     private final GridValueProvider gridValueProvider;
+    private final AuthenticationService authenticationService;
     private final Grid<Asset> grid = new Grid<>();
     private FooterRow footerRow;
     private final TextField filter = new TextField();
@@ -48,10 +48,11 @@ public class MainView extends VerticalLayout {
     private boolean lockValueCurrencyChanged = false;
 
     public MainView(AssetService assetService, VsCurrencyService vsCurrencyService, GridValueProvider gridValueProvider,
-                    TickerService tickerService) {
+                    AuthenticationService authenticationService, TickerService tickerService) {
         this.assetService = assetService;
         this.vsCurrencyService = vsCurrencyService;
         this.gridValueProvider = gridValueProvider;
+        this.authenticationService = authenticationService;
         this.newAssetForm = new NewAssetForm(this, assetService, tickerService);
 
         makeGrid();
@@ -81,9 +82,20 @@ public class MainView extends VerticalLayout {
         logoutButton.addClickListener(e -> {
             getUI().ifPresent(page -> page.getPage().setLocation("http://localhost:8080/logout"));
         });
-        
+
+        String userName = authenticationService.getUserEmail();
+        Dialog dialog = new Dialog();
+        dialog.add(new Text("User email: " + userName));
+
+        Button showUserButton = new Button("Show user");
+        showUserButton.getStyle().set("cursor", "pointer");
+        showUserButton.addThemeVariants(ButtonVariant.LUMO_CONTRAST, ButtonVariant.LUMO_PRIMARY);
+
+        showUserButton.addClickListener(e -> dialog.open());
+
+
         HorizontalLayout toolbar = new HorizontalLayout(filter, priceCurrency, valueCurrency,
-                addNewAssetButton, logoutButton);
+                addNewAssetButton, logoutButton, showUserButton);
 
         HorizontalLayout mainContent = new HorizontalLayout(grid, newAssetForm);
         mainContent.setSizeFull();
