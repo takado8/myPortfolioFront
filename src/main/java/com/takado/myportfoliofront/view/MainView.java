@@ -38,6 +38,7 @@ public class MainView extends VerticalLayout {
     private final VsCurrencyService vsCurrencyService;
     private final GridValueProvider gridValueProvider;
     private final AuthenticationService authenticationService;
+    private final UserService userService;
     private final Grid<Asset> grid = new Grid<>();
     private FooterRow footerRow;
     private final TextField filter = new TextField();
@@ -48,69 +49,39 @@ public class MainView extends VerticalLayout {
     private boolean lockValueCurrencyChanged = false;
 
     public MainView(AssetService assetService, VsCurrencyService vsCurrencyService, GridValueProvider gridValueProvider,
-                    AuthenticationService authenticationService, TickerService tickerService) {
+                    AuthenticationService authenticationService, UserService userService, TickerService tickerService) {
         this.assetService = assetService;
         this.vsCurrencyService = vsCurrencyService;
         this.gridValueProvider = gridValueProvider;
         this.authenticationService = authenticationService;
+        this.userService = userService;
         this.newAssetForm = new NewAssetForm(this, assetService, tickerService);
 
         makeGrid();
-
-        filter.setPlaceholder("Filter by ticker");
-        filter.setClearButtonVisible(true);
-        filter.setValueChangeMode(ValueChangeMode.EAGER);
-        filter.addValueChangeListener(e -> filtering());
-
-        priceCurrency.setItems(vsCurrencyService.getCurrenciesPriceLabels());
-        valueCurrency.setItems(vsCurrencyService.getCurrenciesValueLabels());
-        priceCurrency.addValueChangeListener(event -> priceCurrencyChanged());
-        valueCurrency.addValueChangeListener(event -> valueCurrencyChanged());
-        priceCurrency.setValue("Price in USD");
-        valueCurrency.setValue("Value in PLN");
-        priceCurrency.getStyle().set("cursor", "pointer");
-        valueCurrency.getStyle().set("cursor", "pointer");
-
-        Button addNewAssetButton = new Button("Add new asset");
-        addNewAssetButton.getStyle().set("cursor", "pointer");
-        addNewAssetButton.addThemeVariants(ButtonVariant.LUMO_CONTRAST, ButtonVariant.LUMO_PRIMARY);
-
-        Button logoutButton = new Button("Logout");
-        logoutButton.getStyle().set("cursor", "pointer");
-        logoutButton.addThemeVariants(ButtonVariant.LUMO_CONTRAST, ButtonVariant.LUMO_PRIMARY);
-
-        logoutButton.addClickListener(e -> {
-            getUI().ifPresent(page -> page.getPage().setLocation("http://localhost:8080/logout"));
-        });
-
-        String userName = authenticationService.getUserEmail();
-        Dialog dialog = new Dialog();
-        dialog.add(new Text("User email: " + userName));
-
-        Button showUserButton = new Button("Show user");
-        showUserButton.getStyle().set("cursor", "pointer");
-        showUserButton.addThemeVariants(ButtonVariant.LUMO_CONTRAST, ButtonVariant.LUMO_PRIMARY);
-
-        showUserButton.addClickListener(e -> dialog.open());
-
-
-        HorizontalLayout toolbar = new HorizontalLayout(filter, priceCurrency, valueCurrency,
-                addNewAssetButton, logoutButton, showUserButton);
-
+        HorizontalLayout toolbar = makeToolbar();
         HorizontalLayout mainContent = new HorizontalLayout(grid, newAssetForm);
         mainContent.setSizeFull();
-        grid.setSizeFull();
         add(toolbar, mainContent);
         setSizeFull();
         newAssetForm.setAsset(null);
-        grid.asSingleSelect().addValueChangeListener(event -> newAssetForm.setAsset(grid.asSingleSelect().getValue()));
 
-        addNewAssetButton.addClickListener(e -> {
-            grid.asSingleSelect().clear();
-            newAssetForm.setAsset(new Asset());
-        });
         assetService.fetchAssets();
         refresh();
+
+        if (!userExists()) {
+            createUserAccount();
+            displayWelcomeMessage();
+        }
+    }
+
+    private boolean userExists() {
+        return userService.userExists(authenticationService.getUserEmail());
+    }
+
+    private void createUserAccount() {
+        userService.createUser(authenticationService.getUserEmail(), authenticationService.getUserNameHash(),
+                authenticationService.getUserDisplayedName(),
+                assetService.getAssets().stream().map(Asset::getId).collect(Collectors.toList()));
     }
 
     private void valueCurrencyChanged() {
@@ -156,6 +127,7 @@ public class MainView extends VerticalLayout {
 
     @Scheduled(fixedDelay = 20000L)
     public void scheduledRefresh() {
+        if (newAssetForm.isVisible()) return;
         try {
             getUI().ifPresent(ui -> {
                 if (ui.isAttached())
@@ -243,6 +215,58 @@ public class MainView extends VerticalLayout {
                 .setHeader("Profit [+%]")
                 .setKey("profit")
                 .setComparator(Comparator.comparingDouble(asset -> Double.parseDouble(gridValueProvider.profit(asset))));
+
+        grid.asSingleSelect().addValueChangeListener(event -> newAssetForm.setAsset(grid.asSingleSelect().getValue()));
+        grid.setSizeFull();
         footerRow = grid.appendFooterRow();
+    }
+
+    private HorizontalLayout makeToolbar() {
+        filter.setPlaceholder("Filter by ticker");
+        filter.setClearButtonVisible(true);
+        filter.setValueChangeMode(ValueChangeMode.EAGER);
+        filter.addValueChangeListener(e -> filtering());
+
+        priceCurrency.setItems(vsCurrencyService.getCurrenciesPriceLabels());
+        valueCurrency.setItems(vsCurrencyService.getCurrenciesValueLabels());
+        priceCurrency.addValueChangeListener(event -> priceCurrencyChanged());
+        valueCurrency.addValueChangeListener(event -> valueCurrencyChanged());
+        priceCurrency.setValue("Price in USD");
+        valueCurrency.setValue("Value in PLN");
+        priceCurrency.getStyle().set("cursor", "pointer");
+        valueCurrency.getStyle().set("cursor", "pointer");
+
+        Button addNewAssetButton = new Button("Add new asset");
+        addNewAssetButton.getStyle().set("cursor", "pointer");
+        addNewAssetButton.addThemeVariants(ButtonVariant.LUMO_CONTRAST, ButtonVariant.LUMO_PRIMARY);
+        addNewAssetButton.addClickListener(e -> {
+            grid.asSingleSelect().clear();
+            newAssetForm.setAsset(new Asset());
+        });
+
+        Button logoutButton = new Button("Logout");
+        logoutButton.getStyle().set("cursor", "pointer");
+        logoutButton.addThemeVariants(ButtonVariant.LUMO_CONTRAST, ButtonVariant.LUMO_PRIMARY);
+
+        logoutButton.addClickListener(e ->
+                getUI().ifPresent(page -> page.getPage().setLocation("http://localhost:8080/logout")));
+
+        String userName = authenticationService.getUserEmail();
+        Dialog dialog = new Dialog();
+        dialog.add(new Text("User email: " + userName));
+
+        Button showUserButton = new Button("Show user");
+        showUserButton.getStyle().set("cursor", "pointer");
+        showUserButton.addThemeVariants(ButtonVariant.LUMO_CONTRAST, ButtonVariant.LUMO_PRIMARY);
+        showUserButton.addClickListener(e -> dialog.open());
+
+        return new HorizontalLayout(filter, priceCurrency, valueCurrency,
+                addNewAssetButton, logoutButton, showUserButton);
+    }
+
+    private void displayWelcomeMessage() {
+        Dialog dialog = new Dialog();
+        dialog.add(new Text("Welcome " + authenticationService.getUserDisplayedName() + "!"));
+        dialog.open();
     }
 }
