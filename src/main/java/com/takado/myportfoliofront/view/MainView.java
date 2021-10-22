@@ -5,6 +5,8 @@ import com.takado.myportfoliofront.service.AssetService;
 import com.takado.myportfoliofront.service.GridValueProvider;
 import com.takado.myportfoliofront.service.TickerService;
 import com.takado.myportfoliofront.service.VsCurrencyService;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.UIDetachedException;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.FooterRow;
@@ -31,7 +33,7 @@ import static com.takado.myportfoliofront.service.PriceFormatter.formatPriceStri
 import static com.takado.myportfoliofront.service.PriceFormatter.formatProfitString;
 
 @Push
-@Route
+@Route("")
 @Theme(value = Lumo.class, variant = Lumo.DARK)
 public class MainView extends VerticalLayout {
     private final AssetService assetService;
@@ -73,7 +75,18 @@ public class MainView extends VerticalLayout {
         addNewAssetButton.getStyle().set("cursor", "pointer");
         addNewAssetButton.addThemeVariants(ButtonVariant.LUMO_CONTRAST, ButtonVariant.LUMO_PRIMARY);
 
-        HorizontalLayout toolbar = new HorizontalLayout(filter, priceCurrency, valueCurrency, addNewAssetButton);
+        Button logoutButton = new Button("Logout");
+        logoutButton.getStyle().set("cursor", "pointer");
+        logoutButton.addThemeVariants(ButtonVariant.LUMO_CONTRAST, ButtonVariant.LUMO_PRIMARY);
+
+        logoutButton.addClickListener(e -> {
+            getUI().ifPresent(page -> page.getPage().setLocation("http://localhost:8080/logout"));
+//            getUI().ifPresent(page -> page.getPage().setLocation("https://mail.google.com/mail/u/0/?logout&hl=en"));
+        });
+
+
+        HorizontalLayout toolbar = new HorizontalLayout(filter, priceCurrency, valueCurrency,
+                addNewAssetButton, logoutButton);
 
         HorizontalLayout mainContent = new HorizontalLayout(grid, newAssetForm);
         mainContent.setSizeFull();
@@ -135,15 +148,21 @@ public class MainView extends VerticalLayout {
     @Scheduled(fixedDelay = 20000L)
     public void scheduledRefresh() {
         try {
-            getUI().ifPresent(ui -> ui.access(() -> {
-                refresh();
-                try {
-                    Thread.sleep(300L);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }));
-        } catch (IllegalStateException | NullPointerException ignored) { }
+            getUI().ifPresent(ui -> {
+                if (ui.isAttached())
+                    ui.access(() -> {
+                        refresh();
+                        try {
+                            Thread.sleep(300L);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    });
+            });
+        } catch (IllegalStateException | NullPointerException ignored) {
+        } catch (UIDetachedException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     public void refresh() {
