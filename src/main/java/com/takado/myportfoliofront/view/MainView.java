@@ -5,7 +5,6 @@ import com.takado.myportfoliofront.service.AssetService;
 import com.takado.myportfoliofront.service.GridValueProvider;
 import com.takado.myportfoliofront.service.TickerService;
 import com.takado.myportfoliofront.service.VsCurrencyService;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.UIDetachedException;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -81,10 +80,8 @@ public class MainView extends VerticalLayout {
 
         logoutButton.addClickListener(e -> {
             getUI().ifPresent(page -> page.getPage().setLocation("http://localhost:8080/logout"));
-//            getUI().ifPresent(page -> page.getPage().setLocation("https://mail.google.com/mail/u/0/?logout&hl=en"));
         });
-
-
+        
         HorizontalLayout toolbar = new HorizontalLayout(filter, priceCurrency, valueCurrency,
                 addNewAssetButton, logoutButton);
 
