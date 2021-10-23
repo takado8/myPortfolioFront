@@ -28,7 +28,7 @@ class GridValueProviderTest {
     @Mock
     private Ticker ticker;
 
-    private final Asset asset = new Asset(1L, ticker,"10","10000", BigDecimal.valueOf(10000));
+    private final Asset asset = new Asset(1L, ticker,1L,"10","10000", BigDecimal.valueOf(10000));
 
 
     @BeforeEach

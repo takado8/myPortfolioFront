@@ -22,9 +22,9 @@ public class AssetService {
     private final AssetMapper assetMapper;
     private final Set<Asset> assets;
 
-    public void fetchAssets() {
+    public void fetchAssets(Long userId) {
         assets.clear();
-        assets.addAll(assetMapper.mapToAssetSet(assetClient.getAssets()));
+        assets.addAll(assetMapper.mapToAssetSet(assetClient.getAssets(userId)));
     }
 
     public void fetchPrices() {
@@ -36,9 +36,9 @@ public class AssetService {
         }
     }
 
-    public void createAsset(String tickerString, String amount, String valueIn) {
+    public void createAsset(String tickerString, Long userId, String amount, String valueIn) {
         Ticker ticker = tickerService.getTicker(tickerString);
-        Asset asset = new Asset(ticker, amount, valueIn);
+        Asset asset = new Asset(ticker, userId, amount, valueIn);
         Asset newAsset = assetMapper.mapToAsset(assetClient.createAsset(assetMapper.mapToDto(asset)));
         assets.add(newAsset);
     }

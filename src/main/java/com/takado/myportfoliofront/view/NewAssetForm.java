@@ -62,7 +62,10 @@ public class NewAssetForm extends FormLayout {
         Asset asset = assetService.findByTicker(ticker);
 
         if (asset == null) {
-            createAsset(ticker, amount, valueIn);
+            Long userId = mainView.getUser().getId();
+            if (userId != null) {
+                createAsset(ticker, userId, amount, valueIn);
+            }
         } else {
             addToAssetPosition(asset, amount, valueIn);
         }
@@ -83,8 +86,8 @@ public class NewAssetForm extends FormLayout {
         }
     }
 
-    private void createAsset(String ticker, String amount, String valueIn) {
-        assetService.createAsset(ticker, amount, valueIn);
+    private void createAsset(String ticker, Long userId, String amount, String valueIn) {
+        assetService.createAsset(ticker, userId, amount, valueIn);
     }
 
     private void deleteAsset() {

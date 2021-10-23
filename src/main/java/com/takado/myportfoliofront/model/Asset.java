@@ -13,19 +13,22 @@ import java.math.BigDecimal;
 public class Asset {
     private Long id;
     private Ticker ticker;
+    private Long userId;
     private String amount;
     private String valueIn;
     private BigDecimal priceNow = BigDecimal.ONE;
 
-    public Asset(Ticker ticker, String amount, String valueIn) {
+    public Asset(Ticker ticker, Long userId, String amount, String valueIn) {
         this.ticker = ticker;
+        this.userId = userId;
         this.amount = amount;
         this.valueIn = valueIn;
     }
 
-    public Asset(Long id, Ticker ticker, String amount, String valueIn) {
+    public Asset(Long id, Ticker ticker, Long userId, String amount, String valueIn) {
         this.id = id;
         this.ticker = ticker;
+        this.userId = userId;
         this.amount = amount;
         this.valueIn = valueIn;
     }
@@ -59,7 +62,7 @@ public class Asset {
 
         Asset asset = (Asset) o;
         var ticker = asset.getTicker().getTicker();
-        return ticker == null ? asset.ticker == null : ticker.equals(asset.ticker);
+        return ticker == null ? this.ticker == null : ticker.equals(this.ticker.getTicker());
     }
 
     @Override

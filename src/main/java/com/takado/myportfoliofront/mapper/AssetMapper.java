@@ -22,10 +22,11 @@ public class AssetMapper {
     }
 
     public Asset mapToAsset(AssetDto assetDto) {
-        return new Asset(assetDto.getId(), tickerService.getTicker(assetDto.getTickerId()), assetDto.getAmount(), assetDto.getValueIn());
+        return new Asset(assetDto.getId(), tickerService.getTicker(assetDto.getTickerId()),
+                assetDto.getUserId(), assetDto.getAmount(), assetDto.getValueIn());
     }
 
     public AssetDto mapToDto(Asset asset) {
-        return new AssetDto(asset.getId(), asset.getTicker().getId(), asset.getAmount(), asset.getValueIn());
+        return new AssetDto(asset.getId(),asset.getTicker().getId(),  asset.getUserId(), asset.getAmount(), asset.getValueIn());
     }
 }

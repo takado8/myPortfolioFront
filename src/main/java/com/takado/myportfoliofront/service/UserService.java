@@ -3,6 +3,7 @@ package com.takado.myportfoliofront.service;
 import com.takado.myportfoliofront.client.UserClient;
 import com.takado.myportfoliofront.domain.UserDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,7 +17,8 @@ public class UserService {
         return userClient.createUser(email, nameHash, displayedName, assetsId);
     }
 
-    public Boolean userExists(String email) {
-        return userClient.userExists(email);
+    @Nullable
+    public UserDto getUser(String email) {
+        return userClient.getUser(email);
     }
 }

@@ -14,6 +14,7 @@ import lombok.ToString;
 public class AssetDto {
     private Long id;
     private Long tickerId;
+    private Long userId;
     private String amount;
     private String valueIn;
 }

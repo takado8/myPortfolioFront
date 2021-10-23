@@ -1,5 +1,6 @@
 package com.takado.myportfoliofront.view;
 
+import com.takado.myportfoliofront.domain.UserDto;
 import com.takado.myportfoliofront.model.Asset;
 import com.takado.myportfoliofront.service.*;
 import com.vaadin.flow.component.Text;
@@ -16,6 +17,7 @@ import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.Query;
 import com.vaadin.flow.data.value.ValueChangeMode;
+import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
@@ -32,6 +34,7 @@ import static com.takado.myportfoliofront.service.PriceFormatter.formatProfitStr
 
 @Push
 @Route("")
+@PageTitle("myPortfolio")
 @Theme(value = Lumo.class, variant = Lumo.DARK)
 public class MainView extends VerticalLayout {
     private final AssetService assetService;
@@ -47,6 +50,7 @@ public class MainView extends VerticalLayout {
     private final Select<String> valueCurrency = new Select<>();
     private boolean lockPriceCurrencyChanged = false;
     private boolean lockValueCurrencyChanged = false;
+    private UserDto user;
 
     public MainView(AssetService assetService, VsCurrencyService vsCurrencyService, GridValueProvider gridValueProvider,
                     AuthenticationService authenticationService, UserService userService, TickerService tickerService) {
@@ -65,21 +69,23 @@ public class MainView extends VerticalLayout {
         setSizeFull();
         newAssetForm.setAsset(null);
 
-        assetService.fetchAssets();
-        refresh();
-
-        if (!userExists()) {
-            createUserAccount();
+        user = fetchUser();
+        if (user == null) {
+            user = createUserAccount();
             displayWelcomeMessage();
         }
+
+        assetService.fetchAssets(user.getId());
+        refresh();
     }
 
-    private boolean userExists() {
-        return userService.userExists(authenticationService.getUserEmail());
+    private UserDto fetchUser() {
+        var user = userService.getUser(authenticationService.getUserEmail());
+        return user == null || user.getId() == null ? null : user;
     }
 
-    private void createUserAccount() {
-        userService.createUser(authenticationService.getUserEmail(), authenticationService.getUserNameHash(),
+    private UserDto createUserAccount() {
+        return userService.createUser(authenticationService.getUserEmail(), authenticationService.getUserNameHash(),
                 authenticationService.getUserDisplayedName(),
                 assetService.getAssets().stream().map(Asset::getId).collect(Collectors.toList()));
     }
@@ -268,5 +274,9 @@ public class MainView extends VerticalLayout {
         Dialog dialog = new Dialog();
         dialog.add(new Text("Welcome " + authenticationService.getUserDisplayedName() + "!"));
         dialog.open();
+    }
+
+    public UserDto getUser() {
+        return user;
     }
 }

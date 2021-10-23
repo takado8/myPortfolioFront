@@ -22,8 +22,8 @@ public class AssetClient {
 
     private final RestTemplate restTemplate;
 
-    public List<AssetDto> getAssets() {
-        URI uri = UriComponentsBuilder.fromHttpUrl(assetsApiRoot)
+    public List<AssetDto> getAssets(Long userId) {
+        URI uri = UriComponentsBuilder.fromHttpUrl(assetsApiRoot + "/" + userId)
                 .build()
                 .encode()
                 .toUri();
