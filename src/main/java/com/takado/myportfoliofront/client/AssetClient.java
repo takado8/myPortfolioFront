@@ -3,6 +3,7 @@ package com.takado.myportfoliofront.client;
 
 import com.takado.myportfoliofront.domain.AssetDto;
 import com.takado.myportfoliofront.domain.DigitalSignature;
+import com.takado.myportfoliofront.domain.requests.AssetBodyRequest;
 import com.takado.myportfoliofront.service.RequestSignatureService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -12,9 +13,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 import java.security.GeneralSecurityException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -28,11 +27,9 @@ public class AssetClient {
 
     public List<AssetDto> getAssets(Long userId) {
         String path = assetsApiRoot + "/" + userId;
-        byte[] signature;
         DigitalSignature digitalSignature;
         try {
-            signature = signatureService.generateSignature(path);
-            digitalSignature = new DigitalSignature(signature, path);
+            digitalSignature = signatureService.generateSignature(path);
         } catch (GeneralSecurityException e) {
             printException(e);
             return Collections.emptyList();
@@ -55,12 +52,21 @@ public class AssetClient {
     }
 
     public AssetDto createAsset(AssetDto assetDto) {
+        String assetString = assetDto.toString();
+        DigitalSignature digitalSignature;
+        try {
+            digitalSignature = signatureService.generateSignature(assetString);
+        } catch (GeneralSecurityException e) {
+            printException(e);
+            return new AssetDto();
+        }
         URI uri = UriComponentsBuilder.fromHttpUrl(assetsApiRoot)
                 .build()
                 .encode()
                 .toUri();
         try {
-            return restTemplate.postForObject(uri, assetDto, AssetDto.class);
+            AssetBodyRequest bodyRequest = new AssetBodyRequest(assetDto, digitalSignature);
+            return restTemplate.postForObject(uri.toString(), bodyRequest, AssetDto.class);
         } catch (RestClientException e) {
             printException(e);
         }
@@ -68,24 +74,41 @@ public class AssetClient {
     }
 
     public void deleteAsset(Long assetId) {
-        URI uri = UriComponentsBuilder.fromHttpUrl(assetsApiRoot + "/" + assetId)
+        String path = assetsApiRoot + "/delete/" + assetId;
+        DigitalSignature digitalSignature;
+        try {
+            digitalSignature = signatureService.generateSignature(path);
+        } catch (GeneralSecurityException e) {
+            printException(e);
+            return;
+        }
+        URI uri = UriComponentsBuilder.fromHttpUrl(path)
                 .build()
                 .encode()
                 .toUri();
         try {
-            restTemplate.delete(uri);
+            restTemplate.postForObject(uri, digitalSignature, Object.class);
         } catch (RestClientException e) {
             printException(e);
         }
     }
 
     public void updateAsset(AssetDto assetDto) {
+        String assetString = assetDto.toString();
+        DigitalSignature digitalSignature;
+        try {
+            digitalSignature = signatureService.generateSignature(assetString);
+        } catch (GeneralSecurityException e) {
+            printException(e);
+            return;
+        }
         URI uri = UriComponentsBuilder.fromHttpUrl(assetsApiRoot)
                 .build()
                 .encode()
                 .toUri();
         try {
-            restTemplate.put(uri, assetDto);
+            AssetBodyRequest bodyRequest = new AssetBodyRequest(assetDto, digitalSignature);
+            restTemplate.put(uri, bodyRequest);
         } catch (RestClientException e) {
             printException(e);
         }
