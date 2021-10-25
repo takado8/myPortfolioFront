@@ -52,10 +52,10 @@ public class MainView extends VerticalLayout {
     private boolean lockValueCurrencyChanged = false;
     private UserDto user;
 
-    public MainView(AssetService assetService, VsCurrencyService vsCurrencyService, GridValueProvider gridValueProvider,
+    public MainView(AssetService assetService, GridValueProvider gridValueProvider,
                     AuthenticationService authenticationService, UserService userService, TickerService tickerService) {
         this.assetService = assetService;
-        this.vsCurrencyService = vsCurrencyService;
+        this.vsCurrencyService = VsCurrencyService.getInstance();
         this.gridValueProvider = gridValueProvider;
         this.authenticationService = authenticationService;
         this.userService = userService;
@@ -133,7 +133,7 @@ public class MainView extends VerticalLayout {
 
     @Scheduled(fixedDelay = 20000L)
     public void scheduledRefresh() {
-        if (newAssetForm.isVisible()) return;
+        if (newAssetForm.isVisible() || !filter.getValue().isBlank()) return;
         try {
             getUI().ifPresent(ui -> {
                 if (ui.isAttached())
@@ -141,9 +141,7 @@ public class MainView extends VerticalLayout {
                         refresh();
                         try {
                             Thread.sleep(300L);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
+                        } catch (InterruptedException ignored) {}
                     });
             });
         } catch (IllegalStateException | NullPointerException ignored) {

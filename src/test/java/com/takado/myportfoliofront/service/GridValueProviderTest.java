@@ -3,12 +3,10 @@ package com.takado.myportfoliofront.service;
 import com.takado.myportfoliofront.client.PriceClient;
 import com.takado.myportfoliofront.domain.Ticker;
 import com.takado.myportfoliofront.model.Asset;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.math.BigDecimal;
@@ -29,7 +27,6 @@ class GridValueProviderTest {
     private Ticker ticker;
 
     private final Asset asset = new Asset(1L, ticker,1L,"10","10000", BigDecimal.valueOf(10000));
-
 
     @BeforeEach
     void beforeEach () {
