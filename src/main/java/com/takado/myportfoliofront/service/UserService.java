@@ -9,9 +9,13 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
+//@RequiredArgsConstructor
 public class UserService {
-    private final UserClient userClient;
+    private UserClient userClient;
+
+    public UserService(UserClient userClient) {
+        this.userClient = userClient;
+    }
 
     public UserDto createUser(String email, String nameHash, String displayedName, List<Long> assetsId) {
         return userClient.createUser(email, nameHash, displayedName, assetsId);
@@ -20,5 +24,9 @@ public class UserService {
     @Nullable
     public UserDto getUser(String email) {
         return userClient.getUser(email);
+    }
+
+    public void setUserClient(UserClient userClient) {
+        this.userClient = userClient;
     }
 }

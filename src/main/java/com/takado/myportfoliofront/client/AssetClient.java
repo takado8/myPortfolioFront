@@ -39,10 +39,11 @@ public class AssetClient {
                 .encode()
                 .toUri();
         try {
-            var result = restTemplate.postForObject(uri.toString(), digitalSignature, AssetDto[].class);
+            String uriStr = uri.toString();
+            var result = restTemplate.postForObject(uriStr, digitalSignature, AssetDto[].class);
             if (result != null) {
                 return Arrays.stream(result)
-                        .filter(assetDto -> assetDto.getTickerId() != null)
+//                        .filter(assetDto -> assetDto.getTickerId() != null)
                         .collect(Collectors.toList());
             }
         } catch (RestClientException e) {
@@ -114,8 +115,10 @@ public class AssetClient {
         }
     }
 
-    private void printException(Exception e) {
+    public void printException(Exception e) {
+        System.out.println("\n\nEXCEPTION: ");
         System.out.println("Exception: " + e.getMessage());
         System.out.println(Arrays.toString(e.getStackTrace()));
+        System.out.println("\n\n\n\n");
     }
 }

@@ -61,8 +61,7 @@ public class Asset {
         if (o == null || getClass() != o.getClass()) return false;
 
         Asset asset = (Asset) o;
-        var ticker = asset.getTicker().getTicker();
-        return ticker == null ? this.ticker == null : ticker.equals(this.ticker.getTicker());
+        return this.ticker.equals(asset.getTicker());
     }
 
     @Override

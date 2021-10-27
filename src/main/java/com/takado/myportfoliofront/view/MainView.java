@@ -79,18 +79,18 @@ public class MainView extends VerticalLayout {
         refresh();
     }
 
-    private UserDto fetchUser() {
+    public UserDto fetchUser() {
         var user = userService.getUser(authenticationService.getUserEmail());
         return user == null || user.getId() == null ? null : user;
     }
 
-    private UserDto createUserAccount() {
+    public UserDto createUserAccount() {
         return userService.createUser(authenticationService.getUserEmail(), authenticationService.getUserNameHash(),
                 authenticationService.getUserDisplayedName(),
                 assetService.getAssets().stream().map(Asset::getId).collect(Collectors.toList()));
     }
 
-    private void valueCurrencyChanged() {
+    public void valueCurrencyChanged() {
         String valueCurrency = this.valueCurrency.getValue();
         if (valueCurrency == null || lockValueCurrencyChanged) return;
         vsCurrencyService.putCurrencyOnTop(valueCurrency);
@@ -109,7 +109,7 @@ public class MainView extends VerticalLayout {
         refresh();
     }
 
-    private void priceCurrencyChanged() {
+    public void priceCurrencyChanged() {
         String priceCurrency = this.priceCurrency.getValue();
         if (priceCurrency == null || lockPriceCurrencyChanged) return;
         vsCurrencyService.putCurrencyOnTop(priceCurrency);
@@ -126,7 +126,7 @@ public class MainView extends VerticalLayout {
         refresh();
     }
 
-    private void filtering() {
+    public void filtering() {
         grid.setItems(assetService.filterByTicker(filter.getValue()));
         refreshFooterRow();
     }
@@ -163,23 +163,23 @@ public class MainView extends VerticalLayout {
         footerRow.getCell(grid.getColumnByKey("profit")).setText(formatProfitString(totalProfit()));
     }
 
-    private List<Asset> getAssetsFromGrid() {
+    public List<Asset> getAssetsFromGrid() {
         return grid.getDataProvider().fetch(new Query<>()).collect(Collectors.toList());
     }
 
-    private BigDecimal totalValueIn() {
+    public BigDecimal totalValueIn() {
         return getAssetsFromGrid().stream()
                 .map(gridValueProvider::valueIn)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    private BigDecimal totalValueNow() {
+    public BigDecimal totalValueNow() {
         return getAssetsFromGrid().stream()
                 .map(gridValueProvider::valueNow)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    private BigDecimal totalProfit() {
+    public BigDecimal totalProfit() {
         try {
             return totalValueNow()
                     .divide(totalValueIn(), MathContext.DECIMAL128)
@@ -190,7 +190,7 @@ public class MainView extends VerticalLayout {
         }
     }
 
-    private void makeGrid() {
+    public void makeGrid() {
         grid.addColumn(gridValueProvider::getTicker)
                 .setHeader("Ticker")
                 .setSortable(true)
@@ -225,7 +225,7 @@ public class MainView extends VerticalLayout {
         footerRow = grid.appendFooterRow();
     }
 
-    private HorizontalLayout makeToolbar() {
+    public HorizontalLayout makeToolbar() {
         filter.setPlaceholder("Filter by ticker");
         filter.setClearButtonVisible(true);
         filter.setValueChangeMode(ValueChangeMode.EAGER);
@@ -268,7 +268,7 @@ public class MainView extends VerticalLayout {
                 addNewAssetButton, logoutButton, showUserButton);
     }
 
-    private void displayWelcomeMessage() {
+    public void displayWelcomeMessage() {
         Dialog dialog = new Dialog();
         dialog.add(new Text("Welcome " + authenticationService.getUserDisplayedName() + "!"));
         dialog.open();

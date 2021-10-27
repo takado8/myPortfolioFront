@@ -1,13 +1,11 @@
 package com.takado.myportfoliofront.domain;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
 public class UserDto {
     private Long id;
@@ -22,4 +20,6 @@ public class UserDto {
         this.displayedName = displayedName;
         this.assetsId = assetsId;
     }
+
+
 }

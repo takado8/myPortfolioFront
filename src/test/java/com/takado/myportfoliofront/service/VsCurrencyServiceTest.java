@@ -8,8 +8,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 class VsCurrencyServiceTest {
-    @Autowired
-    private VsCurrencyService vsCurrencyService;
+    private final VsCurrencyService vsCurrencyService = VsCurrencyService.getInstance();
 
     @Test
     void getCurrencyFromLabel() {
