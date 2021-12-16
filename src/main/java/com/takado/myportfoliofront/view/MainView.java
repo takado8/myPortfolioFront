@@ -74,7 +74,6 @@ public class MainView extends VerticalLayout {
             user = createUserAccount();
             displayWelcomeMessage();
         }
-
         assetService.fetchAssets(user.getId());
         refresh();
     }

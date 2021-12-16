@@ -117,8 +117,8 @@ public class AssetClient {
 
     public void printException(Exception e) {
         System.out.println("\n\nEXCEPTION: ");
-        System.out.println("Exception: " + e.getMessage());
+        System.out.println(e.getMessage());
         System.out.println(Arrays.toString(e.getStackTrace()));
-        System.out.println("\n\n\n\n");
+        System.out.println("\n\n");
     }
 }

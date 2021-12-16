@@ -79,6 +79,4 @@ public class AssetService {
         }
         return result;
     }
-
-
 }

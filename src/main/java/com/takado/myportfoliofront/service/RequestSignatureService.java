@@ -1,6 +1,8 @@
 package com.takado.myportfoliofront.service;
 
+import com.takado.myportfoliofront.config.SignatureKeysConfiguration;
 import com.takado.myportfoliofront.domain.DigitalSignature;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.security.*;
@@ -11,15 +13,16 @@ import java.util.Base64;
 
 
 @Service
+@RequiredArgsConstructor
 public class RequestSignatureService {
-    // todo: move keys to application.properties
-    private final String privateKeyString = "MIIBSwIBADCCASwGByqGSM44BAEwggEfAoGBAP1/U4EddRIpUt9KnC7s5Of2EbdSPO9EAMMeP4C2USZpRV1AIlH7WT2NWPq/xfW6MPbLm1Vs14E7gB00b/JmYLdrmVClpJ+f6AR7ECLCT7up1/63xhv4O1fnxqimFQ8E+4P208UewwI1VBNaFpEy9nXzrith1yrv8iIDGZ3RSAHHAhUAl2BQjxUjC8yykrmCouuEC/BYHPUCgYEA9+GghdabPd7LvKtcNrhXuXmUr7v6OuqC+VdMCz0HgmdRWVeOutRZT+ZxBxCBgLRJFnEj6EwoFhO3zwkyjMim4TwWeotUfI0o4KOuHiuzpnWRbqN/C/ohNWLx+2J6ASQ7zKTxvqhRkImog9/hWuWfBpKLZl6Ae1UlZAFMO/7PSSoEFgIUG9lAxlcOP39VvbNVcubhwNxin8s=";
-    private final String publicKeyString = "MIIBuDCCASwGByqGSM44BAEwggEfAoGBAP1/U4EddRIpUt9KnC7s5Of2EbdSPO9EAMMeP4C2USZpRV1AIlH7WT2NWPq/xfW6MPbLm1Vs14E7gB00b/JmYLdrmVClpJ+f6AR7ECLCT7up1/63xhv4O1fnxqimFQ8E+4P208UewwI1VBNaFpEy9nXzrith1yrv8iIDGZ3RSAHHAhUAl2BQjxUjC8yykrmCouuEC/BYHPUCgYEA9+GghdabPd7LvKtcNrhXuXmUr7v6OuqC+VdMCz0HgmdRWVeOutRZT+ZxBxCBgLRJFnEj6EwoFhO3zwkyjMim4TwWeotUfI0o4KOuHiuzpnWRbqN/C/ohNWLx+2J6ASQ7zKTxvqhRkImog9/hWuWfBpKLZl6Ae1UlZAFMO/7PSSoDgYUAAoGBAO9nKmRN7dwPRzsv0/UvWjiKKuoc0xvYyFaYoH5Xct0Os2Cz2yJNu6Cdgl0VUGDFX2M7vr3cpyEnDpmU2ssN2cMYkOxcOq/aFNH5M6nmBFA05VLW85XHRTcLxUSbBFvkLjYM6wJW0Jd98IM8WuKNxk3VfeH8XONJXFcNl2DgXQdz";
+    private final SignatureKeysConfiguration keysConfiguration;
+    private PrivateKey privateKey;
+    private PublicKey publicKey;
     Base64.Decoder base64Decoder = Base64.getDecoder();
     Base64.Encoder base64Encoder = Base64.getEncoder();
 
     public DigitalSignature generateSignature(String message) throws GeneralSecurityException {
-        PrivateKey privateKey = loadPrivateKey(privateKeyString);
+        if (privateKey == null) privateKey = loadPrivateKey(keysConfiguration.getPrivateKeyString());
         Signature signatureService = Signature.getInstance("SHA1withDSA", "SUN");
         signatureService.initSign(privateKey);
         byte[] bytes = message.getBytes();
@@ -31,7 +34,7 @@ public class RequestSignatureService {
         byte[] signatureBytes = digitalSignature1.getSignature();
         String message = digitalSignature1.getMessage();
 
-        PublicKey publicKey = loadPublicKey(publicKeyString);
+        if (publicKey == null) publicKey = loadPublicKey(keysConfiguration.getPublicKeyString());
         Signature signatureService = Signature.getInstance("SHA1withDSA", "SUN");
         signatureService.initVerify(publicKey);
         byte[] bytes = message.getBytes();
