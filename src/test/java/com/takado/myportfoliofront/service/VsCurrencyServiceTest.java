@@ -12,9 +12,12 @@ class VsCurrencyServiceTest {
 
     @Test
     void getCurrencyFromLabel() {
+        //given
         String label = "Price in USD";
         var expected = "USD";
+        //when
         var result = vsCurrencyService.getCurrencyFromLabel(label);
+        //then
         assertEquals(expected, result);
     }
 }

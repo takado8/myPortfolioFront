@@ -37,12 +37,12 @@ class UserServiceTest {
 
     @Test
     void createUser() {
+        //given
         userService.setUserClient(userClient);
         UserDto userDto = new UserDto("mail", "123",
                 "aa", Collections.emptyList());
         when(restTemplate.postForObject(any(URI.class), any(UserBodyRequest.class), eq(UserDto.class)))
                 .thenReturn(userDto);
-
         //when
         var result = userService.createUser("mail", "123",
                 "aa", Collections.emptyList());
@@ -53,10 +53,10 @@ class UserServiceTest {
 
     @Test
     void getUser() throws GeneralSecurityException {
+        //given
         userService.setUserClient(userClient);
         UserDto userDto = new UserDto("mail", "123",
                 "aa", Collections.emptyList());
-
         String uriStr = "http://localhost:8081/v1/users/mail";
         DigitalSignature signature = new DigitalSignature(new byte[1], uriStr);
         when(signatureService.generateSignature(uriStr)).thenReturn(signature);
@@ -64,7 +64,6 @@ class UserServiceTest {
 
         when(restTemplate.postForObject(uri, signature, UserDto.class))
                 .thenReturn(userDto);
-
         //when
         var result = userService.getUser("mail");
         //then

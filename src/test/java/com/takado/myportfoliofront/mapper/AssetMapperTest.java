@@ -4,14 +4,11 @@ import com.takado.myportfoliofront.domain.AssetDto;
 import com.takado.myportfoliofront.domain.Ticker;
 import com.takado.myportfoliofront.model.Asset;
 import com.takado.myportfoliofront.service.TickerService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;

@@ -17,7 +17,7 @@ class RequestSignatureServiceTest {
     RequestSignatureService signatureService;
 
     @Test
-    void testVerifyDigitalSignature() throws GeneralSecurityException {
+    void verifyDigitalSignature() throws GeneralSecurityException {
         //given
         String message = "someMessage";
         var signature = signatureService.generateSignature(message);
@@ -28,27 +28,17 @@ class RequestSignatureServiceTest {
     }
 
     @Test
-    void testGenerateSignature() throws GeneralSecurityException {
+    void generateSignature() throws GeneralSecurityException {
+        //when
         var signature = signatureService.generateSignature("someString");
+        //then
         assertNotNull(signature);
         assertNotNull(signature.getSignature());
         assertTrue(signature.getSignature().length > 0);
     }
 
     @Test
-    void generateKeys() throws GeneralSecurityException {
-        var keys = signatureService.generateKeyPair();
-        var encodedPrivateKey = signatureService.savePrivateKey(keys.getPrivate());
-        var encodedPublicKey = signatureService.savePublicKey(keys.getPublic());
-        System.out.println("\n\nprivate:");
-        System.out.println(encodedPrivateKey);
-        System.out.println("public:");
-        System.out.println(encodedPublicKey);
-        System.out.println("\n\n");
-    }
-
-    @Test
-    void testSaveAndRetrievePrivateKey() throws GeneralSecurityException {
+    void saveAndRetrievePrivateKey() throws GeneralSecurityException {
         //given
         KeyPair keys = signatureService.generateKeyPair();
         PrivateKey privateKey = keys.getPrivate();
@@ -61,7 +51,7 @@ class RequestSignatureServiceTest {
     }
 
     @Test
-    void testSaveAndRetrievePublicKey() throws GeneralSecurityException {
+    void saveAndRetrievePublicKey() throws GeneralSecurityException {
         //given
         KeyPair keys = signatureService.generateKeyPair();
         PublicKey publicKey = keys.getPublic();
@@ -71,5 +61,21 @@ class RequestSignatureServiceTest {
         //then
         assertEquals(publicKey, restoredKey);
         assertEquals(signatureService.savePublicKey(publicKey), signatureService.savePublicKey(restoredKey));
+    }
+
+    @Test
+    void generateKeys() throws GeneralSecurityException {
+        //when
+        var keys = signatureService.generateKeyPair();
+        var encodedPrivateKey = signatureService.savePrivateKey(keys.getPrivate());
+        var encodedPublicKey = signatureService.savePublicKey(keys.getPublic());
+        //then
+        assertNotNull(encodedPrivateKey);
+        assertNotNull(encodedPublicKey);
+        System.out.println("\n\nprivate:");
+        System.out.println(encodedPrivateKey);
+        System.out.println("public:");
+        System.out.println(encodedPublicKey);
+        System.out.println("\n\n");
     }
 }

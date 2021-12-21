@@ -25,7 +25,6 @@ class AssetTest {
         asset = new Asset(ticker, id, amount, valueIn);
     }
 
-
     @Test
     void getPriceNow() {
         asset.setPriceNow(BigDecimal.TEN);
@@ -86,7 +85,6 @@ class AssetTest {
     @Test
     void getTicker() {
         assertEquals(ticker, asset.getTicker());
-
     }
 
     @Test
@@ -97,13 +95,11 @@ class AssetTest {
     @Test
     void getAmount() {
         assertEquals(amount, asset.getAmount());
-
     }
 
     @Test
     void getValueIn() {
         assertEquals(valueIn, asset.getValueIn());
-
     }
 
     @Test
