@@ -53,10 +53,15 @@ public class GridValueProvider {
     }
 
     public String profit(Asset asset) {
-        return valueNow(asset)
-                .divide(valueIn(asset), MathContext.DECIMAL128)
+        var valueIn = valueIn(asset);
+        if (valueIn.doubleValue() > 0) {
+            return valueNow(asset)
+                .divide(valueIn, MathContext.DECIMAL128)
                 .multiply(BigDecimal.valueOf(100))
                 .subtract(BigDecimal.valueOf(100)).toPlainString();
+        } else {
+            return BigDecimal.ZERO.toPlainString();
+        }
     }
 
     public String getProfit(Asset asset) {
