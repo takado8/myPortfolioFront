@@ -1,7 +1,7 @@
 package com.takado.myportfoliofront.mapper;
 
 import com.takado.myportfoliofront.domain.AssetDto;
-import com.takado.myportfoliofront.model.Asset;
+import com.takado.myportfoliofront.domain.Asset;
 import com.takado.myportfoliofront.service.TickerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

@@ -1,6 +1,5 @@
-package com.takado.myportfoliofront.model;
+package com.takado.myportfoliofront.domain;
 
-import com.takado.myportfoliofront.domain.Ticker;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

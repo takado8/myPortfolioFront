@@ -1,7 +1,7 @@
 package com.takado.myportfoliofront.view;
 
 import com.takado.myportfoliofront.domain.UserDto;
-import com.takado.myportfoliofront.model.Asset;
+import com.takado.myportfoliofront.domain.Asset;
 import com.takado.myportfoliofront.service.*;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UIDetachedException;
@@ -53,13 +53,14 @@ public class MainView extends VerticalLayout {
     private UserDto user;
 
     public MainView(AssetService assetService, GridValueProvider gridValueProvider,
-                    AuthenticationService authenticationService, UserService userService, TickerService tickerService) {
+                    AuthenticationService authenticationService, UserService userService,
+                    TickerService tickerService, TradeService tradeService) {
         this.assetService = assetService;
         this.vsCurrencyService = VsCurrencyService.getInstance();
         this.gridValueProvider = gridValueProvider;
         this.authenticationService = authenticationService;
         this.userService = userService;
-        this.newAssetForm = new NewAssetForm(this, assetService, tickerService);
+        this.newAssetForm = new NewAssetForm(this, assetService, tickerService, tradeService);
 
         makeGrid();
         HorizontalLayout toolbar = makeToolbar();

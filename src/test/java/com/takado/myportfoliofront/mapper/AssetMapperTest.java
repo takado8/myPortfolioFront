@@ -2,7 +2,7 @@ package com.takado.myportfoliofront.mapper;
 
 import com.takado.myportfoliofront.domain.AssetDto;
 import com.takado.myportfoliofront.domain.Ticker;
-import com.takado.myportfoliofront.model.Asset;
+import com.takado.myportfoliofront.domain.Asset;
 import com.takado.myportfoliofront.service.TickerService;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

@@ -1,5 +1,6 @@
 package com.takado.myportfoliofront.model;
 
+import com.takado.myportfoliofront.domain.Asset;
 import com.takado.myportfoliofront.domain.Ticker;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

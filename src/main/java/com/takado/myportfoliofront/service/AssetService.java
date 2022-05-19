@@ -4,7 +4,7 @@ import com.takado.myportfoliofront.client.AssetClient;
 import com.takado.myportfoliofront.client.PriceClient;
 import com.takado.myportfoliofront.domain.Ticker;
 import com.takado.myportfoliofront.mapper.AssetMapper;
-import com.takado.myportfoliofront.model.Asset;
+import com.takado.myportfoliofront.domain.Asset;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

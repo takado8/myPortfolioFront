@@ -1,18 +1,27 @@
 package com.takado.myportfoliofront.view;
 
-import com.takado.myportfoliofront.model.Asset;
+import com.takado.myportfoliofront.domain.Asset;
+import com.takado.myportfoliofront.domain.Trade;
 import com.takado.myportfoliofront.service.AssetService;
 import com.takado.myportfoliofront.service.TickerService;
+import com.takado.myportfoliofront.service.TradeService;
+import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
+import com.vaadin.flow.function.SerializableBiConsumer;
 
 import java.math.BigDecimal;
+import java.util.Comparator;
 
 public class NewAssetForm extends FormLayout {
     private final static String regexValidationPattern = "(?!0\\d)[0-9]*(?<=\\d+)\\.?[0-9]*";
@@ -20,15 +29,20 @@ public class NewAssetForm extends FormLayout {
     private final ComboBox<String> tickerBox = new ComboBox<>("Ticker");
     private final TextField amountField = new TextField("Amount");
     private final TextField valueInField = new TextField("Value in");
+    private final Grid<Trade> tradesGrid = new Grid<>(Trade.class, false);
+
+
     private final MainView mainView;
     private final AssetService assetService;
     private final TickerService tickerService;
+    private final TradeService tradeService;
 
-
-    public NewAssetForm(MainView mainView, AssetService assetService, TickerService tickerService) {
+    public NewAssetForm(MainView mainView, AssetService assetService, TickerService tickerService,
+                        TradeService tradeService) {
         this.mainView = mainView;
         this.assetService = assetService;
         this.tickerService = tickerService;
+        this.tradeService = tradeService;
         amountField.setPattern(regexValidationPattern);
         amountField.setPreventInvalidInput(true);
         valueInField.setPattern(regexValidationPattern);
@@ -50,7 +64,44 @@ public class NewAssetForm extends FormLayout {
         deleteButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
         deleteButton.getStyle().set("cursor", "pointer");
         deleteButton.addClickListener(event -> deleteAsset());
-        add(tickerBox, amountField, valueInField, buttons);
+
+        makeTradeGrid();
+        refreshTradeGrid();
+        Label spacing = new Label();
+        spacing.setHeight(10F, Unit.PIXELS);
+
+        Label gridLabel = new Label();
+        gridLabel.setText("History");
+        gridLabel.setHeight(30F, Unit.PIXELS);
+        add(tickerBox, amountField, valueInField, buttons, spacing, gridLabel, tradesGrid);
+    }
+
+    private void makeTradeGrid() {
+        tradesGrid.addColumn(Trade::getAmount)
+                .setHeader("Amount")
+                .setComparator(Comparator.comparingDouble(trade -> Double.parseDouble(trade.getAmount())));
+        tradesGrid.addColumn(Trade::getValue)
+                .setHeader("Value")
+                .setComparator(Comparator.comparingDouble(trade -> Double.parseDouble(trade.getValue())));
+        tradesGrid.addColumn(tradeTypeComponentRenderer())
+                .setHeader("Type")
+                .setAutoWidth(true);
+        tradesGrid.setMaxHeight(220F, Unit.PIXELS);
+    }
+    
+    private static final SerializableBiConsumer<Span, Trade> typeComponentUpdater = (span, trade) -> {
+        String theme = String
+                .format("badge %s", trade.getType() == Trade.Type.BID ? "success" : "error");
+        span.getElement().setAttribute("theme", theme);
+        span.setText(trade.getType().toString());
+    };
+
+    private static ComponentRenderer<Span, Trade> tradeTypeComponentRenderer() {
+        return new ComponentRenderer<>(Span::new, typeComponentUpdater);
+    }
+
+    private void refreshTradeGrid() {
+        tradesGrid.setItems(tradeService.getTradeList());
     }
 
     private void addToAssetButtonClicked() {
