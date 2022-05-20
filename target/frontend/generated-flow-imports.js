@@ -3,6 +3,14 @@ div.innerHTML = '<custom-style><style include="lumo-color lumo-typography"></sty
 document.head.insertBefore(div.firstElementChild, document.head.firstChild);
 document.documentElement.setAttribute('theme', 'dark');
 
+function addCssBlock(block) {
+ const tpl = document.createElement('template');
+ tpl.innerHTML = block;
+ document.head.appendChild(tpl.content);
+}
+import $css_0 from '@vaadin/vaadin-lumo-styles/badge.js';
+addCssBlock(`<custom-style><style include="lumo-badge">${$css_0}</style></custom-style>`);
+
 import '@polymer/iron-icon/iron-icon.js';
 import '@polymer/iron-list/iron-list.js';
 import '@vaadin/flow-frontend/comboBoxConnector-es6.js';
@@ -45,6 +53,7 @@ import '@vaadin/vaadin-item/theme/lumo/vaadin-item.js';
 import '@vaadin/vaadin-list-box/theme/lumo/vaadin-list-box.js';
 import '@vaadin/vaadin-login/theme/lumo/vaadin-login-form.js';
 import '@vaadin/vaadin-login/theme/lumo/vaadin-login-overlay.js';
+import '@vaadin/vaadin-lumo-styles/badge.js';
 import '@vaadin/vaadin-lumo-styles/color.js';
 import '@vaadin/vaadin-lumo-styles/icons.js';
 import '@vaadin/vaadin-lumo-styles/sizing.js';

@@ -9,6 +9,8 @@ import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Label;
@@ -23,6 +25,8 @@ import com.vaadin.flow.function.SerializableBiConsumer;
 import java.math.BigDecimal;
 import java.util.Comparator;
 
+@JsModule("@vaadin/vaadin-lumo-styles/badge.js")
+@CssImport(include = "lumo-badge", value = "@vaadin/vaadin-lumo-styles/badge.js")
 public class NewAssetForm extends FormLayout {
     private final static String regexValidationPattern = "(?!0\\d)[0-9]*(?<=\\d+)\\.?[0-9]*";
 
@@ -73,6 +77,10 @@ public class NewAssetForm extends FormLayout {
         Label gridLabel = new Label();
         gridLabel.setText("History");
         gridLabel.setHeight(30F, Unit.PIXELS);
+
+        Span confirmed = new Span("Confirmed Badge");
+        confirmed.getElement().getThemeList().add("badge success");
+
         add(tickerBox, amountField, valueInField, buttons, spacing, gridLabel, tradesGrid);
     }
 
@@ -88,7 +96,7 @@ public class NewAssetForm extends FormLayout {
                 .setAutoWidth(true);
         tradesGrid.setMaxHeight(220F, Unit.PIXELS);
     }
-    
+
     private static final SerializableBiConsumer<Span, Trade> typeComponentUpdater = (span, trade) -> {
         String theme = String
                 .format("badge %s", trade.getType() == Trade.Type.BID ? "success" : "error");
