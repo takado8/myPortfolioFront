@@ -19,8 +19,8 @@ public class TradeService {
         Trade trade1 = new Trade(1L,1L, new Ticker(1L, "ADA", "cardano"),
                 "100", "300", Trade.Type.BID);
 
-//        Trade trade2 = new Trade(2L,1L, new Ticker(1L, "ADA", "cardano"),
-//                "120", "200", Trade.Type.BID);
+        Trade trade2 = new Trade(2L,1L, new Ticker(1L, "ADA", "cardano"),
+                "120", "200", Trade.Type.BID);
 
         Trade trade3 = new Trade(3L,1L, new Ticker(1L, "ADA", "cardano"),
                 "50", "200", Trade.Type.ASK);
@@ -30,7 +30,7 @@ public class TradeService {
         Trade trade5 = new Trade(5L,1L, new Ticker(1L, "ADA", "cardano"),
                 "125", "130", Trade.Type.ASK);
         tradeList.add(trade1);
-//        tradeList.add(trade2);
+        tradeList.add(trade2);
         tradeList.add(trade3);
         tradeList.add(trade4);
         tradeList.add(trade5);

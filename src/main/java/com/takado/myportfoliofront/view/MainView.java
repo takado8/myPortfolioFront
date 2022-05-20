@@ -1,15 +1,18 @@
 package com.takado.myportfoliofront.view;
 
-import com.takado.myportfoliofront.domain.UserDto;
 import com.takado.myportfoliofront.domain.Asset;
+import com.takado.myportfoliofront.domain.UserDto;
 import com.takado.myportfoliofront.service.*;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UIDetachedException;
+import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.FooterRow;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.Push;
@@ -35,6 +38,7 @@ import static com.takado.myportfoliofront.service.PriceFormatter.formatProfitStr
 @Push
 @Route("")
 @PageTitle("myPortfolio")
+@CssImport(include = "styledBorderCorner", value = "./styles.css")
 @Theme(value = Lumo.class, variant = Lumo.DARK)
 public class MainView extends VerticalLayout {
     private final AssetService assetService;
@@ -141,7 +145,8 @@ public class MainView extends VerticalLayout {
                         refresh();
                         try {
                             Thread.sleep(300L);
-                        } catch (InterruptedException ignored) {}
+                        } catch (InterruptedException ignored) {
+                        }
                     });
             });
         } catch (IllegalStateException | NullPointerException ignored) {
@@ -191,6 +196,7 @@ public class MainView extends VerticalLayout {
     }
 
     public void makeGrid() {
+        grid.setClassName("styledBorderCorner");
         grid.addColumn(gridValueProvider::getTicker)
                 .setHeader("Ticker")
                 .setSortable(true)
@@ -219,10 +225,20 @@ public class MainView extends VerticalLayout {
                 .setHeader("Profit [+%]")
                 .setKey("profit")
                 .setComparator(Comparator.comparingDouble(asset -> Double.parseDouble(gridValueProvider.profit(asset))));
-
         grid.asSingleSelect().addValueChangeListener(event -> newAssetForm.setAsset(grid.asSingleSelect().getValue()));
         grid.setSizeFull();
+        grid.setMaxHeight(476F, Unit.PIXELS);
         footerRow = grid.appendFooterRow();
+    }
+
+    private float getGridActualHeight() {
+        double[] actualHeight = new double[1];
+        grid.getElement()
+                .executeJs("return $0.clientHeight", grid.getElement()).then(height -> {
+                    Notification.show("grid height " + height.asNumber());
+                    actualHeight[0] = height.asNumber();
+                });
+        return (float) actualHeight[0];
     }
 
     public HorizontalLayout makeToolbar() {

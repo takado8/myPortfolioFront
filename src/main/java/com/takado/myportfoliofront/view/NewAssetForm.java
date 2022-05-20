@@ -26,6 +26,7 @@ import java.math.BigDecimal;
 import java.util.Comparator;
 
 @JsModule("@vaadin/vaadin-lumo-styles/badge.js")
+@CssImport(include = "styledBorderCorner", value = "./styles.css")
 @CssImport(include = "lumo-badge", value = "@vaadin/vaadin-lumo-styles/badge.js")
 public class NewAssetForm extends FormLayout {
     private final static String regexValidationPattern = "(?!0\\d)[0-9]*(?<=\\d+)\\.?[0-9]*";
@@ -85,6 +86,7 @@ public class NewAssetForm extends FormLayout {
     }
 
     private void makeTradeGrid() {
+        tradesGrid.setClassName("styledBorderCorner");
         tradesGrid.addColumn(Trade::getAmount)
                 .setHeader("Amount")
                 .setComparator(Comparator.comparingDouble(trade -> Double.parseDouble(trade.getAmount())));
@@ -94,7 +96,8 @@ public class NewAssetForm extends FormLayout {
         tradesGrid.addColumn(tradeTypeComponentRenderer())
                 .setHeader("Type")
                 .setAutoWidth(true);
-        tradesGrid.setMaxHeight(220F, Unit.PIXELS);
+        tradesGrid.setMaxHeight(160F, Unit.PIXELS);
+//        tradesGrid.setSizeFull();
     }
 
     private static final SerializableBiConsumer<Span, Trade> typeComponentUpdater = (span, trade) -> {

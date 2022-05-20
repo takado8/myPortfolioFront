@@ -8,8 +8,10 @@ function addCssBlock(block) {
  tpl.innerHTML = block;
  document.head.appendChild(tpl.content);
 }
-import $css_0 from '@vaadin/vaadin-lumo-styles/badge.js';
-addCssBlock(`<custom-style><style include="lumo-badge">${$css_0}</style></custom-style>`);
+import $css_0 from 'Frontend/styles.css';
+addCssBlock(`<custom-style><style include="styledBorderCorner">${$css_0}</style></custom-style>`);
+import $css_1 from '@vaadin/vaadin-lumo-styles/badge.js';
+addCssBlock(`<custom-style><style include="lumo-badge">${$css_1}</style></custom-style>`);
 
 import '@polymer/iron-icon/iron-icon.js';
 import '@polymer/iron-list/iron-list.js';

@@ -1,0 +1,8 @@
+.styledBorderCorner {
+    border-radius: 1em;
+    overflow: hidden;
+}
+
+/*html {*/
+/*    --lumo-border-radius-m: 1em;*/
+/*}*/
