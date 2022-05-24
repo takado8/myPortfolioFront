@@ -3,6 +3,8 @@
     overflow: hidden;
 }
 
-/*html {*/
-/*    --lumo-border-radius-m: 1em;*/
-/*}*/
+.tradesGridStyle {
+    border-radius: 1em;
+    overflow: hidden;
+    font-size: small;
+}

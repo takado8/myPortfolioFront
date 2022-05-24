@@ -46,7 +46,8 @@ public class MainView extends VerticalLayout {
     private final GridValueProvider gridValueProvider;
     private final AuthenticationService authenticationService;
     private final UserService userService;
-    private final Grid<Asset> grid = new Grid<>();
+    public final Grid<Asset> grid = new Grid<>();
+    public HorizontalLayout gridLayout = new HorizontalLayout();
     private FooterRow footerRow;
     private final TextField filter = new TextField();
     private final NewAssetForm newAssetForm;
@@ -68,7 +69,9 @@ public class MainView extends VerticalLayout {
 
         makeGrid();
         HorizontalLayout toolbar = makeToolbar();
-        HorizontalLayout mainContent = new HorizontalLayout(grid, newAssetForm);
+        gridLayout.add(grid);
+        gridLayout.setSizeFull();
+        HorizontalLayout mainContent = new HorizontalLayout(gridLayout, newAssetForm);
         mainContent.setSizeFull();
         add(toolbar, mainContent);
         setSizeFull();

@@ -26,7 +26,7 @@ import java.math.BigDecimal;
 import java.util.Comparator;
 
 @JsModule("@vaadin/vaadin-lumo-styles/badge.js")
-@CssImport(include = "styledBorderCorner", value = "./styles.css")
+@CssImport(include = "tradesGridStyle", value = "./styles.css")
 @CssImport(include = "lumo-badge", value = "@vaadin/vaadin-lumo-styles/badge.js")
 public class NewAssetForm extends FormLayout {
     private final static String regexValidationPattern = "(?!0\\d)[0-9]*(?<=\\d+)\\.?[0-9]*";
@@ -35,12 +35,13 @@ public class NewAssetForm extends FormLayout {
     private final TextField amountField = new TextField("Amount");
     private final TextField valueInField = new TextField("Value in");
     private final Grid<Trade> tradesGrid = new Grid<>(Trade.class, false);
-
+    private final HorizontalLayout gridLayout = new HorizontalLayout();
 
     private final MainView mainView;
     private final AssetService assetService;
     private final TickerService tickerService;
     private final TradeService tradeService;
+    private boolean isTradesGridMaximized = false;
 
     public NewAssetForm(MainView mainView, AssetService assetService, TickerService tickerService,
                         TradeService tradeService) {
@@ -70,34 +71,75 @@ public class NewAssetForm extends FormLayout {
         deleteButton.getStyle().set("cursor", "pointer");
         deleteButton.addClickListener(event -> deleteAsset());
 
-        makeTradeGrid();
+        makeTradesGrid();
         refreshTradeGrid();
         Label spacing = new Label();
         spacing.setHeight(10F, Unit.PIXELS);
 
         Label gridLabel = new Label();
-        gridLabel.setText("History");
+        gridLabel.setText("Recent History (show all)");
         gridLabel.setHeight(30F, Unit.PIXELS);
+
+//        Label spacing2 = new Label();
+//        spacing2.setMinWidth(100, Unit.PIXELS);
+//
+//
+//        Label showAllHistoryLabel = new Label();
+//        showAllHistoryLabel.setText("Show all");
+//        showAllHistoryLabel.setHeight(30F, Unit.PIXELS);
+
+        HorizontalLayout labelsLayout = new HorizontalLayout();
+        labelsLayout.addClickListener(event -> showAllTradesLabelClicked());
+        labelsLayout.add(gridLabel);
 
         Span confirmed = new Span("Confirmed Badge");
         confirmed.getElement().getThemeList().add("badge success");
-
-        add(tickerBox, amountField, valueInField, buttons, spacing, gridLabel, tradesGrid);
+        gridLayout.add(tradesGrid);
+        gridLayout.setSizeFull();
+        add(tickerBox, amountField, valueInField, buttons, spacing, labelsLayout, gridLayout);
     }
 
-    private void makeTradeGrid() {
-        tradesGrid.setClassName("styledBorderCorner");
+    void showAllTradesLabelClicked() {
+        if (isTradesGridMaximized) {
+            isTradesGridMaximized = false;
+            mainView.gridLayout.removeAll();
+            this.gridLayout.removeAll();
+            mainView.gridLayout.add(mainView.grid);
+            this.gridLayout.add(tradesGrid);
+
+        } else {
+            isTradesGridMaximized = true;
+            mainView.gridLayout.removeAll();
+            this.gridLayout.removeAll();
+            mainView.gridLayout.add(tradesGrid);
+            this.gridLayout.add(mainView.grid);
+        }
+//        gridLayout.setSizeFull();
+        mainView.gridLayout.setSizeUndefined();
+//        tradesGrid.setSizeFull();
+//        mainView.setSizeFull();
+//        mainView.grid.setSizeFull();
+
+    }
+
+    private void makeTradesGrid() {
+        tradesGrid.setClassName("tradesGridStyle");
+        tradesGrid.addColumn(Trade::getLocalDateTimeString)
+                .setHeader("Date")
+                .setAutoWidth(true);
+
         tradesGrid.addColumn(Trade::getAmount)
                 .setHeader("Amount")
                 .setComparator(Comparator.comparingDouble(trade -> Double.parseDouble(trade.getAmount())));
         tradesGrid.addColumn(Trade::getValue)
                 .setHeader("Value")
                 .setComparator(Comparator.comparingDouble(trade -> Double.parseDouble(trade.getValue())));
+        tradesGrid.addColumn(Trade::getPrice)
+                .setHeader("Price");
         tradesGrid.addColumn(tradeTypeComponentRenderer())
                 .setHeader("Type")
                 .setAutoWidth(true);
         tradesGrid.setMaxHeight(160F, Unit.PIXELS);
-//        tradesGrid.setSizeFull();
     }
 
     private static final SerializableBiConsumer<Span, Trade> typeComponentUpdater = (span, trade) -> {
