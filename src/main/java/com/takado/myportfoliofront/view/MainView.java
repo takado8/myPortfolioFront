@@ -234,7 +234,7 @@ public class MainView extends VerticalLayout {
         footerRow = grid.appendFooterRow();
     }
 
-    private float getGridActualHeight() {
+    private float getGridActualHeight(Grid grid) {
         double[] actualHeight = new double[1];
         grid.getElement()
                 .executeJs("return $0.clientHeight", grid.getElement()).then(height -> {

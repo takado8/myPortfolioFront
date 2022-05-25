@@ -17,6 +17,7 @@ import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
@@ -35,7 +36,7 @@ public class NewAssetForm extends FormLayout {
     private final TextField amountField = new TextField("Amount");
     private final TextField valueInField = new TextField("Value in");
     private final Grid<Trade> tradesGrid = new Grid<>(Trade.class, false);
-    private final HorizontalLayout gridLayout = new HorizontalLayout();
+    private final HorizontalLayout tradesGridLayout = new HorizontalLayout();
 
     private final MainView mainView;
     private final AssetService assetService;
@@ -94,32 +95,36 @@ public class NewAssetForm extends FormLayout {
 
         Span confirmed = new Span("Confirmed Badge");
         confirmed.getElement().getThemeList().add("badge success");
-        gridLayout.add(tradesGrid);
-        gridLayout.setSizeFull();
-        add(tickerBox, amountField, valueInField, buttons, spacing, labelsLayout, gridLayout);
+        tradesGridLayout.add(tradesGrid);
+        tradesGridLayout.setSizeFull();
+        add(tickerBox, amountField, valueInField, buttons, spacing, labelsLayout, tradesGridLayout);
     }
 
     void showAllTradesLabelClicked() {
         if (isTradesGridMaximized) {
             isTradesGridMaximized = false;
             mainView.gridLayout.removeAll();
-            this.gridLayout.removeAll();
+            this.tradesGridLayout.removeAll();
             mainView.gridLayout.add(mainView.grid);
-            this.gridLayout.add(tradesGrid);
-
+            this.tradesGridLayout.add(tradesGrid);
+            tradesGrid.setClassName("tradesGridStyle");
+            tradesGrid.setMaxHeight(160F, Unit.PIXELS);
         } else {
             isTradesGridMaximized = true;
             mainView.gridLayout.removeAll();
-            this.gridLayout.removeAll();
-            mainView.gridLayout.add(tradesGrid);
-            this.gridLayout.add(mainView.grid);
-        }
-//        gridLayout.setSizeFull();
-        mainView.gridLayout.setSizeUndefined();
-//        tradesGrid.setSizeFull();
-//        mainView.setSizeFull();
-//        mainView.grid.setSizeFull();
+            this.tradesGridLayout.removeAll();
+            tradesGrid.setClassName("styledBorderCorner");
+            tradesGrid.setMaxHeight(476F, Unit.PIXELS);
 
+//            mainView.grid.setMinHeight(160F, Unit.PIXELS);
+//            mainView.grid.setMinWidth(220F, Unit.PIXELS);
+//            this.tradesGridLayout.add(mainView.grid);
+
+//            this.mainView.grid.setSizeFull();
+
+            mainView.gridLayout.add(tradesGrid);
+//            this.tradesGridLayout.setSizeFull();
+        }
     }
 
     private void makeTradesGrid() {
