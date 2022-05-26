@@ -1,13 +1,14 @@
 package com.takado.myportfoliofront.service;
 
 import com.takado.myportfoliofront.client.AssetClient;
-import com.takado.myportfoliofront.client.PriceClient;
 import com.takado.myportfoliofront.domain.Ticker;
 import com.takado.myportfoliofront.mapper.AssetMapper;
 import com.takado.myportfoliofront.domain.Asset;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -15,10 +16,8 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class AssetService {
-    private final static String USD = "usd";
     private final TickerService tickerService;
     private final AssetClient assetClient;
-    private final PriceClient priceClient;
     private final AssetMapper assetMapper;
     private final Set<Asset> assets;
 
@@ -27,13 +26,14 @@ public class AssetService {
         assets.addAll(assetMapper.mapToAssetSet(assetClient.getAssets(userId)));
     }
 
-    public void fetchPrices() {
-        String[] coinsIds = assets.stream().map(asset -> asset.getTicker().getCoinId()).toArray(String[]::new);
-        var prices = priceClient.getCoinsPrices(USD, coinsIds);
-
+    public void setPrices(Map<String, BigDecimal> prices) {
         for (Asset asset : assets) {
-            asset.setPriceNow(prices.get(asset.getTicker().getCoinId()).get(USD));
+            asset.setPriceNow(prices.get(asset.getTicker().getCoinId()));
         }
+    }
+
+    public String[] getCoinsIds() {
+        return assets.stream().map(asset -> asset.getTicker().getCoinId()).toArray(String[]::new);
     }
 
     public void createAsset(String tickerString, Long userId, String amount, String valueIn) {

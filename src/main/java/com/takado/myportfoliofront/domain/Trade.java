@@ -2,9 +2,8 @@ package com.takado.myportfoliofront.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -37,13 +36,11 @@ public class Trade {
     }
 
     public String getLocalDateTimeString() {
-//        LocalDateTime myDateObj = LocalDateTime.now();
-//        System.out.println("Before formatting: " + myDateObj);
-        DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+        DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("dd-MM-yy HH:mm:ss");
         return dateTime.format(myFormatObj);
     }
 
     public String getPrice() {
-        return formatPriceString(new BigDecimal(amount).multiply(new BigDecimal(value)));
+        return formatPriceString(new BigDecimal(value).divide(new BigDecimal(amount), MathContext.DECIMAL128));
     }
 }

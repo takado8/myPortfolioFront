@@ -17,7 +17,6 @@ import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
@@ -73,7 +72,7 @@ public class NewAssetForm extends FormLayout {
         deleteButton.addClickListener(event -> deleteAsset());
 
         makeTradesGrid();
-        refreshTradeGrid();
+        refreshTradesGrid();
         Label spacing = new Label();
         spacing.setHeight(10F, Unit.PIXELS);
 
@@ -115,15 +114,7 @@ public class NewAssetForm extends FormLayout {
             this.tradesGridLayout.removeAll();
             tradesGrid.setClassName("styledBorderCorner");
             tradesGrid.setMaxHeight(476F, Unit.PIXELS);
-
-//            mainView.grid.setMinHeight(160F, Unit.PIXELS);
-//            mainView.grid.setMinWidth(220F, Unit.PIXELS);
-//            this.tradesGridLayout.add(mainView.grid);
-
-//            this.mainView.grid.setSizeFull();
-
             mainView.gridLayout.add(tradesGrid);
-//            this.tradesGridLayout.setSizeFull();
         }
     }
 
@@ -131,8 +122,9 @@ public class NewAssetForm extends FormLayout {
         tradesGrid.setClassName("tradesGridStyle");
         tradesGrid.addColumn(Trade::getLocalDateTimeString)
                 .setHeader("Date")
+                .setSortable(true)
+                .setComparator(Comparator.comparing(Trade::getDateTime))
                 .setAutoWidth(true);
-
         tradesGrid.addColumn(Trade::getAmount)
                 .setHeader("Amount")
                 .setComparator(Comparator.comparingDouble(trade -> Double.parseDouble(trade.getAmount())));
@@ -140,10 +132,13 @@ public class NewAssetForm extends FormLayout {
                 .setHeader("Value")
                 .setComparator(Comparator.comparingDouble(trade -> Double.parseDouble(trade.getValue())));
         tradesGrid.addColumn(Trade::getPrice)
-                .setHeader("Price");
+                .setHeader("Price")
+                .setSortable(true);
         tradesGrid.addColumn(tradeTypeComponentRenderer())
                 .setHeader("Type")
-                .setAutoWidth(true);
+                .setAutoWidth(true)
+                .setComparator(Comparator.comparing(trade -> trade.getType().toString()))
+                .setSortable(true);
         tradesGrid.setMaxHeight(160F, Unit.PIXELS);
     }
 
@@ -158,7 +153,7 @@ public class NewAssetForm extends FormLayout {
         return new ComponentRenderer<>(Span::new, typeComponentUpdater);
     }
 
-    private void refreshTradeGrid() {
+    private void refreshTradesGrid() {
         tradesGrid.setItems(tradeService.getTradeList());
     }
 

@@ -42,6 +42,7 @@ import static com.takado.myportfoliofront.service.PriceFormatter.formatProfitStr
 @Theme(value = Lumo.class, variant = Lumo.DARK)
 public class MainView extends VerticalLayout {
     private final AssetService assetService;
+    private final PricesService pricesService;
     private final VsCurrencyService vsCurrencyService;
     private final GridValueProvider gridValueProvider;
     private final AuthenticationService authenticationService;
@@ -59,8 +60,9 @@ public class MainView extends VerticalLayout {
 
     public MainView(AssetService assetService, GridValueProvider gridValueProvider,
                     AuthenticationService authenticationService, UserService userService,
-                    TickerService tickerService, TradeService tradeService) {
+                    TickerService tickerService, TradeService tradeService, PricesService pricesService) {
         this.assetService = assetService;
+        this.pricesService = pricesService;
         this.vsCurrencyService = VsCurrencyService.getInstance();
         this.gridValueProvider = gridValueProvider;
         this.authenticationService = authenticationService;
@@ -159,9 +161,13 @@ public class MainView extends VerticalLayout {
     }
 
     public void refresh() {
-        assetService.fetchPrices();
-        grid.setItems(assetService.getAssets());
-        refreshFooterRow();
+        try {
+            var prices = pricesService.fetchPrices(assetService.getCoinsIds());
+            assetService.setPrices(prices);
+            grid.setItems(assetService.getAssets());
+            refreshFooterRow();
+        } catch (NullPointerException ignored) {
+        }
     }
 
     public void refreshFooterRow() {

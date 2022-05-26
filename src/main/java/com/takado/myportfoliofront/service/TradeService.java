@@ -3,9 +3,9 @@ package com.takado.myportfoliofront.service;
 import com.takado.myportfoliofront.domain.Ticker;
 import com.takado.myportfoliofront.domain.Trade;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,10 +17,12 @@ public class TradeService {
     public TradeService() {
         tradeList = new ArrayList<>();
         Trade trade1 = new Trade(1L,1L, new Ticker(1L, "ADA", "cardano"),
-                "100", "300", Trade.Type.BID);
+                "100", "300", Trade.Type.BID, LocalDateTime.of(2022,1,1, 12,
+                9,43));
 
         Trade trade2 = new Trade(2L,1L, new Ticker(1L, "ADA", "cardano"),
-                "120", "200", Trade.Type.BID);
+                "120", "200", Trade.Type.BID, LocalDateTime.of(2022,1,5, 12,
+                9,43));
 
         Trade trade3 = new Trade(3L,1L, new Ticker(1L, "ADA", "cardano"),
                 "50", "200", Trade.Type.ASK);
@@ -29,11 +31,10 @@ public class TradeService {
                 "505", "400", Trade.Type.BID);
         Trade trade5 = new Trade(5L,1L, new Ticker(1L, "ADA", "cardano"),
                 "125", "130", Trade.Type.ASK);
-        tradeList.add(trade1);
         tradeList.add(trade2);
-        tradeList.add(trade3);
         tradeList.add(trade4);
+        tradeList.add(trade3);
+        tradeList.add(trade1);
         tradeList.add(trade5);
     }
-
 }
