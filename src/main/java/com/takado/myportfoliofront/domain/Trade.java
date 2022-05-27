@@ -40,7 +40,7 @@ public class Trade implements Priceable {
     }
 
     public String getLocalDateTimeString() {
-        DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("dd-MM-yy HH:mm");
+        DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("dd-MM-yy HH:mm:ss");
         return dateTime.format(myFormatObj);
     }
 

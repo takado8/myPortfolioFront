@@ -9,11 +9,13 @@ function addCssBlock(block) {
  document.head.appendChild(tpl.content);
 }
 import $css_0 from 'Frontend/styles.css';
-addCssBlock(`<custom-style><style include="styledBorderCorner">${$css_0}</style></custom-style>`);
+addCssBlock(`<custom-style><style include="tradesGridStyle">${$css_0}</style></custom-style>`);
 import $css_1 from 'Frontend/styles.css';
-addCssBlock(`<custom-style><style include="tradesGridStyle">${$css_1}</style></custom-style>`);
+addCssBlock(`<custom-style><style include="italicText">${$css_1}</style></custom-style>`);
 import $css_2 from '@vaadin/vaadin-lumo-styles/badge.js';
 addCssBlock(`<custom-style><style include="lumo-badge">${$css_2}</style></custom-style>`);
+import $css_3 from 'Frontend/styles.css';
+addCssBlock(`<custom-style><style include="styledBorderCorner">${$css_3}</style></custom-style>`);
 
 import '@polymer/iron-icon/iron-icon.js';
 import '@polymer/iron-list/iron-list.js';

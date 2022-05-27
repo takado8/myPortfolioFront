@@ -18,7 +18,9 @@ import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.function.SerializableBiConsumer;
@@ -28,6 +30,7 @@ import java.util.Comparator;
 
 @JsModule("@vaadin/vaadin-lumo-styles/badge.js")
 @CssImport(include = "tradesGridStyle", value = "./styles.css")
+@CssImport(include = "italicText", value = "./styles.css")
 @CssImport(include = "lumo-badge", value = "@vaadin/vaadin-lumo-styles/badge.js")
 public class NewAssetForm extends FormLayout {
     private final static String regexValidationPattern = "(?!0\\d)[0-9]*(?<=\\d+)\\.?[0-9]*";
@@ -44,15 +47,15 @@ public class NewAssetForm extends FormLayout {
     private final TradeService tradeService;
     private boolean isTradesGridMaximized = false;
 
-    Button addButton;
-    Button subtractButton;
-    Button deleteButton;
-    String addButtonText = "Add to position";
-    String addButtonTextShort = "Add";
-    String subtractButtonText = "Subtract from position";
-    String subtractButtonTextShort = "Subtract";
-    String deleteButtonText = "Delete asset";
-    String deleteButtonTextShort = "Delete";
+    private final Button addButton;
+    private final Button subtractButton;
+    private final Button deleteButton;
+    private final static String ADD_BUTTON_TEXT = "Add to position";
+    private final static String ADD_BUTTON_TEXT_SHORT = "Add";
+    private final static String SUBTRACT_BUTTON_TEXT = "Subtract from position";
+    private final static String SUBTRACT_BUTTON_TEXT_SHORT = "Subtract";
+    private final static String DELETE_BUTTON_TEXT = "Delete asset";
+    private final static String DELETE_BUTTON_TEXT_SHORT = "Delete";
 
     public NewAssetForm(MainView mainView, AssetService assetService, TickerService tickerService,
                         TradeService tradeService) {
@@ -68,15 +71,15 @@ public class NewAssetForm extends FormLayout {
         tickerBox.getStyle().set("cursor", "pointer");
         tickerBox.setAllowCustomValue(false);
 
-        addButton = new Button(addButtonText, new Icon(VaadinIcon.PLUS));
+        addButton = new Button(ADD_BUTTON_TEXT, new Icon(VaadinIcon.PLUS));
         addButton.addClickListener(event -> addToAssetButtonClicked());
         addButton.addThemeVariants(ButtonVariant.LUMO_CONTRAST);
         addButton.getStyle().set("cursor", "pointer");
-        subtractButton = new Button(subtractButtonText, new Icon(VaadinIcon.MINUS));
+        subtractButton = new Button(SUBTRACT_BUTTON_TEXT, new Icon(VaadinIcon.MINUS));
         subtractButton.addClickListener(event -> subtractFromAssetButtonClicked());
         subtractButton.addThemeVariants(ButtonVariant.LUMO_CONTRAST);
         subtractButton.getStyle().set("cursor", "pointer");
-        deleteButton = new Button(deleteButtonText);
+        deleteButton = new Button(DELETE_BUTTON_TEXT);
         HorizontalLayout buttons = new HorizontalLayout(addButton, subtractButton, deleteButton);
         deleteButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
         deleteButton.getStyle().set("cursor", "pointer");
@@ -88,29 +91,30 @@ public class NewAssetForm extends FormLayout {
         spacing.setHeight(10F, Unit.PIXELS);
 
         Label gridLabel = new Label();
-        gridLabel.setText("Recent History (show all)");
+        gridLabel.setText("Recent History");
         gridLabel.setHeight(30F, Unit.PIXELS);
 
-//        Label spacing2 = new Label();
-//        spacing2.setMinWidth(100, Unit.PIXELS);
-//
-//
-//        Label showAllHistoryLabel = new Label();
-//        showAllHistoryLabel.setText("Show all");
-//        showAllHistoryLabel.setHeight(30F, Unit.PIXELS);
+        Label spacing2 = new Label();
+        spacing2.setMinWidth(20F, Unit.PIXELS);
 
-        HorizontalLayout labelsLayout = new HorizontalLayout();
-        labelsLayout.addClickListener(event -> showAllTradesLabelClicked());
-        labelsLayout.add(gridLabel);
+        Span showAllButton = new Span("Show All");
+        showAllButton.setClassName("italicText");
+        showAllButton.getElement().getThemeList().add("badge");
+        showAllButton.getStyle().set("cursor", "pointer");
+        showAllButton.addClickListener(event -> showAllTradesButtonClicked());
+        showAllButton.setMaxHeight(22F, Unit.PIXELS);
 
-        Span confirmed = new Span("Confirmed Badge");
-        confirmed.getElement().getThemeList().add("badge success");
+        HorizontalLayout labelTradesLayout = new HorizontalLayout();
+        labelTradesLayout.add(gridLabel, showAllButton);
+        labelTradesLayout.setAlignSelf(FlexComponent.Alignment.END, gridLabel);
+        labelTradesLayout.setAlignSelf(FlexComponent.Alignment.CENTER, showAllButton);
+        labelTradesLayout.setSizeFull();
         tradesGridLayout.add(tradesGrid);
         tradesGridLayout.setSizeFull();
-        add(tickerBox, amountField, valueInField, buttons, spacing, labelsLayout, tradesGridLayout);
+        add(tickerBox, amountField, valueInField, buttons, spacing, labelTradesLayout, tradesGridLayout);
     }
 
-    void showAllTradesLabelClicked() {
+    void showAllTradesButtonClicked() {
         if (isTradesGridMaximized) {
             isTradesGridMaximized = false;
             mainView.gridLayout.removeAll();
@@ -123,9 +127,9 @@ public class NewAssetForm extends FormLayout {
             this.tradesGridLayout.add(tradesGrid);
             tradesGrid.setClassName("tradesGridStyle");
             tradesGrid.setMaxHeight(160F, Unit.PIXELS);
-            deleteButton.setText(deleteButtonText);
-            addButton.setText(addButtonText);
-            subtractButton.setText(subtractButtonText);
+            deleteButton.setText(DELETE_BUTTON_TEXT);
+            addButton.setText(ADD_BUTTON_TEXT);
+            subtractButton.setText(SUBTRACT_BUTTON_TEXT);
         } else {
             isTradesGridMaximized = true;
             mainView.gridLayout.removeAll();
@@ -134,7 +138,8 @@ public class NewAssetForm extends FormLayout {
             tradesGrid.addColumn(mainView.gridValueProvider::getValueNow)
                     .setHeader("Value Now")
                     .setAutoWidth(true)
-                    .setSortable(true)
+                    .setComparator(Comparator.comparingDouble(trade ->
+                            mainView.gridValueProvider.valueNow(trade).doubleValue()))
                     .setTextAlign(ColumnTextAlign.END)
                     .setKey("value");
             tradesGrid.addColumn(profitComponentRenderer())
@@ -143,16 +148,15 @@ public class NewAssetForm extends FormLayout {
                     .setKey("profit")
                     .setTextAlign(ColumnTextAlign.CENTER)
                     .setComparator(Comparator.comparingDouble(trade ->
-                            Double.parseDouble(mainView.gridValueProvider.profit(trade))))
-                    .setSortable(true);
+                            Double.parseDouble(mainView.gridValueProvider.profit(trade))));
 
             tradesGrid.setMinWidth(900F, Unit.PIXELS);
             tradesGrid.setClassName("styledBorderCorner");
             tradesGrid.setMaxHeight(476F, Unit.PIXELS);
             mainView.gridLayout.add(tradesGrid);
-            deleteButton.setText(deleteButtonTextShort);
-            addButton.setText(addButtonTextShort);
-            subtractButton.setText(subtractButtonTextShort);
+            deleteButton.setText(DELETE_BUTTON_TEXT_SHORT);
+            addButton.setText(ADD_BUTTON_TEXT_SHORT);
+            subtractButton.setText(SUBTRACT_BUTTON_TEXT_SHORT);
         }
     }
 
@@ -160,7 +164,6 @@ public class NewAssetForm extends FormLayout {
         tradesGrid.setClassName("tradesGridStyle");
         tradesGrid.addColumn(Trade::getLocalDateTimeString)
                 .setHeader("Date")
-                .setSortable(true)
                 .setTextAlign(ColumnTextAlign.START)
                 .setComparator(Comparator.comparing(Trade::getDateTime))
                 .setAutoWidth(true);
@@ -178,12 +181,12 @@ public class NewAssetForm extends FormLayout {
                 .setHeader("Price")
                 .setAutoWidth(true)
                 .setTextAlign(ColumnTextAlign.END)
-                .setSortable(true);
+                .setComparator(Comparator.comparingDouble(trade ->
+                        Double.parseDouble(mainView.gridValueProvider.avgPrice(trade))));
         tradesGrid.addColumn(tradeTypeComponentRenderer())
                 .setHeader("Type")
                 .setAutoWidth(true)
                 .setComparator(Comparator.comparing(trade -> trade.getType().toString()))
-                .setSortable(true)
                 .setTextAlign(ColumnTextAlign.CENTER);
         tradesGrid.setMaxHeight(160F, Unit.PIXELS);
     }
@@ -201,7 +204,7 @@ public class NewAssetForm extends FormLayout {
 
     private final SerializableBiConsumer<Span, Trade> profitComponentUpdater = (span, trade) -> {
         String theme = String
-                .format("badge %s",Double.parseDouble(mainView.gridValueProvider.profit(trade)) >= 0 ? "success" : "error");
+                .format("badge %s", Double.parseDouble(mainView.gridValueProvider.profit(trade)) >= 0 ? "success" : "error");
         span.getElement().setAttribute("theme", theme);
         span.setText(mainView.gridValueProvider.getProfit(trade) + "%");
     };

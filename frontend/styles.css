@@ -8,3 +8,7 @@
     overflow: hidden;
     font-size: small;
 }
+
+.italicText {
+    font-style: italic;
+}

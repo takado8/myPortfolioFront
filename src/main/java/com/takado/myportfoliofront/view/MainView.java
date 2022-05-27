@@ -237,7 +237,7 @@ public class MainView extends VerticalLayout {
                 .setHeader("Price Now [" + gridValueProvider.getCurrentPriceCurrency() + "]")
                 .setKey("priceNow")
                 .setTextAlign(ColumnTextAlign.END)
-                .setComparator(Comparator.comparingDouble(asset -> Double.parseDouble(asset.getPriceNow().toPlainString())));
+                .setComparator(Comparator.comparingDouble(asset -> asset.getPriceNow().doubleValue()));
         grid.addColumn(gridValueProvider::getValueIn)
                 .setHeader("Value In [" + gridValueProvider.getCurrentValueCurrency() + "]")
                 .setKey("valueIn")
