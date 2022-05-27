@@ -31,6 +31,7 @@ import java.util.Comparator;
 @JsModule("@vaadin/vaadin-lumo-styles/badge.js")
 @CssImport(include = "tradesGridStyle", value = "./styles.css")
 @CssImport(include = "italicText", value = "./styles.css")
+@CssImport(include = "labelTradesStyle", value = "./styles.css")
 @CssImport(include = "lumo-badge", value = "@vaadin/vaadin-lumo-styles/badge.js")
 public class NewAssetForm extends FormLayout {
     private final static String regexValidationPattern = "(?!0\\d)[0-9]*(?<=\\d+)\\.?[0-9]*";
@@ -88,7 +89,7 @@ public class NewAssetForm extends FormLayout {
         makeTradesGrid();
         refreshTradesGrid();
         Label spacing = new Label();
-        spacing.setHeight(10F, Unit.PIXELS);
+        spacing.setHeight(6F, Unit.PIXELS);
 
         Label gridLabel = new Label();
         gridLabel.setText("Recent History");
@@ -105,9 +106,11 @@ public class NewAssetForm extends FormLayout {
         showAllButton.setMaxHeight(22F, Unit.PIXELS);
 
         HorizontalLayout labelTradesLayout = new HorizontalLayout();
+        labelTradesLayout.setClassName("labelTradesStyle");
         labelTradesLayout.add(gridLabel, showAllButton);
         labelTradesLayout.setAlignSelf(FlexComponent.Alignment.END, gridLabel);
         labelTradesLayout.setAlignSelf(FlexComponent.Alignment.CENTER, showAllButton);
+//        labelTradesLayout.setMargin(true);
         labelTradesLayout.setSizeFull();
         tradesGridLayout.add(tradesGrid);
         tradesGridLayout.setSizeFull();
@@ -126,7 +129,7 @@ public class NewAssetForm extends FormLayout {
             mainView.gridLayout.add(mainView.grid);
             this.tradesGridLayout.add(tradesGrid);
             tradesGrid.setClassName("tradesGridStyle");
-            tradesGrid.setMaxHeight(160F, Unit.PIXELS);
+            tradesGrid.setMaxHeight(164F, Unit.PIXELS);
             deleteButton.setText(DELETE_BUTTON_TEXT);
             addButton.setText(ADD_BUTTON_TEXT);
             subtractButton.setText(SUBTRACT_BUTTON_TEXT);
@@ -188,7 +191,7 @@ public class NewAssetForm extends FormLayout {
                 .setAutoWidth(true)
                 .setComparator(Comparator.comparing(trade -> trade.getType().toString()))
                 .setTextAlign(ColumnTextAlign.CENTER);
-        tradesGrid.setMaxHeight(160F, Unit.PIXELS);
+        tradesGrid.setMaxHeight(164F, Unit.PIXELS);
     }
 
     private static final SerializableBiConsumer<Span, Trade> typeComponentUpdater = (span, trade) -> {

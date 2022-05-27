@@ -36,8 +36,8 @@ public class TradeService {
         tradeList.add(trade2);
         tradeList.add(trade4);
         tradeList.add(trade3);
-        tradeList.add(trade1);
-        tradeList.add(trade5);
+//        tradeList.add(trade1);
+//        tradeList.add(trade5);
     }
 
     public void setPrices(Map<String, BigDecimal> prices) {

@@ -1,7 +1,6 @@
 package com.takado.myportfoliofront.view;
 
 import com.takado.myportfoliofront.domain.Asset;
-import com.takado.myportfoliofront.domain.Trade;
 import com.takado.myportfoliofront.domain.UserDto;
 import com.takado.myportfoliofront.service.*;
 import com.vaadin.flow.component.Text;
@@ -15,7 +14,6 @@ import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.FooterRow;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.Push;
@@ -25,7 +23,6 @@ import com.vaadin.flow.data.provider.Query;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.function.SerializableBiConsumer;
-import com.vaadin.flow.function.ValueProvider;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.Theme;
@@ -186,7 +183,14 @@ public class MainView extends VerticalLayout {
         footerRow.getCell(grid.getColumnByKey("ticker")).setText("Total:");
         footerRow.getCell(grid.getColumnByKey("valueIn")).setText(formatPriceString(totalValueIn()));
         footerRow.getCell(grid.getColumnByKey("valueNow")).setText(formatPriceString(totalValueNow()));
-        footerRow.getCell(grid.getColumnByKey("profit")).setText(formatProfitString(totalProfit()));
+        footerRow.getCell(grid.getColumnByKey("profit")).setComponent(getTotalProfitBadge());
+    }
+
+    private Span getTotalProfitBadge() {
+        var totalProfit = totalProfit();
+        Span badge = new Span(formatProfitString(totalProfit) + "%");
+        badge.getElement().getThemeList().add("badge " + (totalProfit.doubleValue() >= 0 ? "success" : "error"));
+        return badge;
     }
 
     public List<Asset> getAssetsFromGrid() {
@@ -253,10 +257,30 @@ public class MainView extends VerticalLayout {
                 .setKey("profit")
                 .setTextAlign(ColumnTextAlign.CENTER)
                 .setComparator(Comparator.comparingDouble(asset -> Double.parseDouble(gridValueProvider.profit(asset))));
-        grid.asSingleSelect().addValueChangeListener(event -> newAssetForm.setAsset(grid.asSingleSelect().getValue()));
+        grid.asSingleSelect().addValueChangeListener(event -> gridItemSelected());
         grid.setSizeFull();
         grid.setMaxHeight(476F, Unit.PIXELS);
         footerRow = grid.appendFooterRow();
+    }
+
+    private void switchProfitColumnVisibility() {
+        var profitColumn = grid.getColumnByKey("profit");
+        if (newAssetForm.isVisible() && profitColumn != null) {
+            grid.removeColumn(profitColumn);
+        } else if (profitColumn == null && !newAssetForm.isVisible()) {
+            grid.addColumn(profitComponentRenderer())
+                    .setHeader("Profit [+%]")
+                    .setKey("profit")
+                    .setTextAlign(ColumnTextAlign.CENTER)
+                    .setComparator(Comparator.comparingDouble(asset ->
+                            Double.parseDouble(gridValueProvider.profit(asset))));
+        }
+        refreshFooterRow();
+    }
+
+    private void gridItemSelected() {
+        newAssetForm.setAsset(grid.asSingleSelect().getValue());
+        switchProfitColumnVisibility();
     }
 
     public HorizontalLayout makeToolbar() {
@@ -280,6 +304,7 @@ public class MainView extends VerticalLayout {
         addNewAssetButton.addClickListener(e -> {
             grid.asSingleSelect().clear();
             newAssetForm.setAsset(new Asset());
+            switchProfitColumnVisibility();
         });
 
         Button logoutButton = new Button("Logout");
@@ -304,7 +329,7 @@ public class MainView extends VerticalLayout {
 
     private final SerializableBiConsumer<Span, Asset> profitComponentUpdater = (span, asset) -> {
         String theme = String
-                .format("badge %s",Double.parseDouble(gridValueProvider.profit(asset)) >= 0 ? "success" : "error");
+                .format("badge %s", Double.parseDouble(gridValueProvider.profit(asset)) >= 0 ? "success" : "error");
         span.getElement().setAttribute("theme", theme);
         span.setText(gridValueProvider.getProfit(asset) + "%");
     };
