@@ -5,9 +5,11 @@ import com.takado.myportfoliofront.domain.Trade;
 import lombok.Getter;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Getter
@@ -36,5 +38,11 @@ public class TradeService {
         tradeList.add(trade3);
         tradeList.add(trade1);
         tradeList.add(trade5);
+    }
+
+    public void setPrices(Map<String, BigDecimal> prices) {
+        for (Trade trade : tradeList) {
+            trade.setPriceNow(prices.get(trade.getTicker().getCoinId()));
+        }
     }
 }

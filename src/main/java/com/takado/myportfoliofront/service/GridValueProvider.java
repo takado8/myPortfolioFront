@@ -1,7 +1,7 @@
 package com.takado.myportfoliofront.service;
 
 import com.takado.myportfoliofront.client.PriceClient;
-import com.takado.myportfoliofront.domain.Asset;
+import com.takado.myportfoliofront.domain.Priceable;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,41 +18,41 @@ public class GridValueProvider {
     private String currentValueCurrency;
     private String currentPriceCurrency;
 
-    public String getTicker(Asset asset) {
+    public String getTicker(Priceable asset) {
         return asset.getTicker().getTicker();
     }
 
-    public String getAmount(Asset asset) {
+    public String getAmount(Priceable asset) {
         return formatPriceString(asset.getAmount());
     }
 
-    public String avgPrice(Asset asset) {
+    public String avgPrice(Priceable asset) {
         return (currentPriceCurrency.equals("PLN") ? new BigDecimal(asset.getValueIn())
                 : new BigDecimal(asset.getValueIn()).divide(priceClient.getExchangeRate(), MathContext.DECIMAL128))
                 .divide(new BigDecimal(asset.getAmount()), MathContext.DECIMAL128).toPlainString();
     }
 
-    public String getAvgPrice(Asset asset) {
+    public String getAvgPrice(Priceable asset) {
         return formatPriceString(avgPrice(asset));
     }
 
-    public String getPriceNow(Asset asset) {
+    public String getPriceNow(Priceable asset) {
         return formatPriceString(
                 currentPriceCurrency.equals("USD") ? asset.getPriceNow() :
                         asset.getPriceNow().multiply(priceClient.getExchangeRate()));
     }
 
-    public BigDecimal valueNow(Asset asset) {
+    public BigDecimal valueNow(Priceable asset) {
         var value = new BigDecimal(asset.getAmount()).multiply(asset.getPriceNow());
         return currentValueCurrency.equals("USD") ? value : value.multiply(priceClient.getExchangeRate());
 
     }
 
-    public String getValueNow(Asset asset) {
+    public String getValueNow(Priceable asset) {
         return formatPriceString(valueNow(asset));
     }
 
-    public String profit(Asset asset) {
+    public String profit(Priceable asset) {
         var valueIn = valueIn(asset);
         if (valueIn.doubleValue() > 0) {
             return valueNow(asset)
@@ -64,16 +64,16 @@ public class GridValueProvider {
         }
     }
 
-    public String getProfit(Asset asset) {
+    public String getProfit(Priceable asset) {
         return formatProfitString(profit(asset));
     }
 
-    public BigDecimal valueIn(Asset asset) {
+    public BigDecimal valueIn(Priceable asset) {
         var value = new BigDecimal(asset.getValueIn());
         return currentValueCurrency.equals("PLN") ? value : value.divide(priceClient.getExchangeRate(), MathContext.DECIMAL128);
     }
 
-    public String getValueIn(Asset asset) {
+    public String getValueIn(Priceable asset) {
         return formatPriceString(valueIn(asset));
     }
 

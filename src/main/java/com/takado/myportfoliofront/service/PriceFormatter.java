@@ -18,7 +18,7 @@ public class PriceFormatter {
 
     public static String formatPriceString(BigDecimal price) {
         DecimalFormat formatter = price.compareTo(BigDecimal.ONE) >= 0 ?
-                new DecimalFormat("#,###.##") : new DecimalFormat("0.########");
+                new DecimalFormat("#,###.00") : new DecimalFormat("0.0000");
         return formatter.format(price);
     }
 

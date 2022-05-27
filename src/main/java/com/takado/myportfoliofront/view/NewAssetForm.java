@@ -12,6 +12,7 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Span;
@@ -37,11 +38,21 @@ public class NewAssetForm extends FormLayout {
     private final Grid<Trade> tradesGrid = new Grid<>(Trade.class, false);
     private final HorizontalLayout tradesGridLayout = new HorizontalLayout();
 
-    private final MainView mainView;
+    private MainView mainView;
     private final AssetService assetService;
     private final TickerService tickerService;
     private final TradeService tradeService;
     private boolean isTradesGridMaximized = false;
+
+    Button addButton;
+    Button subtractButton;
+    Button deleteButton;
+    String addButtonText = "Add to position";
+    String addButtonTextShort = "Add";
+    String subtractButtonText = "Subtract from position";
+    String subtractButtonTextShort = "Subtract";
+    String deleteButtonText = "Delete asset";
+    String deleteButtonTextShort = "Delete";
 
     public NewAssetForm(MainView mainView, AssetService assetService, TickerService tickerService,
                         TradeService tradeService) {
@@ -57,15 +68,15 @@ public class NewAssetForm extends FormLayout {
         tickerBox.getStyle().set("cursor", "pointer");
         tickerBox.setAllowCustomValue(false);
 
-        Button addButton = new Button("Add to position", new Icon(VaadinIcon.PLUS));
+        addButton = new Button(addButtonText, new Icon(VaadinIcon.PLUS));
         addButton.addClickListener(event -> addToAssetButtonClicked());
         addButton.addThemeVariants(ButtonVariant.LUMO_CONTRAST);
         addButton.getStyle().set("cursor", "pointer");
-        Button subtractButton = new Button("Subtract from position", new Icon(VaadinIcon.MINUS));
+        subtractButton = new Button(subtractButtonText, new Icon(VaadinIcon.MINUS));
         subtractButton.addClickListener(event -> subtractFromAssetButtonClicked());
         subtractButton.addThemeVariants(ButtonVariant.LUMO_CONTRAST);
         subtractButton.getStyle().set("cursor", "pointer");
-        Button deleteButton = new Button("Delete asset");
+        deleteButton = new Button(deleteButtonText);
         HorizontalLayout buttons = new HorizontalLayout(addButton, subtractButton, deleteButton);
         deleteButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
         deleteButton.getStyle().set("cursor", "pointer");
@@ -104,17 +115,44 @@ public class NewAssetForm extends FormLayout {
             isTradesGridMaximized = false;
             mainView.gridLayout.removeAll();
             this.tradesGridLayout.removeAll();
+            tradesGrid.setMinWidth(null);
+            tradesGrid.removeColumnByKey("value");
+            tradesGrid.removeColumnByKey("profit");
+
             mainView.gridLayout.add(mainView.grid);
             this.tradesGridLayout.add(tradesGrid);
             tradesGrid.setClassName("tradesGridStyle");
             tradesGrid.setMaxHeight(160F, Unit.PIXELS);
+            deleteButton.setText(deleteButtonText);
+            addButton.setText(addButtonText);
+            subtractButton.setText(subtractButtonText);
         } else {
             isTradesGridMaximized = true;
             mainView.gridLayout.removeAll();
             this.tradesGridLayout.removeAll();
+
+            tradesGrid.addColumn(mainView.gridValueProvider::getValueNow)
+                    .setHeader("Value Now")
+                    .setAutoWidth(true)
+                    .setSortable(true)
+                    .setTextAlign(ColumnTextAlign.END)
+                    .setKey("value");
+            tradesGrid.addColumn(profitComponentRenderer())
+                    .setHeader("Profit")
+                    .setAutoWidth(true)
+                    .setKey("profit")
+                    .setTextAlign(ColumnTextAlign.CENTER)
+                    .setComparator(Comparator.comparingDouble(trade ->
+                            Double.parseDouble(mainView.gridValueProvider.profit(trade))))
+                    .setSortable(true);
+
+            tradesGrid.setMinWidth(900F, Unit.PIXELS);
             tradesGrid.setClassName("styledBorderCorner");
             tradesGrid.setMaxHeight(476F, Unit.PIXELS);
             mainView.gridLayout.add(tradesGrid);
+            deleteButton.setText(deleteButtonTextShort);
+            addButton.setText(addButtonTextShort);
+            subtractButton.setText(subtractButtonTextShort);
         }
     }
 
@@ -123,22 +161,30 @@ public class NewAssetForm extends FormLayout {
         tradesGrid.addColumn(Trade::getLocalDateTimeString)
                 .setHeader("Date")
                 .setSortable(true)
+                .setTextAlign(ColumnTextAlign.START)
                 .setComparator(Comparator.comparing(Trade::getDateTime))
                 .setAutoWidth(true);
-        tradesGrid.addColumn(Trade::getAmount)
+        tradesGrid.addColumn(mainView.gridValueProvider::getAmount)
                 .setHeader("Amount")
+                .setAutoWidth(true)
+                .setTextAlign(ColumnTextAlign.END)
                 .setComparator(Comparator.comparingDouble(trade -> Double.parseDouble(trade.getAmount())));
-        tradesGrid.addColumn(Trade::getValue)
-                .setHeader("Value")
-                .setComparator(Comparator.comparingDouble(trade -> Double.parseDouble(trade.getValue())));
-        tradesGrid.addColumn(Trade::getPrice)
+        tradesGrid.addColumn(mainView.gridValueProvider::getValueIn)
+                .setHeader("Value In")
+                .setAutoWidth(true)
+                .setTextAlign(ColumnTextAlign.END)
+                .setComparator(Comparator.comparingDouble(trade -> Double.parseDouble(trade.getValueIn())));
+        tradesGrid.addColumn(mainView.gridValueProvider::getAvgPrice)
                 .setHeader("Price")
+                .setAutoWidth(true)
+                .setTextAlign(ColumnTextAlign.END)
                 .setSortable(true);
         tradesGrid.addColumn(tradeTypeComponentRenderer())
                 .setHeader("Type")
                 .setAutoWidth(true)
                 .setComparator(Comparator.comparing(trade -> trade.getType().toString()))
-                .setSortable(true);
+                .setSortable(true)
+                .setTextAlign(ColumnTextAlign.CENTER);
         tradesGrid.setMaxHeight(160F, Unit.PIXELS);
     }
 
@@ -153,7 +199,18 @@ public class NewAssetForm extends FormLayout {
         return new ComponentRenderer<>(Span::new, typeComponentUpdater);
     }
 
-    private void refreshTradesGrid() {
+    private final SerializableBiConsumer<Span, Trade> profitComponentUpdater = (span, trade) -> {
+        String theme = String
+                .format("badge %s",Double.parseDouble(mainView.gridValueProvider.profit(trade)) >= 0 ? "success" : "error");
+        span.getElement().setAttribute("theme", theme);
+        span.setText(mainView.gridValueProvider.getProfit(trade) + "%");
+    };
+
+    private ComponentRenderer<Span, Trade> profitComponentRenderer() {
+        return new ComponentRenderer<>(Span::new, profitComponentUpdater);
+    }
+
+    public void refreshTradesGrid() {
         tradesGrid.setItems(tradeService.getTradeList());
     }
 

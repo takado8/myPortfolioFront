@@ -1,6 +1,7 @@
 package com.takado.myportfoliofront.view;
 
 import com.takado.myportfoliofront.domain.Asset;
+import com.takado.myportfoliofront.domain.Trade;
 import com.takado.myportfoliofront.domain.UserDto;
 import com.takado.myportfoliofront.service.*;
 import com.vaadin.flow.component.Text;
@@ -10,8 +11,10 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.FooterRow;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -19,7 +22,10 @@ import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.Query;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
+import com.vaadin.flow.function.SerializableBiConsumer;
+import com.vaadin.flow.function.ValueProvider;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.Theme;
@@ -43,8 +49,9 @@ import static com.takado.myportfoliofront.service.PriceFormatter.formatProfitStr
 public class MainView extends VerticalLayout {
     private final AssetService assetService;
     private final PricesService pricesService;
+    private final TradeService tradeService;
     private final VsCurrencyService vsCurrencyService;
-    private final GridValueProvider gridValueProvider;
+    protected GridValueProvider gridValueProvider;
     private final AuthenticationService authenticationService;
     private final UserService userService;
     public final Grid<Asset> grid = new Grid<>();
@@ -62,6 +69,7 @@ public class MainView extends VerticalLayout {
                     AuthenticationService authenticationService, UserService userService,
                     TickerService tickerService, TradeService tradeService, PricesService pricesService) {
         this.assetService = assetService;
+        this.tradeService = tradeService;
         this.pricesService = pricesService;
         this.vsCurrencyService = VsCurrencyService.getInstance();
         this.gridValueProvider = gridValueProvider;
@@ -162,10 +170,14 @@ public class MainView extends VerticalLayout {
 
     public void refresh() {
         try {
+            var newAssetFormVisible = newAssetForm.isVisible();
             var prices = pricesService.fetchPrices(assetService.getCoinsIds());
             assetService.setPrices(prices);
             grid.setItems(assetService.getAssets());
             refreshFooterRow();
+            tradeService.setPrices(prices);
+            newAssetForm.refreshTradesGrid();
+            newAssetForm.setVisible(newAssetFormVisible);
         } catch (NullPointerException ignored) {
         }
     }
@@ -209,45 +221,42 @@ public class MainView extends VerticalLayout {
         grid.addColumn(gridValueProvider::getTicker)
                 .setHeader("Ticker")
                 .setSortable(true)
+                .setTextAlign(ColumnTextAlign.CENTER)
                 .setKey("ticker");
         grid.addColumn(gridValueProvider::getAmount)
                 .setHeader("Amount")
                 .setKey("amount")
+                .setTextAlign(ColumnTextAlign.END)
                 .setComparator(Comparator.comparingDouble(asset -> Double.parseDouble(asset.getAmount())));
         grid.addColumn(gridValueProvider::getAvgPrice)
                 .setHeader("Avg Price [" + gridValueProvider.getCurrentPriceCurrency() + "]")
                 .setKey("avgPrice")
+                .setTextAlign(ColumnTextAlign.END)
                 .setComparator(Comparator.comparingDouble(asset -> Double.parseDouble(gridValueProvider.avgPrice(asset))));
         grid.addColumn(gridValueProvider::getPriceNow)
                 .setHeader("Price Now [" + gridValueProvider.getCurrentPriceCurrency() + "]")
                 .setKey("priceNow")
+                .setTextAlign(ColumnTextAlign.END)
                 .setComparator(Comparator.comparingDouble(asset -> Double.parseDouble(asset.getPriceNow().toPlainString())));
         grid.addColumn(gridValueProvider::getValueIn)
                 .setHeader("Value In [" + gridValueProvider.getCurrentValueCurrency() + "]")
                 .setKey("valueIn")
+                .setTextAlign(ColumnTextAlign.END)
                 .setComparator(Comparator.comparingDouble(asset -> Double.parseDouble(asset.getValueIn())));
         grid.addColumn(gridValueProvider::getValueNow)
                 .setHeader("Value Now [" + gridValueProvider.getCurrentValueCurrency() + "]")
                 .setKey("valueNow")
+                .setTextAlign(ColumnTextAlign.END)
                 .setComparator(Comparator.comparingDouble(asset -> gridValueProvider.valueNow(asset).doubleValue()));
-        grid.addColumn(gridValueProvider::getProfit)
+        grid.addColumn(profitComponentRenderer())
                 .setHeader("Profit [+%]")
                 .setKey("profit")
+                .setTextAlign(ColumnTextAlign.CENTER)
                 .setComparator(Comparator.comparingDouble(asset -> Double.parseDouble(gridValueProvider.profit(asset))));
         grid.asSingleSelect().addValueChangeListener(event -> newAssetForm.setAsset(grid.asSingleSelect().getValue()));
         grid.setSizeFull();
         grid.setMaxHeight(476F, Unit.PIXELS);
         footerRow = grid.appendFooterRow();
-    }
-
-    private float getGridActualHeight(Grid grid) {
-        double[] actualHeight = new double[1];
-        grid.getElement()
-                .executeJs("return $0.clientHeight", grid.getElement()).then(height -> {
-                    Notification.show("grid height " + height.asNumber());
-                    actualHeight[0] = height.asNumber();
-                });
-        return (float) actualHeight[0];
     }
 
     public HorizontalLayout makeToolbar() {
@@ -291,6 +300,17 @@ public class MainView extends VerticalLayout {
 
         return new HorizontalLayout(filter, priceCurrency, valueCurrency,
                 addNewAssetButton, logoutButton, showUserButton);
+    }
+
+    private final SerializableBiConsumer<Span, Asset> profitComponentUpdater = (span, asset) -> {
+        String theme = String
+                .format("badge %s",Double.parseDouble(gridValueProvider.profit(asset)) >= 0 ? "success" : "error");
+        span.getElement().setAttribute("theme", theme);
+        span.setText(gridValueProvider.getProfit(asset) + "%");
+    };
+
+    private ComponentRenderer<Span, Asset> profitComponentRenderer() {
+        return new ComponentRenderer<>(Span::new, profitComponentUpdater);
     }
 
     public void displayWelcomeMessage() {

@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Asset {
+public class Asset implements Priceable {
     private Long id;
     private Ticker ticker;
     private Long userId;
