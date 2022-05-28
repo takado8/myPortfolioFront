@@ -1,6 +1,7 @@
 package com.takado.myportfoliofront.view;
 
 import com.takado.myportfoliofront.domain.Asset;
+import com.takado.myportfoliofront.domain.Ticker;
 import com.takado.myportfoliofront.domain.Trade;
 import com.takado.myportfoliofront.service.AssetService;
 import com.takado.myportfoliofront.service.TickerService;
@@ -26,6 +27,8 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.function.SerializableBiConsumer;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 
 @JsModule("@vaadin/vaadin-lumo-styles/badge.js")
@@ -217,7 +220,12 @@ public class NewAssetForm extends FormLayout {
     }
 
     public void refreshTradesGrid() {
-        tradesGrid.setItems(tradeService.getTradeList());
+        var tickerString = this.tickerBox.getValue();
+        if (tickerString != null && !tickerString.isBlank()) {
+            Ticker ticker = tickerService.getTicker(tickerString);
+            var tradeList = tradeService.getTradeList(ticker.getCoinId());
+            tradesGrid.setItems(tradeList != null ? tradeList : Collections.emptyList());
+        }
     }
 
     private void addToAssetButtonClicked() {
@@ -307,5 +315,6 @@ public class NewAssetForm extends FormLayout {
             }
             amountField.focus();
         }
+        refreshTradesGrid();
     }
 }

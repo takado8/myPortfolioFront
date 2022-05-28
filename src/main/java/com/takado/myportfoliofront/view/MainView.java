@@ -183,7 +183,10 @@ public class MainView extends VerticalLayout {
         footerRow.getCell(grid.getColumnByKey("ticker")).setText("Total:");
         footerRow.getCell(grid.getColumnByKey("valueIn")).setText(formatPriceString(totalValueIn()));
         footerRow.getCell(grid.getColumnByKey("valueNow")).setText(formatPriceString(totalValueNow()));
-        footerRow.getCell(grid.getColumnByKey("profit")).setComponent(getTotalProfitBadge());
+        var columnProfit = grid.getColumnByKey("profit");
+        if (columnProfit != null) {
+            footerRow.getCell(columnProfit).setComponent(getTotalProfitBadge());
+        }
     }
 
     private Span getTotalProfitBadge() {

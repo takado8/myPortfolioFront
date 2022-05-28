@@ -8,16 +8,17 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @Service
 @Getter
 public class TradeService {
-    private final List<Trade> tradeList;
+    private final Map<String, List<Trade>> tradesMap = new HashMap<>();
 
     public TradeService() {
-        tradeList = new ArrayList<>();
+        List<Trade> tradeList = new ArrayList<>();
         Trade trade1 = new Trade(1L,1L, new Ticker(1L, "ADA", "cardano"),
                 "100", "300", Trade.Type.BID, LocalDateTime.of(2022,1,1, 12,
                 9,43));
@@ -38,11 +39,20 @@ public class TradeService {
         tradeList.add(trade3);
 //        tradeList.add(trade1);
 //        tradeList.add(trade5);
+        tradesMap.put(trade1.getTicker().getCoinId(), tradeList);
+    }
+
+    public List<Trade> getTradeList(String coinId) {
+        return tradesMap.get(coinId);
     }
 
     public void setPrices(Map<String, BigDecimal> prices) {
-        for (Trade trade : tradeList) {
-            trade.setPriceNow(prices.get(trade.getTicker().getCoinId()));
+        for (var entry : tradesMap.entrySet()){
+            var tradesList = entry.getValue();
+            var price = prices.get(tradesList.get(0).getTicker().getCoinId());
+            for (Trade trade : tradesList) {
+                trade.setPriceNow(price);
+            }
         }
     }
 }
