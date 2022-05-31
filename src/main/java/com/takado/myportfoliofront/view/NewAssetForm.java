@@ -123,100 +123,52 @@ public class NewAssetForm extends FormLayout {
     void showAllTradesButtonClicked() {
         if (isTradesGridMaximized) {
             isTradesGridMaximized = false;
-            mainView.gridLayout.removeAll();
-            this.tradesGridLayout.removeAll();
+            removeAllFromGridsLayouts();
             tradesGrid.setMinWidth(null);
             tradesGrid.removeColumnByKey("value");
             tradesGrid.removeColumnByKey("profit");
-
             mainView.gridLayout.add(mainView.grid);
-            this.tradesGridLayout.add(tradesGrid);
+            tradesGridLayout.add(tradesGrid);
             tradesGrid.setClassName("tradesGridStyle");
             tradesGrid.setMaxHeight(164F, Unit.PIXELS);
-            deleteButton.setText(DELETE_BUTTON_TEXT);
-            addButton.setText(ADD_BUTTON_TEXT);
-            subtractButton.setText(SUBTRACT_BUTTON_TEXT);
+            setButtonsNormalText();
         } else {
             isTradesGridMaximized = true;
-            mainView.gridLayout.removeAll();
-            this.tradesGridLayout.removeAll();
-
-            tradesGrid.addColumn(mainView.gridValueProvider::getValueNow)
-                    .setHeader("Value Now")
-                    .setAutoWidth(true)
-                    .setComparator(Comparator.comparingDouble(trade ->
-                            mainView.gridValueProvider.valueNow(trade).doubleValue()))
-                    .setTextAlign(ColumnTextAlign.END)
-                    .setKey("value");
-            tradesGrid.addColumn(profitComponentRenderer())
-                    .setHeader("Profit")
-                    .setAutoWidth(true)
-                    .setKey("profit")
-                    .setTextAlign(ColumnTextAlign.CENTER)
-                    .setComparator(Comparator.comparingDouble(trade ->
-                            Double.parseDouble(mainView.gridValueProvider.profit(trade))));
-
+            removeAllFromGridsLayouts();
+            mainView.gridService.restoreTradesGridValueAndProfitColumns(tradesGrid);
             tradesGrid.setMinWidth(900F, Unit.PIXELS);
             tradesGrid.setClassName("styledBorderCorner");
             tradesGrid.setMaxHeight(476F, Unit.PIXELS);
             mainView.gridLayout.add(tradesGrid);
-            deleteButton.setText(DELETE_BUTTON_TEXT_SHORT);
-            addButton.setText(ADD_BUTTON_TEXT_SHORT);
-            subtractButton.setText(SUBTRACT_BUTTON_TEXT_SHORT);
+            setButtonsShortText();
         }
+    }
+    private void minimizeTradesGrid () {
+
+    }
+    private void maximizeTradesGrid() {
+
+    }
+
+    private void removeAllFromGridsLayouts(){
+        mainView.gridLayout.removeAll();
+        tradesGridLayout.removeAll();
+    }
+
+    private void setButtonsNormalText() {
+        deleteButton.setText(DELETE_BUTTON_TEXT);
+        addButton.setText(ADD_BUTTON_TEXT);
+        subtractButton.setText(SUBTRACT_BUTTON_TEXT);
+    }
+
+    private void setButtonsShortText() {
+        deleteButton.setText(DELETE_BUTTON_TEXT_SHORT);
+        addButton.setText(ADD_BUTTON_TEXT_SHORT);
+        subtractButton.setText(SUBTRACT_BUTTON_TEXT_SHORT);
     }
 
     private void makeTradesGrid() {
-        tradesGrid.setClassName("tradesGridStyle");
-        tradesGrid.addColumn(Trade::getLocalDateTimeString)
-                .setHeader("Date")
-                .setTextAlign(ColumnTextAlign.START)
-                .setComparator(Comparator.comparing(Trade::getDateTime))
-                .setAutoWidth(true);
-        tradesGrid.addColumn(mainView.gridValueProvider::getAmount)
-                .setHeader("Amount")
-                .setAutoWidth(true)
-                .setTextAlign(ColumnTextAlign.END)
-                .setComparator(Comparator.comparingDouble(trade -> Double.parseDouble(trade.getAmount())));
-        tradesGrid.addColumn(mainView.gridValueProvider::getValueIn)
-                .setHeader("Value In")
-                .setAutoWidth(true)
-                .setTextAlign(ColumnTextAlign.END)
-                .setComparator(Comparator.comparingDouble(trade -> Double.parseDouble(trade.getValueIn())));
-        tradesGrid.addColumn(mainView.gridValueProvider::getAvgPrice)
-                .setHeader("Price")
-                .setAutoWidth(true)
-                .setTextAlign(ColumnTextAlign.END)
-                .setComparator(Comparator.comparingDouble(trade ->
-                        Double.parseDouble(mainView.gridValueProvider.avgPrice(trade))));
-        tradesGrid.addColumn(tradeTypeComponentRenderer())
-                .setHeader("Type")
-                .setAutoWidth(true)
-                .setComparator(Comparator.comparing(trade -> trade.getType().toString()))
-                .setTextAlign(ColumnTextAlign.CENTER);
-        tradesGrid.setMaxHeight(164F, Unit.PIXELS);
-    }
-
-    private static final SerializableBiConsumer<Span, Trade> typeComponentUpdater = (span, trade) -> {
-        String theme = String
-                .format("badge %s", trade.getType() == Trade.Type.BID ? "success" : "error");
-        span.getElement().setAttribute("theme", theme);
-        span.setText(trade.getType().toString());
-    };
-
-    private static ComponentRenderer<Span, Trade> tradeTypeComponentRenderer() {
-        return new ComponentRenderer<>(Span::new, typeComponentUpdater);
-    }
-
-    private final SerializableBiConsumer<Span, Trade> profitComponentUpdater = (span, trade) -> {
-        String theme = String
-                .format("badge %s", Double.parseDouble(mainView.gridValueProvider.profit(trade)) >= 0 ? "success" : "error");
-        span.getElement().setAttribute("theme", theme);
-        span.setText(mainView.gridValueProvider.getProfit(trade) + "%");
-    };
-
-    private ComponentRenderer<Span, Trade> profitComponentRenderer() {
-        return new ComponentRenderer<>(Span::new, profitComponentUpdater);
+        mainView.gridService.setupTradesGrid(tradesGrid);
     }
 
     public void refreshTradesGrid() {

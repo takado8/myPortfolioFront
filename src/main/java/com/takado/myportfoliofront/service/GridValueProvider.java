@@ -1,7 +1,12 @@
 package com.takado.myportfoliofront.service;
 
 import com.takado.myportfoliofront.client.PriceClient;
+import com.takado.myportfoliofront.domain.Asset;
 import com.takado.myportfoliofront.domain.Priceable;
+import com.takado.myportfoliofront.domain.Trade;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
+import com.vaadin.flow.function.SerializableBiConsumer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -91,5 +96,39 @@ public class GridValueProvider {
 
     public void setCurrentPriceCurrency(String currentPriceCurrency) {
         this.currentPriceCurrency = currentPriceCurrency;
+    }
+
+    private final SerializableBiConsumer<Span, Asset> assetProfitComponentUpdater = (span, asset) -> {
+        String theme = String
+                .format("badge %s", Double.parseDouble(profit(asset)) >= 0 ? "success" : "error");
+        span.getElement().setAttribute("theme", theme);
+        span.setText(getProfit(asset) + "%");
+    };
+
+    public ComponentRenderer<Span, Asset> assetProfitComponentRenderer() {
+        return new ComponentRenderer<>(Span::new, assetProfitComponentUpdater);
+    }
+
+
+    private final SerializableBiConsumer<Span, Trade> typeComponentUpdater = (span, trade) -> {
+        String theme = String
+                .format("badge %s", trade.getType() == Trade.Type.BID ? "success" : "error");
+        span.getElement().setAttribute("theme", theme);
+        span.setText(trade.getType().toString());
+    };
+
+    public ComponentRenderer<Span, Trade> tradeTypeComponentRenderer() {
+        return new ComponentRenderer<>(Span::new, typeComponentUpdater);
+    }
+
+    private final SerializableBiConsumer<Span, Trade> profitComponentUpdater = (span, trade) -> {
+        String theme = String
+                .format("badge %s", Double.parseDouble(profit(trade)) >= 0 ? "success" : "error");
+        span.getElement().setAttribute("theme", theme);
+        span.setText(getProfit(trade) + "%");
+    };
+
+    public ComponentRenderer<Span, Trade> profitComponentRenderer() {
+        return new ComponentRenderer<>(Span::new, profitComponentUpdater);
     }
 }

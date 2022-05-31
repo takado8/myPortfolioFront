@@ -5,11 +5,8 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-
-import static com.takado.myportfoliofront.service.PriceFormatter.formatPriceString;
 
 @Getter
 @AllArgsConstructor
@@ -42,10 +39,6 @@ public class Trade implements Priceable {
     public String getLocalDateTimeString() {
         DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("dd-MM-yy HH:mm:ss");
         return dateTime.format(myFormatObj);
-    }
-
-    public String getPrice() {
-        return formatPriceString(new BigDecimal(valueIn).divide(new BigDecimal(amount), MathContext.DECIMAL128));
     }
 
     public void setPriceNow(BigDecimal priceNow) {

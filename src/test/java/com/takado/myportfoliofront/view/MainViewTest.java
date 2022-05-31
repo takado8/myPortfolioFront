@@ -37,6 +37,8 @@ class MainViewTest {
     @Mock
     PricesService pricesService;
     @Mock
+    GridService gridService;
+    @Mock
     private NewAssetForm newAssetForm;
 
     @Test
@@ -44,7 +46,7 @@ class MainViewTest {
         var userDto = new UserDto("mail", "123", "12", Collections.emptyList());
         when(userClient.getUser(any(String.class))).thenReturn(userDto);
         when(userService.getUser(any(String.class))).thenReturn(userDto);
-        mainView = new MainView(assetService, gridValueProvider, authenticationService,
-                userService, tickerService, tradeService, pricesService);
+        mainView = new MainView(assetService, authenticationService,
+                userService, tickerService, tradeService, pricesService, gridService);
     }
 }
