@@ -13,7 +13,6 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Span;
@@ -21,15 +20,10 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.renderer.ComponentRenderer;
-import com.vaadin.flow.function.SerializableBiConsumer;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 
 @JsModule("@vaadin/vaadin-lumo-styles/badge.js")
 @CssImport(include = "tradesGridStyle", value = "./styles.css")
@@ -51,9 +45,9 @@ public class NewAssetForm extends FormLayout {
     private final TradeService tradeService;
     private boolean isTradesGridMaximized = false;
 
-    private final Button addButton;
-    private final Button subtractButton;
-    private final Button deleteButton;
+    private final Button addButton = new Button(ADD_BUTTON_TEXT, new Icon(VaadinIcon.PLUS));
+    private final Button subtractButton = new Button(SUBTRACT_BUTTON_TEXT, new Icon(VaadinIcon.MINUS));
+    private final Button deleteButton = new Button(DELETE_BUTTON_TEXT);
     private final static String ADD_BUTTON_TEXT = "Add to position";
     private final static String ADD_BUTTON_TEXT_SHORT = "Add";
     private final static String SUBTRACT_BUTTON_TEXT = "Subtract from position";
@@ -67,39 +61,31 @@ public class NewAssetForm extends FormLayout {
         this.assetService = assetService;
         this.tickerService = tickerService;
         this.tradeService = tradeService;
-        amountField.setPattern(regexValidationPattern);
-        amountField.setPreventInvalidInput(true);
-        valueInField.setPattern(regexValidationPattern);
-        valueInField.setPreventInvalidInput(true);
-        tickerBox.setItems(tickerService.getTickers());
-        tickerBox.getStyle().set("cursor", "pointer");
-        tickerBox.setAllowCustomValue(false);
-
-        addButton = new Button(ADD_BUTTON_TEXT, new Icon(VaadinIcon.PLUS));
-        addButton.addClickListener(event -> addToAssetButtonClicked());
-        addButton.addThemeVariants(ButtonVariant.LUMO_CONTRAST);
-        addButton.getStyle().set("cursor", "pointer");
-        subtractButton = new Button(SUBTRACT_BUTTON_TEXT, new Icon(VaadinIcon.MINUS));
-        subtractButton.addClickListener(event -> subtractFromAssetButtonClicked());
-        subtractButton.addThemeVariants(ButtonVariant.LUMO_CONTRAST);
-        subtractButton.getStyle().set("cursor", "pointer");
-        deleteButton = new Button(DELETE_BUTTON_TEXT);
-        HorizontalLayout buttons = new HorizontalLayout(addButton, subtractButton, deleteButton);
-        deleteButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
-        deleteButton.getStyle().set("cursor", "pointer");
-        deleteButton.addClickListener(event -> deleteAsset());
-
-        makeTradesGrid();
+        setupAmountField();
+        setupValueField();
+        setupTickerBox();
+        setupTradesGrid();
         refreshTradesGrid();
-        Label spacing = new Label();
-        spacing.setHeight(6F, Unit.PIXELS);
+        HorizontalLayout buttons = setupButtonsLayout();
+        HorizontalLayout labelTradesLayout = setupLabelTradesLayout();
+        Label spacing = setupSpacing();
 
+        tradesGridLayout.add(tradesGrid);
+        tradesGridLayout.setSizeFull();
+        add(tickerBox, amountField, valueInField, buttons, spacing, labelTradesLayout, tradesGridLayout);
+    }
+
+    private Label setupSpacing() {
+        return new Label() {{
+            setHeight(6F, Unit.PIXELS);
+        }};
+    }
+
+    private HorizontalLayout setupLabelTradesLayout() {
+        HorizontalLayout labelTradesLayout = new HorizontalLayout();
         Label gridLabel = new Label();
         gridLabel.setText("Recent History");
         gridLabel.setHeight(30F, Unit.PIXELS);
-
-        Label spacing2 = new Label();
-        spacing2.setMinWidth(20F, Unit.PIXELS);
 
         Span showAllButton = new Span("Show All");
         showAllButton.setClassName("italicText");
@@ -108,49 +94,87 @@ public class NewAssetForm extends FormLayout {
         showAllButton.addClickListener(event -> showAllTradesButtonClicked());
         showAllButton.setMaxHeight(22F, Unit.PIXELS);
 
-        HorizontalLayout labelTradesLayout = new HorizontalLayout();
         labelTradesLayout.setClassName("labelTradesStyle");
         labelTradesLayout.add(gridLabel, showAllButton);
         labelTradesLayout.setAlignSelf(FlexComponent.Alignment.END, gridLabel);
         labelTradesLayout.setAlignSelf(FlexComponent.Alignment.CENTER, showAllButton);
-//        labelTradesLayout.setMargin(true);
         labelTradesLayout.setSizeFull();
-        tradesGridLayout.add(tradesGrid);
-        tradesGridLayout.setSizeFull();
-        add(tickerBox, amountField, valueInField, buttons, spacing, labelTradesLayout, tradesGridLayout);
+        return labelTradesLayout;
+    }
+
+    private HorizontalLayout setupButtonsLayout() {
+        addButton.addClickListener(event -> addToAssetButtonClicked());
+        addButton.addThemeVariants(ButtonVariant.LUMO_CONTRAST);
+        addButton.getStyle().set("cursor", "pointer");
+        subtractButton.addClickListener(event -> subtractFromAssetButtonClicked());
+        subtractButton.addThemeVariants(ButtonVariant.LUMO_CONTRAST);
+        subtractButton.getStyle().set("cursor", "pointer");
+        deleteButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
+        deleteButton.getStyle().set("cursor", "pointer");
+        deleteButton.addClickListener(event -> deleteAsset());
+        return new HorizontalLayout(addButton, subtractButton, deleteButton);
+    }
+
+    private void setupTickerBox() {
+        tickerBox.setItems(tickerService.getTickers());
+        tickerBox.getStyle().set("cursor", "pointer");
+        tickerBox.setAllowCustomValue(false);
+    }
+
+    private void setupAmountField() {
+        amountField.setPattern(regexValidationPattern);
+        amountField.setPreventInvalidInput(true);
+    }
+
+    private void setupValueField() {
+        valueInField.setPattern(regexValidationPattern);
+        valueInField.setPreventInvalidInput(true);
     }
 
     void showAllTradesButtonClicked() {
         if (isTradesGridMaximized) {
             isTradesGridMaximized = false;
-            removeAllFromGridsLayouts();
-            tradesGrid.setMinWidth(null);
-            tradesGrid.removeColumnByKey("value");
-            tradesGrid.removeColumnByKey("profit");
-            mainView.gridLayout.add(mainView.grid);
-            tradesGridLayout.add(tradesGrid);
-            tradesGrid.setClassName("tradesGridStyle");
-            tradesGrid.setMaxHeight(164F, Unit.PIXELS);
-            setButtonsNormalText();
+
+            minimizeTradesGrid();
+
         } else {
             isTradesGridMaximized = true;
-            removeAllFromGridsLayouts();
-            mainView.gridService.restoreTradesGridValueAndProfitColumns(tradesGrid);
-            tradesGrid.setMinWidth(900F, Unit.PIXELS);
-            tradesGrid.setClassName("styledBorderCorner");
-            tradesGrid.setMaxHeight(476F, Unit.PIXELS);
-            mainView.gridLayout.add(tradesGrid);
-            setButtonsShortText();
+            maximizeTradesGrid();
+
         }
     }
-    private void minimizeTradesGrid () {
 
+    private void moveGridsToOriginalPosition() {
+        mainView.gridLayout.add(mainView.grid);
+        tradesGridLayout.add(tradesGrid);
     }
+
+    private void moveTradesGridToMainGridPosition() {
+        mainView.gridLayout.add(tradesGrid);
+    }
+
+    private void minimizeTradesGrid() {
+        removeAllFromGridsLayouts();
+        moveGridsToOriginalPosition();
+        setButtonsNormalText();
+        tradesGrid.setMinWidth(null);
+        tradesGrid.removeColumnByKey("value");
+        tradesGrid.removeColumnByKey("profit");
+        tradesGrid.setClassName("tradesGridStyle");
+        tradesGrid.setMaxHeight(164F, Unit.PIXELS);
+    }
+
     private void maximizeTradesGrid() {
-
+        removeAllFromGridsLayouts();
+        moveTradesGridToMainGridPosition();
+        setButtonsShortText();
+        tradesGrid.setMinWidth(900F, Unit.PIXELS);
+        tradesGrid.setClassName("styledBorderCorner");
+        tradesGrid.setMaxHeight(476F, Unit.PIXELS);
+        mainView.gridService.restoreTradesGridValueAndProfitColumns(tradesGrid);
     }
 
-    private void removeAllFromGridsLayouts(){
+    private void removeAllFromGridsLayouts() {
         mainView.gridLayout.removeAll();
         tradesGridLayout.removeAll();
     }
@@ -167,7 +191,7 @@ public class NewAssetForm extends FormLayout {
         subtractButton.setText(SUBTRACT_BUTTON_TEXT_SHORT);
     }
 
-    private void makeTradesGrid() {
+    private void setupTradesGrid() {
         mainView.gridService.setupTradesGrid(tradesGrid);
     }
 

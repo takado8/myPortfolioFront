@@ -57,20 +57,24 @@ public class GridValueProvider {
         return formatPriceString(valueNow(asset));
     }
 
-    public String profit(Priceable asset) {
+    public BigDecimal profit(Priceable asset) {
         var valueIn = valueIn(asset);
         if (valueIn.doubleValue() > 0) {
             return valueNow(asset)
-                .divide(valueIn, MathContext.DECIMAL128)
-                .multiply(BigDecimal.valueOf(100))
-                .subtract(BigDecimal.valueOf(100)).toPlainString();
+                    .divide(valueIn, MathContext.DECIMAL128)
+                    .multiply(BigDecimal.valueOf(100))
+                    .subtract(BigDecimal.valueOf(100));
         } else {
-            return BigDecimal.ZERO.toPlainString();
+            return BigDecimal.ZERO;
         }
     }
 
+    public String profitStr(Priceable asset) {
+        return profit(asset).toPlainString();
+    }
+
     public String getProfit(Priceable asset) {
-        return formatProfitString(profit(asset));
+        return formatProfitString(profitStr(asset));
     }
 
     public BigDecimal valueIn(Priceable asset) {
@@ -100,7 +104,7 @@ public class GridValueProvider {
 
     private final SerializableBiConsumer<Span, Asset> assetProfitComponentUpdater = (span, asset) -> {
         String theme = String
-                .format("badge %s", Double.parseDouble(profit(asset)) >= 0 ? "success" : "error");
+                .format("badge %s", Double.parseDouble(profitStr(asset)) >= 0 ? "success" : "error");
         span.getElement().setAttribute("theme", theme);
         span.setText(getProfit(asset) + "%");
     };
@@ -122,10 +126,13 @@ public class GridValueProvider {
     }
 
     private final SerializableBiConsumer<Span, Trade> profitComponentUpdater = (span, trade) -> {
+        var profit = trade.getType().equals(Trade.Type.ASK) ?
+                profit(trade).multiply(BigDecimal.valueOf(-1)) : profit(trade);
+        var profitStr = formatProfitString(profit.toPlainString()) + "%";
         String theme = String
-                .format("badge %s", Double.parseDouble(profit(trade)) >= 0 ? "success" : "error");
+                .format("badge %s", profit.doubleValue() >= 0 ? "success" : "error");
         span.getElement().setAttribute("theme", theme);
-        span.setText(getProfit(trade) + "%");
+        span.setText(profitStr);
     };
 
     public ComponentRenderer<Span, Trade> profitComponentRenderer() {

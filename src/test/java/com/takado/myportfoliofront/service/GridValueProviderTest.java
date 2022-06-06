@@ -74,11 +74,11 @@ class GridValueProviderTest {
     void profit() {
         gridValueProvider.setCurrentValueCurrency("PLN");
         gridValueProvider.setCurrentPriceCurrency("USD");
-        assertEquals("3900.0", gridValueProvider.profit(asset));
+        assertEquals("3900.0", gridValueProvider.profitStr(asset));
 
         gridValueProvider.setCurrentValueCurrency("USD");
         gridValueProvider.setCurrentPriceCurrency("PLN");
-        assertEquals("3900.0", gridValueProvider.profit(asset));
+        assertEquals("3900.0", gridValueProvider.profitStr(asset));
     }
 
     @Test

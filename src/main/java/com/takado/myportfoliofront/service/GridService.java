@@ -54,7 +54,7 @@ public class GridService {
                 .setHeader("Profit [+%]")
                 .setKey("profit")
                 .setTextAlign(ColumnTextAlign.CENTER)
-                .setComparator(Comparator.comparingDouble(asset -> Double.parseDouble(valueProvider.profit(asset))));
+                .setComparator(Comparator.comparingDouble(asset -> Double.parseDouble(valueProvider.profitStr(asset))));
         grid.asSingleSelect().addValueChangeListener(event -> selectable.gridItemSelected());
         grid.setSizeFull();
         grid.setMaxHeight(476F, Unit.PIXELS);
@@ -68,7 +68,7 @@ public class GridService {
                 .setKey("profit")
                 .setTextAlign(ColumnTextAlign.CENTER)
                 .setComparator(Comparator.comparingDouble(asset ->
-                        Double.parseDouble(valueProvider.profit(asset))));
+                        Double.parseDouble(valueProvider.profitStr(asset))));
     }
 
     public void setupTradesGrid(Grid<Trade> tradesGrid) {
@@ -115,6 +115,6 @@ public class GridService {
                 .setKey("profit")
                 .setTextAlign(ColumnTextAlign.CENTER)
                 .setComparator(Comparator.comparingDouble(trade ->
-                        Double.parseDouble(valueProvider.profit(trade))));
+                        Double.parseDouble(valueProvider.profitStr(trade))));
     }
 }

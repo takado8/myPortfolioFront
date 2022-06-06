@@ -33,7 +33,7 @@ public class TradeService {
         Trade trade4 = new Trade(4L,1L, new Ticker(1L, "ADA", "cardano"),
                 "505", "400", Trade.Type.BID);
         Trade trade5 = new Trade(5L,1L, new Ticker(1L, "ADA", "cardano"),
-                "125", "130", Trade.Type.ASK);
+                "78.74", "200", Trade.Type.BID);
         tradeList.add(trade2);
         tradeList.add(trade4);
         tradeList.add(trade3);
