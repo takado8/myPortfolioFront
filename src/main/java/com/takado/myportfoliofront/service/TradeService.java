@@ -19,26 +19,26 @@ public class TradeService {
 
     public TradeService() {
         List<Trade> tradeList = new ArrayList<>();
-        Trade trade1 = new Trade(1L,1L, new Ticker(1L, "ADA", "cardano"),
-                "100", "300", Trade.Type.BID, LocalDateTime.of(2022,1,1, 12,
-                9,43));
+        Trade trade1 = new Trade(1L, 1L, new Ticker(1L, "ADA", "cardano"),
+                "100", "300", Trade.Type.BID, LocalDateTime.of(2022, 1, 1, 12,
+                9, 43));
 
-        Trade trade2 = new Trade(2L,1L, new Ticker(1L, "ADA", "cardano"),
-                "120", "200", Trade.Type.BID, LocalDateTime.of(2022,1,5, 12,
-                9,43));
+        Trade trade2 = new Trade(2L, 1L, new Ticker(1L, "ADA", "cardano"),
+                "120", "200", Trade.Type.BID, LocalDateTime.of(2022, 1, 5, 12,
+                9, 43));
 
-        Trade trade3 = new Trade(3L,1L, new Ticker(1L, "ADA", "cardano"),
+        Trade trade3 = new Trade(3L, 1L, new Ticker(1L, "ADA", "cardano"),
                 "50", "200", Trade.Type.ASK);
 
-        Trade trade4 = new Trade(4L,1L, new Ticker(1L, "ADA", "cardano"),
+        Trade trade4 = new Trade(4L, 1L, new Ticker(1L, "ADA", "cardano"),
                 "505", "400", Trade.Type.BID);
-        Trade trade5 = new Trade(5L,1L, new Ticker(1L, "ADA", "cardano"),
+        Trade trade5 = new Trade(5L, 1L, new Ticker(1L, "ADA", "cardano"),
                 "78.74", "200", Trade.Type.BID);
         tradeList.add(trade2);
         tradeList.add(trade4);
         tradeList.add(trade3);
-//        tradeList.add(trade1);
-//        tradeList.add(trade5);
+        tradeList.add(trade1);
+        tradeList.add(trade5);
         tradesMap.put(trade1.getTicker().getCoinId(), tradeList);
     }
 
@@ -47,7 +47,7 @@ public class TradeService {
     }
 
     public void setPrices(Map<String, BigDecimal> prices) {
-        for (var entry : tradesMap.entrySet()){
+        for (var entry : tradesMap.entrySet()) {
             var tradesList = entry.getValue();
             var price = prices.get(tradesList.get(0).getTicker().getCoinId());
             for (Trade trade : tradesList) {

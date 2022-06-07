@@ -24,6 +24,7 @@ import com.vaadin.flow.component.textfield.TextField;
 
 import java.math.BigDecimal;
 import java.util.Collections;
+import java.util.List;
 
 @JsModule("@vaadin/vaadin-lumo-styles/badge.js")
 @CssImport(include = "tradesGridStyle", value = "./styles.css")
@@ -39,7 +40,7 @@ public class NewAssetForm extends FormLayout {
     private final Grid<Trade> tradesGrid = new Grid<>(Trade.class, false);
     private final HorizontalLayout tradesGridLayout = new HorizontalLayout();
 
-    private MainView mainView;
+    private final MainView mainView;
     private final AssetService assetService;
     private final TickerService tickerService;
     private final TradeService tradeService;
@@ -134,14 +135,12 @@ public class NewAssetForm extends FormLayout {
     void showAllTradesButtonClicked() {
         if (isTradesGridMaximized) {
             isTradesGridMaximized = false;
-
             minimizeTradesGrid();
-
         } else {
             isTradesGridMaximized = true;
             maximizeTradesGrid();
-
         }
+        refreshTradesGrid();
     }
 
     private void moveGridsToOriginalPosition() {
@@ -200,7 +199,15 @@ public class NewAssetForm extends FormLayout {
         if (tickerString != null && !tickerString.isBlank()) {
             Ticker ticker = tickerService.getTicker(tickerString);
             var tradeList = tradeService.getTradeList(ticker.getCoinId());
-            tradesGrid.setItems(tradeList != null ? tradeList : Collections.emptyList());
+            List<Trade> itemsToSet;
+            if (tradeList == null) {
+                itemsToSet = Collections.emptyList();
+            } else if (!isTradesGridMaximized) {
+                itemsToSet = tradeList.subList(0, 3);
+            } else {
+                itemsToSet = tradeList;
+            }
+            tradesGrid.setItems(itemsToSet);
         }
     }
 

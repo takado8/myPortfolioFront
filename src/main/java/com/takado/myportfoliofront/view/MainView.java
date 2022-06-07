@@ -9,7 +9,6 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.FooterRow;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Span;
@@ -28,7 +27,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -61,16 +59,15 @@ public class MainView extends VerticalLayout implements SelectableGrid {
 
     public MainView(AssetService assetService, AuthenticationService authenticationService, UserService userService,
                     TickerService tickerService, TradeService tradeService, PricesService pricesService,
-                    GridService gridService) {
+                    GridService gridService, VsCurrencyService vsCurrencyService) {
         this.assetService = assetService;
         this.tradeService = tradeService;
         this.pricesService = pricesService;
-        this.vsCurrencyService = VsCurrencyService.getInstance();
+        this.vsCurrencyService = vsCurrencyService;
         this.gridService = gridService;
         this.authenticationService = authenticationService;
         this.userService = userService;
         this.newAssetForm = new NewAssetForm(this, assetService, tickerService, tradeService);
-
         setupGrid();
         HorizontalLayout toolbar = makeToolbar();
         gridLayout.add(grid);
@@ -218,46 +215,6 @@ public class MainView extends VerticalLayout implements SelectableGrid {
 
     public void setupGrid() {
         footerRow = gridService.setupMainViewGrid(grid, this);
-//        grid.setClassName("styledBorderCorner");
-//        grid.addColumn(gridValueProvider::getTicker)
-//                .setHeader("Ticker")
-//                .setSortable(true)
-//                .setTextAlign(ColumnTextAlign.CENTER)
-//                .setKey("ticker");
-//        grid.addColumn(gridValueProvider::getAmount)
-//                .setHeader("Amount")
-//                .setKey("amount")
-//                .setTextAlign(ColumnTextAlign.END)
-//                .setComparator(Comparator.comparingDouble(asset -> Double.parseDouble(asset.getAmount())));
-//        grid.addColumn(gridValueProvider::getAvgPrice)
-//                .setHeader("Avg Price [" + gridValueProvider.getCurrentPriceCurrency() + "]")
-//                .setKey("avgPrice")
-//                .setTextAlign(ColumnTextAlign.END)
-//                .setComparator(Comparator.comparingDouble(asset -> Double.parseDouble(gridValueProvider.avgPrice(asset))));
-//        grid.addColumn(gridValueProvider::getPriceNow)
-//                .setHeader("Price Now [" + gridValueProvider.getCurrentPriceCurrency() + "]")
-//                .setKey("priceNow")
-//                .setTextAlign(ColumnTextAlign.END)
-//                .setComparator(Comparator.comparingDouble(asset -> asset.getPriceNow().doubleValue()));
-//        grid.addColumn(gridValueProvider::getValueIn)
-//                .setHeader("Value In [" + gridValueProvider.getCurrentValueCurrency() + "]")
-//                .setKey("valueIn")
-//                .setTextAlign(ColumnTextAlign.END)
-//                .setComparator(Comparator.comparingDouble(asset -> Double.parseDouble(asset.getValueIn())));
-//        grid.addColumn(gridValueProvider::getValueNow)
-//                .setHeader("Value Now [" + gridValueProvider.getCurrentValueCurrency() + "]")
-//                .setKey("valueNow")
-//                .setTextAlign(ColumnTextAlign.END)
-//                .setComparator(Comparator.comparingDouble(asset -> gridValueProvider.valueNow(asset).doubleValue()));
-//        grid.addColumn(profitComponentRenderer())
-//                .setHeader("Profit [+%]")
-//                .setKey("profit")
-//                .setTextAlign(ColumnTextAlign.CENTER)
-//                .setComparator(Comparator.comparingDouble(asset -> Double.parseDouble(gridValueProvider.profit(asset))));
-//        grid.asSingleSelect().addValueChangeListener(event -> gridItemSelected());
-//        grid.setSizeFull();
-//        grid.setMaxHeight(476F, Unit.PIXELS);
-//        footerRow = grid.appendFooterRow();
     }
 
     private void switchProfitColumnVisibility() {

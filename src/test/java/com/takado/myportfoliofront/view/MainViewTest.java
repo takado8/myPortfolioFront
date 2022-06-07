@@ -47,6 +47,6 @@ class MainViewTest {
         when(userClient.getUser(any(String.class))).thenReturn(userDto);
         when(userService.getUser(any(String.class))).thenReturn(userDto);
         mainView = new MainView(assetService, authenticationService,
-                userService, tickerService, tradeService, pricesService, gridService);
+                userService, tickerService, tradeService, pricesService, gridService, vsCurrencyService);
     }
 }

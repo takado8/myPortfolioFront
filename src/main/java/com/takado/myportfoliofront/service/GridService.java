@@ -62,7 +62,7 @@ public class GridService {
         return footerRow;
     }
 
-    public void mainViewGridRestoreProfitColumn(Grid <Asset> grid) {
+    public void mainViewGridRestoreProfitColumn(Grid<Asset> grid) {
         grid.addColumn(valueProvider.assetProfitComponentRenderer())
                 .setHeader("Profit [+%]")
                 .setKey("profit")
@@ -101,6 +101,7 @@ public class GridService {
                 .setTextAlign(ColumnTextAlign.CENTER);
         tradesGrid.setMaxHeight(164F, Unit.PIXELS);
     }
+
     public void restoreTradesGridValueAndProfitColumns(Grid<Trade> tradesGrid) {
         tradesGrid.addColumn(valueProvider::getValueNow)
                 .setHeader("Value Now")

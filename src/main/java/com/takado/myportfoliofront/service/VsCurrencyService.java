@@ -1,22 +1,17 @@
 package com.takado.myportfoliofront.service;
 
-import com.helger.commons.annotation.Singleton;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Singleton
+@Service
 public class VsCurrencyService {
-    private final static VsCurrencyService instance = new VsCurrencyService();
     private final List<String> currencies = new ArrayList<>();
 
-    private VsCurrencyService() {
+    public VsCurrencyService() {
         fetchCurrencies();
-    }
-
-    public static VsCurrencyService getInstance() {
-        return instance;
     }
 
     private void fetchCurrencies() {
