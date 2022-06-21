@@ -84,6 +84,7 @@ public class MainView extends VerticalLayout implements SelectableGrid {
             displayWelcomeMessage();
         }
         assetService.fetchAssets(user.getId());
+        tradeService.setUserId(user.getId());
         refresh();
     }
 

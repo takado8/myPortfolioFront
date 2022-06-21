@@ -198,12 +198,13 @@ public class NewAssetForm extends FormLayout {
         var tickerString = this.tickerBox.getValue();
         if (tickerString != null && !tickerString.isBlank()) {
             Ticker ticker = tickerService.getTicker(tickerString);
-            var tradeList = tradeService.getTradeList(ticker.getCoinId());
+            var tradeList = tradeService.fetchTradeList(ticker.getCoinId());
+//            mainView.refresh();
             List<Trade> itemsToSet;
             if (tradeList == null) {
                 itemsToSet = Collections.emptyList();
             } else if (!isTradesGridMaximized) {
-                itemsToSet = tradeList.subList(0, 3);
+                itemsToSet = tradeList.size() > 3 ? tradeList.subList(0, 3) : tradeList;
             } else {
                 itemsToSet = tradeList;
             }
