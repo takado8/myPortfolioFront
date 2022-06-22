@@ -1,20 +1,21 @@
 package com.takado.myportfoliofront.domain;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Getter
-@RequiredArgsConstructor
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class TradeDto {
-    private final Long id;
-    private final Long userId;
-    private final Long tickerId;
-    private final String amount;
-    private final String valueIn;
-    private final Trade.Type type;
-    private final LocalDateTime dateTime;
+    private Long id;
+    private Long userId;
+    private Long tickerId;
+    private String amount;
+    private String valueIn;
+    private Trade.Type type;
+    private LocalDateTime dateTime;
 
     @Override
     public String toString() {

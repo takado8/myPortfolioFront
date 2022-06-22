@@ -9,9 +9,7 @@ import lombok.Setter;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @Getter
@@ -49,9 +47,31 @@ public class TradeService {
 //    }
 
     public List<Trade> fetchTradeList(String coinId) {
-        var trades = tradeMapper.mapToTrade(tradeClient.getTrades(userId, coinId));
-        tradesMap.put(coinId, trades);
-        return trades;
+        if (userId != null) {
+            List<Trade> trades;
+            if (tradesMap.containsKey(coinId)){
+                trades = tradesMap.get(coinId);
+            }
+            else {
+                trades = tradeMapper.mapToTrade(tradeClient.getTrades(userId, coinId));
+                tradesMap.put(coinId, trades);
+            }
+            return trades;
+        }
+        return Collections.emptyList();
+    }
+
+    public void saveTrade(Trade trade) {
+        var tradeSavedInDb =  tradeMapper.mapToTrade(tradeClient.createTrade(tradeMapper.mapToDto(trade)));
+        if (tradesMap.containsKey(tradeSavedInDb.getTicker().getCoinId())){
+            var tradesList = tradesMap.get(tradeSavedInDb.getTicker().getCoinId());
+            tradesList.add(tradeSavedInDb);
+        }
+        else {
+            var tradesList = new ArrayList<Trade>();
+            tradesList.add(tradeSavedInDb);
+            tradesMap.put(tradeSavedInDb.getTicker().getCoinId(), tradesList);
+        }
     }
 
     public void setPrices(Map<String, BigDecimal> prices) {

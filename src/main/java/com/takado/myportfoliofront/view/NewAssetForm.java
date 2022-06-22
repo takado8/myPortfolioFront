@@ -218,16 +218,17 @@ public class NewAssetForm extends FormLayout {
         var ticker = this.tickerBox.getValue();
         var amount = this.amountField.getValue();
         var valueIn = this.valueInField.getValue();
+        Long userId = mainView.getUser().getId();
         Asset asset = assetService.findByTicker(ticker);
-
+        Trade trade = new Trade(null, userId, tickerService.getTicker(ticker), amount, valueIn, Trade.Type.BID);
         if (asset == null) {
-            Long userId = mainView.getUser().getId();
             if (userId != null) {
                 createAsset(ticker, userId, amount, valueIn);
             }
         } else {
             addToAssetPosition(asset, amount, valueIn);
         }
+        tradeService.saveTrade(trade);
         refresh();
     }
 
