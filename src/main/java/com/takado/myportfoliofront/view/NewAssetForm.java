@@ -24,6 +24,7 @@ import com.vaadin.flow.component.textfield.TextField;
 
 import java.math.BigDecimal;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 @JsModule("@vaadin/vaadin-lumo-styles/badge.js")
@@ -66,7 +67,7 @@ public class NewAssetForm extends FormLayout {
         setupValueField();
         setupTickerBox();
         setupTradesGrid();
-        refreshTradesGrid();
+        reloadTradesGridContent();
         HorizontalLayout buttons = setupButtonsLayout();
         HorizontalLayout labelTradesLayout = setupLabelTradesLayout();
         Label spacing = setupSpacing();
@@ -140,7 +141,7 @@ public class NewAssetForm extends FormLayout {
             isTradesGridMaximized = true;
             maximizeTradesGrid();
         }
-        refreshTradesGrid();
+        reloadTradesGridContent();
     }
 
     private void moveGridsToOriginalPosition() {
@@ -194,19 +195,21 @@ public class NewAssetForm extends FormLayout {
         mainView.gridService.setupTradesGrid(tradesGrid);
     }
 
-    public void refreshTradesGrid() {
+    public void reloadTradesGridContent() {
         var tickerString = this.tickerBox.getValue();
         if (tickerString != null && !tickerString.isBlank()) {
             Ticker ticker = tickerService.getTicker(tickerString);
             var tradeList = tradeService.fetchTradeList(ticker.getCoinId());
-//            mainView.refresh();
             List<Trade> itemsToSet;
             if (tradeList == null) {
                 itemsToSet = Collections.emptyList();
-            } else if (!isTradesGridMaximized) {
-                itemsToSet = tradeList.size() > 3 ? tradeList.subList(0, 3) : tradeList;
             } else {
-                itemsToSet = tradeList;
+                tradeList.sort(Comparator.comparing(Trade::getDateTime).reversed());
+                if (!isTradesGridMaximized) {
+                    itemsToSet = tradeList.size() > 3 ? tradeList.subList(0, 3) : tradeList;
+                } else {
+                    itemsToSet = tradeList;
+                }
             }
             tradesGrid.setItems(itemsToSet);
         }
@@ -229,20 +232,25 @@ public class NewAssetForm extends FormLayout {
             addToAssetPosition(asset, amount, valueIn);
         }
         tradeService.saveTrade(trade);
-        refresh();
+        cleanupInputFields();
+        mainView.reloadAssetsAndPrices();
     }
 
     private void subtractFromAssetButtonClicked() {
         if (fieldsAreEmpty()) return;
 
-        var ticker = this.tickerBox.getValue();
+        var ticker = tickerBox.getValue();
         Asset asset = assetService.findByTicker(ticker);
 
         if (asset != null) {
-            var amount = this.amountField.getValue();
-            var valueIn = this.valueInField.getValue();
+            var amount = amountField.getValue();
+            var valueIn = valueInField.getValue();
+            Trade trade = new Trade(null, mainView.getUser().getId(), asset.getTicker(), amount, valueIn,
+                    Trade.Type.ASK);
             subtractFromAssetPosition(asset, amount, valueIn);
-            refresh();
+            tradeService.saveTrade(trade);
+            cleanupInputFields();
+            mainView.reloadAssetsAndPrices();
         }
     }
 
@@ -254,7 +262,8 @@ public class NewAssetForm extends FormLayout {
         String ticker = this.tickerBox.getValue();
         if (ticker != null && !ticker.isBlank()) {
             assetService.deleteAsset(ticker);
-            refresh();
+            mainView.reloadAssetsAndPrices();
+            cleanupAll();
         }
     }
 
@@ -271,18 +280,23 @@ public class NewAssetForm extends FormLayout {
     }
 
     private boolean fieldsAreEmpty() {
-        var ticker = this.tickerBox.getValue();
-        var amount = this.amountField.getValue();
-        var valueIn = this.valueInField.getValue();
+        var ticker = tickerBox.getValue();
+        var amount = amountField.getValue();
+        var valueIn = valueInField.getValue();
         return amount == null || valueIn == null || ticker == null || amount.isBlank() || valueIn.isBlank();
     }
 
-    private void refresh() {
-        mainView.refresh();
+    private void cleanupInputFields() {
+        valueInField.clear();
+        amountField.clear();
+        valueInField.setInvalid(false);
+        amountField.setInvalid(false);
+    }
+
+    private void cleanupAll() {
         setAsset(null);
-        this.valueInField.setValue("");
-        this.amountField.setValue("");
-        this.tickerBox.setValue(null);
+        cleanupInputFields();
+        tickerBox.setValue(null);
     }
 
     public void setAsset(Asset asset) {
@@ -300,6 +314,6 @@ public class NewAssetForm extends FormLayout {
             }
             amountField.focus();
         }
-        refreshTradesGrid();
+        reloadTradesGridContent();
     }
 }

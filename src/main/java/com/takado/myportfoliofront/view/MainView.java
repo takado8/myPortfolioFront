@@ -85,7 +85,7 @@ public class MainView extends VerticalLayout implements SelectableGrid {
         }
         assetService.fetchAssets(user.getId());
         tradeService.setUserId(user.getId());
-        refresh();
+        reloadAssetsAndPrices();
     }
 
     public UserDto fetchUser() {
@@ -112,7 +112,7 @@ public class MainView extends VerticalLayout implements SelectableGrid {
         this.valueCurrency.setItems(vsCurrencyService.getCurrenciesValueLabels());
         this.valueCurrency.setValue(valueCurrency);
         lockValueCurrencyChanged = false;
-        refresh();
+        reloadAssetsAndPrices();
     }
 
     public void priceCurrencyChanged() {
@@ -128,7 +128,7 @@ public class MainView extends VerticalLayout implements SelectableGrid {
         this.priceCurrency.setItems(vsCurrencyService.getCurrenciesPriceLabels());
         this.priceCurrency.setValue(priceCurrency);
         lockPriceCurrencyChanged = false;
-        refresh();
+        reloadAssetsAndPrices();
     }
 
     public void filtering() {
@@ -143,7 +143,7 @@ public class MainView extends VerticalLayout implements SelectableGrid {
             getUI().ifPresent(ui -> {
                 if (ui.isAttached())
                     ui.access(() -> {
-                        refresh();
+                        reloadAssetsAndPrices();
                         try {
                             Thread.sleep(300L);
                         } catch (InterruptedException ignored) {
@@ -156,7 +156,7 @@ public class MainView extends VerticalLayout implements SelectableGrid {
         }
     }
 
-    public void refresh() {
+    public void reloadAssetsAndPrices() {
         try {
             var newAssetFormVisible = newAssetForm.isVisible();
             var prices = pricesService.fetchPrices(assetService.getCoinsIds());
@@ -164,7 +164,7 @@ public class MainView extends VerticalLayout implements SelectableGrid {
             grid.setItems(assetService.getAssets());
             refreshFooterRow();
             tradeService.setPrices(prices);
-            newAssetForm.refreshTradesGrid();
+            newAssetForm.reloadTradesGridContent();
             newAssetForm.setVisible(newAssetFormVisible);
         } catch (NullPointerException ignored) {
         }
