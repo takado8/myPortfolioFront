@@ -4,7 +4,6 @@ import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import org.springframework.stereotype.Service;
@@ -17,6 +16,7 @@ import java.util.List;
 @CssImport(include = "italicFont", value = "./styles.css")
 public class TradesGridNavigationPanel {
     private int currentPageNb = 1;
+    private int currentButtonIdx = 0;
     private final List<Span> buttons = new ArrayList<>();
     PageButtonClickedEventListener listener;
 
@@ -32,15 +32,16 @@ public class TradesGridNavigationPanel {
         layout.getThemeList().add("spacing-s");
         int buttonsCount = 7;
         for (int i = 0; i < buttonsCount; i++) {
-            Span button = makeButton("" + (i + 1));
+            Span button = makeButton("" + (i + 1), "" + i);
             buttons.add(button);
             layout.add(button);
         }
         return layout;
     }
 
-    private Span makeButton(String txt) {
+    private Span makeButton(String txt, String id) {
         Span button = new Span(txt);
+        button.setId(id);
         button.setClassName("italicFont");
         button.getElement().getThemeList().add("badge");
         button.getStyle().set("cursor", "pointer");
@@ -48,20 +49,38 @@ public class TradesGridNavigationPanel {
         return button;
     }
 
-    public void addListener(PageButtonClickedEventListener listener){
+    public void addListener(PageButtonClickedEventListener listener) {
         this.listener = listener;
     }
 
     private void buttonClicked(ClickEvent<Span> buttonClickEvent) {
-        var currentPageButton = buttons.get(currentPageNb - 1);
-        currentPageButton.getClassNames().remove("italicBoldFont");
-        currentPageButton.getClassNames().add("italicFont");
+        var clickedButton = buttonClickEvent.getSource();
 
-        var button = buttonClickEvent.getSource();
-        button.getClassNames().remove("italicFont");
-        button.getClassNames().add("italicBoldFont");
+        currentPageNb = Integer.parseInt(clickedButton.getText());
+        currentButtonIdx = Integer.parseInt(clickedButton.getId().orElseThrow(RuntimeException::new));
+        listener.callback(clickedButton);
+        var clickedButtonPageValue = Integer.parseInt(clickedButton.getText());
+        var middleButtonMinValue = 4;
 
-        currentPageNb = Integer.parseInt(button.getText());
-        listener.callback(button);
+        var middleButton = buttons.get(3);
+        var middleButtonPageValue = Integer.parseInt(middleButton.getText());
+        int step;
+        if (clickedButtonPageValue < middleButtonMinValue) {
+            step = middleButtonMinValue - middleButtonPageValue;
+        }else {
+            step = clickedButtonPageValue - middleButtonPageValue;
+        }
+        for (var button : buttons) {
+            int newValue = Integer.parseInt(button.getText()) + step;
+            button.setText("" + newValue);
+            if (newValue == clickedButtonPageValue){
+                button.getClassNames().remove("italicFont");
+                button.getClassNames().add("italicBoldFont");
+            }
+            else {
+                button.getClassNames().remove("italicBoldFont");
+                button.getClassNames().add("italicFont");
+            }
+        }
     }
 }
