@@ -15,13 +15,10 @@ import java.util.List;
 @CssImport(include = "italicBoldFont", value = "./styles.css")
 @CssImport(include = "italicFont", value = "./styles.css")
 public class TradesGridNavigationPanel {
-    private int currentPageNb = 1;
-    private int currentButtonIdx = 0;
     private final List<Span> buttons = new ArrayList<>();
     PageButtonClickedEventListener listener;
 
     public HorizontalLayout initPagesButtonsPanel() {
-        currentPageNb = 1;
         buttons.clear();
         HorizontalLayout layout = new HorizontalLayout();
         layout.setMaxHeight(40F, Unit.PIXELS);
@@ -32,17 +29,23 @@ public class TradesGridNavigationPanel {
         layout.getThemeList().add("spacing-s");
         int buttonsCount = 7;
         for (int i = 0; i < buttonsCount; i++) {
-            Span button = makeButton("" + (i + 1), "" + i);
+            Span button = makeButton("" + (i + 1), "" + i, i == 0);
             buttons.add(button);
             layout.add(button);
         }
+//        buttons.get(0).getClassNames().remove("italicFont");
+//        buttons.get(0).getClassNames().add("italicBoldFont");
         return layout;
     }
 
-    private Span makeButton(String txt, String id) {
+    private Span makeButton(String txt, String id, boolean bold) {
         Span button = new Span(txt);
         button.setId(id);
-        button.setClassName("italicFont");
+        if (bold){
+            button.setClassName("italicBoldFont");
+        }else {
+            button.setClassName("italicFont");
+        }
         button.getElement().getThemeList().add("badge");
         button.getStyle().set("cursor", "pointer");
         button.addClickListener(this::buttonClicked);
@@ -56,8 +59,6 @@ public class TradesGridNavigationPanel {
     private void buttonClicked(ClickEvent<Span> buttonClickEvent) {
         var clickedButton = buttonClickEvent.getSource();
 
-        currentPageNb = Integer.parseInt(clickedButton.getText());
-        currentButtonIdx = Integer.parseInt(clickedButton.getId().orElseThrow(RuntimeException::new));
         listener.callback(clickedButton);
         var clickedButtonPageValue = Integer.parseInt(clickedButton.getText());
         var middleButtonMinValue = 4;
