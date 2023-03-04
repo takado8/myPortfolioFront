@@ -99,7 +99,7 @@ public class GridService {
                 .setAutoWidth(true)
                 .setComparator(Comparator.comparing(trade -> trade.getType().toString()))
                 .setTextAlign(ColumnTextAlign.CENTER);
-        tradesGrid.setMaxHeight(164F, Unit.PIXELS);
+        tradesGrid.setMaxHeight(166F, Unit.PIXELS);
     }
 
     public void restoreTradesGridValueAndProfitColumns(Grid<Trade> tradesGrid) {
