@@ -59,7 +59,8 @@ public class MainView extends VerticalLayout implements SelectableGrid {
 
     public MainView(AssetService assetService, AuthenticationService authenticationService, UserService userService,
                     TickerService tickerService, TradeService tradeService, PricesService pricesService,
-                    GridService gridService, VsCurrencyService vsCurrencyService) {
+                    GridService gridService, VsCurrencyService vsCurrencyService,
+                    TradesGridNavigationPanel tradesGridNavigationPanel) {
         this.assetService = assetService;
         this.tradeService = tradeService;
         this.pricesService = pricesService;
@@ -67,7 +68,8 @@ public class MainView extends VerticalLayout implements SelectableGrid {
         this.gridService = gridService;
         this.authenticationService = authenticationService;
         this.userService = userService;
-        this.newAssetForm = new NewAssetForm(this, assetService, tickerService, tradeService);
+        this.newAssetForm = new NewAssetForm(this, assetService, tickerService, tradeService,
+                tradesGridNavigationPanel);
         setupGrid();
         HorizontalLayout toolbar = makeToolbar();
         gridLayout.add(grid);

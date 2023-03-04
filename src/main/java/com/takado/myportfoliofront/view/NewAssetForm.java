@@ -18,8 +18,10 @@ import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 
 import java.math.BigDecimal;
@@ -32,7 +34,7 @@ import java.util.List;
 @CssImport(include = "italicText", value = "./styles.css")
 @CssImport(include = "labelTradesStyle", value = "./styles.css")
 @CssImport(include = "lumo-badge", value = "@vaadin/vaadin-lumo-styles/badge.js")
-public class NewAssetForm extends FormLayout {
+public class NewAssetForm extends FormLayout implements PageButtonClickedEventListener {
     private final static String regexValidationPattern = "(?!0\\d)[0-9]*(?<=\\d+)\\.?[0-9]*";
 
     private final ComboBox<String> tickerBox = new ComboBox<>("Ticker");
@@ -40,6 +42,7 @@ public class NewAssetForm extends FormLayout {
     private final TextField valueInField = new TextField("Value in");
     private final Grid<Trade> tradesGrid = new Grid<>(Trade.class, false);
     private final HorizontalLayout tradesGridLayout = new HorizontalLayout();
+    private final TradesGridNavigationPanel tradesGridNavigationPanel;
 
     private final MainView mainView;
     private final AssetService assetService;
@@ -58,11 +61,13 @@ public class NewAssetForm extends FormLayout {
     private final static String DELETE_BUTTON_TEXT_SHORT = "Delete";
 
     public NewAssetForm(MainView mainView, AssetService assetService, TickerService tickerService,
-                        TradeService tradeService) {
+                        TradeService tradeService, TradesGridNavigationPanel tradesGridNavigationPanel) {
         this.mainView = mainView;
         this.assetService = assetService;
         this.tickerService = tickerService;
         this.tradeService = tradeService;
+        this.tradesGridNavigationPanel = tradesGridNavigationPanel;
+        tradesGridNavigationPanel.addListener(this);
         setupAmountField();
         setupValueField();
         setupTickerBox();
@@ -75,6 +80,10 @@ public class NewAssetForm extends FormLayout {
         tradesGridLayout.add(tradesGrid);
         tradesGridLayout.setSizeFull();
         add(tickerBox, amountField, valueInField, buttons, spacing, labelTradesLayout, tradesGridLayout);
+    }
+
+    public void callback(Span button) {
+//        Notification.show("hello: " + button.getText());
     }
 
     private Label setupSpacing() {
@@ -150,7 +159,11 @@ public class NewAssetForm extends FormLayout {
     }
 
     private void moveTradesGridToMainGridPosition() {
-        mainView.gridLayout.add(tradesGrid);
+        VerticalLayout layout = new VerticalLayout();
+        layout.add(tradesGrid);
+        layout.add(tradesGridNavigationPanel.initPagesButtonsPanel());
+        layout.setAlignItems(FlexComponent.Alignment.CENTER);
+        mainView.gridLayout.add(layout);
     }
 
     private void minimizeTradesGrid() {
