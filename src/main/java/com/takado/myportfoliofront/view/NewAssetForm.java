@@ -52,9 +52,6 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
                         TradesGridNavigationPanel tradesGridNavigationPanel) {
         this.mainView = mainView;
         this.control = newAssetFormControl;
-//        this.assetService = assetService;
-//        this.tickerService = tickerService;
-//        this.tradeService = tradeService;
         this.tradesGridNavigationPanel = tradesGridNavigationPanel;
         tradesGridNavigationPanel.addListener(this);
         setupAmountField();
@@ -179,6 +176,7 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
         tradesGrid.setClassName("styledBorderCorner");
         tradesGrid.setMaxHeight(MAIN_VIEW_GRID_HEIGHT, Unit.PIXELS);
         mainView.gridService.restoreTradesGridValueAndProfitColumns(tradesGrid);
+        mainView.reloadAssetsAndPrices();
     }
 
     private void removeAllFromGridsLayouts() {

@@ -24,7 +24,7 @@ public class Trade implements Priceable {
     private final String valueIn;
     private final Type type;
     private final LocalDateTime dateTime;
-    private BigDecimal priceNow = BigDecimal.ONE;
+    private BigDecimal priceNow = BigDecimal.valueOf(-1);
 
     public Trade(Long id, Long userId, Ticker ticker, String amount, String valueIn, Type type) {
         this.id = id;
