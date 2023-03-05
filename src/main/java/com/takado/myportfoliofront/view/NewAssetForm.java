@@ -77,8 +77,8 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
         add(tickerBox, amountField, valueInField, buttons, spacing, labelTradesLayout, tradesGridLayout);
     }
 
-    public void callback(Span button) {
-//        Notification.show("hello: " + button.getText());
+    public void callback() {
+        reloadTradesGridContent();
     }
 
     private Label setupSpacing() {
@@ -156,9 +156,22 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
     private void moveTradesGridToMainGridPosition() {
         VerticalLayout layout = new VerticalLayout();
         layout.add(tradesGrid);
-        layout.add(tradesGridNavigationPanel.initPagesButtonsPanel());
+        layout.add(tradesGridNavigationPanel.initPagesButtonsPanel(countNbOfPages()));
         layout.setAlignItems(FlexComponent.Alignment.CENTER);
         mainView.gridLayout.add(layout);
+    }
+
+    private int countNbOfPages() {
+        var tickerString = this.tickerBox.getValue();
+        if (tickerString != null && !tickerString.isBlank()) {
+            Ticker ticker = tickerService.getTicker(tickerString);
+            var tradeList = tradeService.fetchTradeList(ticker.getCoinId());
+            if (tradeList.size() <= TRADE_POSITIONS_PER_PAGE + 1) {
+                return 1;
+            }
+            return (int) Math.ceil((float) tradeList.size() / TRADE_POSITIONS_PER_PAGE);
+        }
+        return 1;
     }
 
     private void minimizeTradesGrid() {
@@ -213,10 +226,25 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
                 itemsToSet = Collections.emptyList();
             } else {
                 tradeList.sort(Comparator.comparing(Trade::getDateTime).reversed());
-                if (!isTradesGridMaximized) {
-                    itemsToSet = tradeList.size() > 3 ? tradeList.subList(0, 3) : tradeList;
+                if (isTradesGridMaximized) {
+
+                    if (tradeList.size() > TRADE_POSITIONS_PER_PAGE + 1) {
+                        int currentPageNb = tradesGridNavigationPanel.getCurrentPageNb();
+                        int startIdx = (currentPageNb - 1) * TRADE_POSITIONS_PER_PAGE + currentPageNb - 2;
+                        int endIdx = currentPageNb * TRADE_POSITIONS_PER_PAGE + currentPageNb - 2;
+                        int lastIdx = tradeList.size() - 1;
+                        if (endIdx >= lastIdx) {
+                            endIdx = lastIdx;
+                        }
+                        if (startIdx < 0) {
+                            startIdx = 0;
+                        }
+                        itemsToSet = tradeList.subList(startIdx, endIdx + 1);
+                    } else {
+                        itemsToSet = tradeList;
+                    }
                 } else {
-                    itemsToSet = tradeList;
+                    itemsToSet = tradeList.size() > 3 ? tradeList.subList(0, 3) : tradeList;
                 }
             }
             tradesGrid.setItems(itemsToSet);

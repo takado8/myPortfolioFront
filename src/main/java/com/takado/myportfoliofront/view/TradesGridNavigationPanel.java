@@ -16,9 +16,20 @@ import java.util.List;
 @CssImport(include = "italicFont", value = "./styles.css")
 public class TradesGridNavigationPanel {
     private final List<Span> buttons = new ArrayList<>();
+    private int currentPageNb = 1;
+    private boolean isButtonsScrollingEnabled = false;
     PageButtonClickedEventListener listener;
 
-    public HorizontalLayout initPagesButtonsPanel() {
+    public HorizontalLayout initPagesButtonsPanel(int buttonsCount) {
+        if (buttonsCount > 7){
+            buttonsCount = 7;
+            isButtonsScrollingEnabled = true;
+        }else {
+            isButtonsScrollingEnabled = false;
+        }
+        if (buttonsCount < 2){
+            buttonsCount = 0;
+        }
         buttons.clear();
         HorizontalLayout layout = new HorizontalLayout();
         layout.setMaxHeight(40F, Unit.PIXELS);
@@ -27,7 +38,6 @@ public class TradesGridNavigationPanel {
         layout.setPadding(false);
         layout.setMargin(false);
         layout.getThemeList().add("spacing-s");
-        int buttonsCount = 7;
         for (int i = 0; i < buttonsCount; i++) {
             Span button = makeButton("" + (i + 1), "" + i, i == 0);
             buttons.add(button);
@@ -58,28 +68,47 @@ public class TradesGridNavigationPanel {
     private void buttonClicked(ClickEvent<Span> buttonClickEvent) {
         var clickedButton = buttonClickEvent.getSource();
 
-        listener.callback(clickedButton);
         var clickedButtonPageValue = Integer.parseInt(clickedButton.getText());
-        var middleButtonMinValue = 4;
 
+        if (isButtonsScrollingEnabled) {
+            int step = getButtonsSlideStep(clickedButtonPageValue);
+            for (var button : buttons) {
+                int newValue = Integer.parseInt(button.getText()) + step;
+                button.setText("" + newValue);
+                setButtonStyle(button, newValue, clickedButtonPageValue);
+            }
+        } else {
+            for (var button : buttons) {
+                int newValue = Integer.parseInt(button.getText());
+                setButtonStyle(button, newValue, clickedButtonPageValue);
+            }
+        }
+        currentPageNb = clickedButtonPageValue;
+        listener.callback();
+    }
+
+    private void setButtonStyle(Span button, int newValue, int clickedButtonPageValue) {
+        button.getClassNames().clear();
+        if (newValue == clickedButtonPageValue){
+            button.getClassNames().add("italicBoldFont");
+        }
+        else {
+            button.getClassNames().add("italicFont");
+        }
+    }
+
+    private int getButtonsSlideStep(int clickedButtonPageValue) {
+        var middleButtonMinValue = 4;
         var middleButton = buttons.get(3);
         var middleButtonPageValue = Integer.parseInt(middleButton.getText());
-        int step;
+
         if (clickedButtonPageValue < middleButtonMinValue) {
-            step = middleButtonMinValue - middleButtonPageValue;
-        }else {
-            step = clickedButtonPageValue - middleButtonPageValue;
+            return middleButtonMinValue - middleButtonPageValue;
         }
-        for (var button : buttons) {
-            int newValue = Integer.parseInt(button.getText()) + step;
-            button.setText("" + newValue);
-            button.getClassNames().clear();
-            if (newValue == clickedButtonPageValue){
-                button.getClassNames().add("italicBoldFont");
-            }
-            else {
-                button.getClassNames().add("italicFont");
-            }
-        }
+        return clickedButtonPageValue - middleButtonPageValue;
+    }
+
+    public int getCurrentPageNb(){
+        return currentPageNb;
     }
 }

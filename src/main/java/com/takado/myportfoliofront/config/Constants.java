@@ -14,4 +14,5 @@ public class Constants {
 
     public final static String REGEX_VALIDATION_PATTERN = "(?!0\\d)[0-9]*(?<=\\d+)\\.?[0-9]*";
 
+    public final static int TRADE_POSITIONS_PER_PAGE = 9;
 }
