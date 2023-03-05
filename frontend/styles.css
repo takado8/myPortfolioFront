@@ -26,6 +26,6 @@
 
 .italicBoldFont {
     font-style: italic;
-    font-weight: bolder;
-    font-size: 1.1em;
+    font-weight: bolder !important;
+    font-size: 1.1em !important;
 }

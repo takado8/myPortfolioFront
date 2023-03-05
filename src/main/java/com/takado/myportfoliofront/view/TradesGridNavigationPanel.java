@@ -33,22 +33,22 @@ public class TradesGridNavigationPanel {
             buttons.add(button);
             layout.add(button);
         }
-//        buttons.get(0).getClassNames().remove("italicFont");
-//        buttons.get(0).getClassNames().add("italicBoldFont");
         return layout;
     }
 
     private Span makeButton(String txt, String id, boolean bold) {
         Span button = new Span(txt);
         button.setId(id);
-        if (bold){
-            button.setClassName("italicBoldFont");
-        }else {
-            button.setClassName("italicFont");
-        }
         button.getElement().getThemeList().add("badge");
         button.getStyle().set("cursor", "pointer");
         button.addClickListener(this::buttonClicked);
+
+        if (bold){
+            button.getClassNames().add("italicBoldFont");
+        }else {
+            button.getClassNames().add("italicFont");
+        }
+
         return button;
     }
 
@@ -74,12 +74,11 @@ public class TradesGridNavigationPanel {
         for (var button : buttons) {
             int newValue = Integer.parseInt(button.getText()) + step;
             button.setText("" + newValue);
+            button.getClassNames().clear();
             if (newValue == clickedButtonPageValue){
-                button.getClassNames().remove("italicFont");
                 button.getClassNames().add("italicBoldFont");
             }
             else {
-                button.getClassNames().remove("italicBoldFont");
                 button.getClassNames().add("italicFont");
             }
         }
