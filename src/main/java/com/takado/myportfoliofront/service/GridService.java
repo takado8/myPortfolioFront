@@ -12,6 +12,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
 
+import static com.takado.myportfoliofront.config.Constants.MAIN_VIEW_GRID_HEIGHT;
+import static com.takado.myportfoliofront.config.Constants.TRADES_GRID_HEIGHT_MINIMIZED;
+
 @Service
 @Getter
 @RequiredArgsConstructor
@@ -57,7 +60,7 @@ public class GridService {
                 .setComparator(Comparator.comparingDouble(asset -> Double.parseDouble(valueProvider.profitStr(asset))));
         grid.asSingleSelect().addValueChangeListener(event -> selectable.gridItemSelected());
         grid.setSizeFull();
-        grid.setMaxHeight(476F, Unit.PIXELS);
+        grid.setMaxHeight(MAIN_VIEW_GRID_HEIGHT, Unit.PIXELS);
         var footerRow = grid.appendFooterRow();
         return footerRow;
     }
@@ -99,7 +102,7 @@ public class GridService {
                 .setAutoWidth(true)
                 .setComparator(Comparator.comparing(trade -> trade.getType().toString()))
                 .setTextAlign(ColumnTextAlign.CENTER);
-        tradesGrid.setMaxHeight(166F, Unit.PIXELS);
+        tradesGrid.setMaxHeight(TRADES_GRID_HEIGHT_MINIMIZED, Unit.PIXELS);
     }
 
     public void restoreTradesGridValueAndProfitColumns(Grid<Trade> tradesGrid) {

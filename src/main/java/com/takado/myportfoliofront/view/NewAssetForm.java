@@ -18,7 +18,6 @@ import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -29,13 +28,14 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import static com.takado.myportfoliofront.config.Constants.*;
+
 @JsModule("@vaadin/vaadin-lumo-styles/badge.js")
 @CssImport(include = "tradesGridStyle", value = "./styles.css")
 @CssImport(include = "italicText", value = "./styles.css")
 @CssImport(include = "labelTradesStyle", value = "./styles.css")
 @CssImport(include = "lumo-badge", value = "@vaadin/vaadin-lumo-styles/badge.js")
 public class NewAssetForm extends FormLayout implements PageButtonClickedEventListener {
-    private final static String regexValidationPattern = "(?!0\\d)[0-9]*(?<=\\d+)\\.?[0-9]*";
 
     private final ComboBox<String> tickerBox = new ComboBox<>("Ticker");
     private final TextField amountField = new TextField("Amount");
@@ -53,12 +53,7 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
     private final Button addButton = new Button(ADD_BUTTON_TEXT, new Icon(VaadinIcon.PLUS));
     private final Button subtractButton = new Button(SUBTRACT_BUTTON_TEXT, new Icon(VaadinIcon.MINUS));
     private final Button deleteButton = new Button(DELETE_BUTTON_TEXT);
-    private final static String ADD_BUTTON_TEXT = "Add to position";
-    private final static String ADD_BUTTON_TEXT_SHORT = "Add";
-    private final static String SUBTRACT_BUTTON_TEXT = "Subtract from position";
-    private final static String SUBTRACT_BUTTON_TEXT_SHORT = "Subtract";
-    private final static String DELETE_BUTTON_TEXT = "Delete asset";
-    private final static String DELETE_BUTTON_TEXT_SHORT = "Delete";
+
 
     public NewAssetForm(MainView mainView, AssetService assetService, TickerService tickerService,
                         TradeService tradeService, TradesGridNavigationPanel tradesGridNavigationPanel) {
@@ -133,12 +128,12 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
     }
 
     private void setupAmountField() {
-        amountField.setPattern(regexValidationPattern);
+        amountField.setPattern(REGEX_VALIDATION_PATTERN);
         amountField.setPreventInvalidInput(true);
     }
 
     private void setupValueField() {
-        valueInField.setPattern(regexValidationPattern);
+        valueInField.setPattern(REGEX_VALIDATION_PATTERN);
         valueInField.setPreventInvalidInput(true);
     }
 
@@ -174,16 +169,16 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
         tradesGrid.removeColumnByKey("value");
         tradesGrid.removeColumnByKey("profit");
         tradesGrid.setClassName("tradesGridStyle");
-        tradesGrid.setMaxHeight(164F, Unit.PIXELS);
+        tradesGrid.setMaxHeight(TRADES_GRID_HEIGHT_MINIMIZED, Unit.PIXELS);
     }
 
     private void maximizeTradesGrid() {
         removeAllFromGridsLayouts();
         moveTradesGridToMainGridPosition();
         setButtonsShortText();
-        tradesGrid.setMinWidth(900F, Unit.PIXELS);
+        tradesGrid.setMinWidth(TRADES_GRID_WIDTH_MAXIMIZED, Unit.PIXELS);
         tradesGrid.setClassName("styledBorderCorner");
-        tradesGrid.setMaxHeight(476F, Unit.PIXELS);
+        tradesGrid.setMaxHeight(MAIN_VIEW_GRID_HEIGHT, Unit.PIXELS);
         mainView.gridService.restoreTradesGridValueAndProfitColumns(tradesGrid);
     }
 

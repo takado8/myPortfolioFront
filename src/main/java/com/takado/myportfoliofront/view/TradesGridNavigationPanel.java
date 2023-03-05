@@ -48,7 +48,6 @@ public class TradesGridNavigationPanel {
         }else {
             button.getClassNames().add("italicFont");
         }
-
         return button;
     }
 
