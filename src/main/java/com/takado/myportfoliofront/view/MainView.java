@@ -1,5 +1,6 @@
 package com.takado.myportfoliofront.view;
 
+import com.takado.myportfoliofront.control.NewAssetFormControl;
 import com.takado.myportfoliofront.domain.Asset;
 import com.takado.myportfoliofront.domain.UserDto;
 import com.takado.myportfoliofront.service.*;
@@ -58,9 +59,9 @@ public class MainView extends VerticalLayout implements SelectableGrid {
     private UserDto user;
 
     public MainView(AssetService assetService, AuthenticationService authenticationService, UserService userService,
-                    TickerService tickerService, TradeService tradeService, PricesService pricesService,
+                    TradeService tradeService, PricesService pricesService,
                     GridService gridService, VsCurrencyService vsCurrencyService,
-                    TradesGridNavigationPanel tradesGridNavigationPanel) {
+                    TradesGridNavigationPanel tradesGridNavigationPanel, NewAssetFormControl newAssetFormControl) {
         this.assetService = assetService;
         this.tradeService = tradeService;
         this.pricesService = pricesService;
@@ -68,8 +69,7 @@ public class MainView extends VerticalLayout implements SelectableGrid {
         this.gridService = gridService;
         this.authenticationService = authenticationService;
         this.userService = userService;
-        this.newAssetForm = new NewAssetForm(this, assetService, tickerService, tradeService,
-                tradesGridNavigationPanel);
+        this.newAssetForm = new NewAssetForm(this, newAssetFormControl, tradesGridNavigationPanel);
         setupGrid();
         HorizontalLayout toolbar = makeToolbar();
         gridLayout.add(grid);

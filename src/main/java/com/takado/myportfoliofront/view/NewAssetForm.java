@@ -1,11 +1,8 @@
 package com.takado.myportfoliofront.view;
 
+import com.takado.myportfoliofront.control.NewAssetFormControl;
 import com.takado.myportfoliofront.domain.Asset;
-import com.takado.myportfoliofront.domain.Ticker;
 import com.takado.myportfoliofront.domain.Trade;
-import com.takado.myportfoliofront.service.AssetService;
-import com.takado.myportfoliofront.service.TickerService;
-import com.takado.myportfoliofront.service.TradeService;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -23,9 +20,6 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 
-import java.math.BigDecimal;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import static com.takado.myportfoliofront.config.Constants.*;
@@ -44,10 +38,9 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
     private final HorizontalLayout tradesGridLayout = new HorizontalLayout();
     private final TradesGridNavigationPanel tradesGridNavigationPanel;
 
+    private final NewAssetFormControl control;
     private final MainView mainView;
-    private final AssetService assetService;
-    private final TickerService tickerService;
-    private final TradeService tradeService;
+
     private boolean isTradesGridMaximized = false;
 
     private final Button addButton = new Button(ADD_BUTTON_TEXT, new Icon(VaadinIcon.PLUS));
@@ -55,12 +48,13 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
     private final Button deleteButton = new Button(DELETE_BUTTON_TEXT);
 
 
-    public NewAssetForm(MainView mainView, AssetService assetService, TickerService tickerService,
-                        TradeService tradeService, TradesGridNavigationPanel tradesGridNavigationPanel) {
+    public NewAssetForm(MainView mainView, NewAssetFormControl newAssetFormControl,
+                        TradesGridNavigationPanel tradesGridNavigationPanel) {
         this.mainView = mainView;
-        this.assetService = assetService;
-        this.tickerService = tickerService;
-        this.tradeService = tradeService;
+        this.control = newAssetFormControl;
+//        this.assetService = assetService;
+//        this.tickerService = tickerService;
+//        this.tradeService = tradeService;
         this.tradesGridNavigationPanel = tradesGridNavigationPanel;
         tradesGridNavigationPanel.addListener(this);
         setupAmountField();
@@ -122,7 +116,7 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
     }
 
     private void setupTickerBox() {
-        tickerBox.setItems(tickerService.getTickers());
+        tickerBox.setItems(control.getTickers());
         tickerBox.getStyle().set("cursor", "pointer");
         tickerBox.setAllowCustomValue(false);
     }
@@ -163,15 +157,7 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
 
     private int countNbOfPages() {
         var tickerString = this.tickerBox.getValue();
-        if (tickerString != null && !tickerString.isBlank()) {
-            Ticker ticker = tickerService.getTicker(tickerString);
-            var tradeList = tradeService.fetchTradeList(ticker.getCoinId());
-            if (tradeList.size() <= TRADE_POSITIONS_PER_PAGE + 1) {
-                return 1;
-            }
-            return (int) Math.ceil((float) tradeList.size() / TRADE_POSITIONS_PER_PAGE);
-        }
-        return 1;
+        return control.countNbOfPagesInTradesGrid(tickerString);
     }
 
     private void minimizeTradesGrid() {
@@ -218,101 +204,42 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
 
     public void reloadTradesGridContent() {
         var tickerString = this.tickerBox.getValue();
-        if (tickerString != null && !tickerString.isBlank()) {
-            Ticker ticker = tickerService.getTicker(tickerString);
-            var tradeList = tradeService.fetchTradeList(ticker.getCoinId());
-            List<Trade> itemsToSet;
-            if (tradeList == null) {
-                itemsToSet = Collections.emptyList();
-            } else {
-                tradeList.sort(Comparator.comparing(Trade::getDateTime).reversed());
-                if (isTradesGridMaximized) {
-
-                    if (tradeList.size() > TRADE_POSITIONS_PER_PAGE + 1) {
-                        int currentPageNb = tradesGridNavigationPanel.getCurrentPageNb();
-                        int startIdx = (currentPageNb - 1) * TRADE_POSITIONS_PER_PAGE + currentPageNb - 2;
-                        int endIdx = currentPageNb * TRADE_POSITIONS_PER_PAGE + currentPageNb - 2;
-                        int lastIdx = tradeList.size() - 1;
-                        if (endIdx >= lastIdx) {
-                            endIdx = lastIdx;
-                        }
-                        if (startIdx < 0) {
-                            startIdx = 0;
-                        }
-                        itemsToSet = tradeList.subList(startIdx, endIdx + 1);
-                    } else {
-                        itemsToSet = tradeList;
-                    }
-                } else {
-                    itemsToSet = tradeList.size() > 3 ? tradeList.subList(0, 3) : tradeList;
-                }
-            }
-            tradesGrid.setItems(itemsToSet);
-        }
+        List<Trade> itemsToSet = control.getTradeItemsToSet(tickerString, isTradesGridMaximized,
+                tradesGridNavigationPanel.getCurrentPageNb());
+        tradesGrid.setItems(itemsToSet);
     }
 
     private void addToAssetButtonClicked() {
         if (fieldsAreEmpty()) return;
-
         var ticker = this.tickerBox.getValue();
         var amount = this.amountField.getValue();
         var valueIn = this.valueInField.getValue();
         Long userId = mainView.getUser().getId();
-        Asset asset = assetService.findByTicker(ticker);
-        Trade trade = new Trade(null, userId, tickerService.getTicker(ticker), amount, valueIn, Trade.Type.BID);
-        if (asset == null) {
-            if (userId != null) {
-                createAsset(ticker, userId, amount, valueIn);
-            }
-        } else {
-            addToAssetPosition(asset, amount, valueIn);
-        }
-        tradeService.saveTrade(trade);
+        control.addToAsset(ticker, amount, valueIn, userId);
         cleanupInputFields();
         mainView.reloadAssetsAndPrices();
     }
 
     private void subtractFromAssetButtonClicked() {
         if (fieldsAreEmpty()) return;
-
         var ticker = tickerBox.getValue();
-        Asset asset = assetService.findByTicker(ticker);
-
-        if (asset != null) {
-            var amount = amountField.getValue();
-            var valueIn = valueInField.getValue();
-            Trade trade = new Trade(null, mainView.getUser().getId(), asset.getTicker(), amount, valueIn,
-                    Trade.Type.ASK);
-            subtractFromAssetPosition(asset, amount, valueIn);
-            tradeService.saveTrade(trade);
+        var amount = amountField.getValue();
+        var valueIn = valueInField.getValue();
+        var userId = mainView.getUser().getId();
+        var result = control.subtractFromAsset(ticker, amount, valueIn, userId);
+        if (result) {
             cleanupInputFields();
             mainView.reloadAssetsAndPrices();
         }
     }
 
-    private void createAsset(String ticker, Long userId, String amount, String valueIn) {
-        assetService.createAsset(ticker, userId, amount, valueIn);
-    }
-
     private void deleteAsset() {
         String ticker = this.tickerBox.getValue();
-        if (ticker != null && !ticker.isBlank()) {
-            assetService.deleteAsset(ticker);
+        boolean result = control.deleteAsset(ticker);
+        if (result) {
             mainView.reloadAssetsAndPrices();
             cleanupAll();
         }
-    }
-
-    private void addToAssetPosition(Asset asset, String amount, String valueIn) {
-        asset.setAmount((new BigDecimal(asset.getAmount()).add(new BigDecimal(amount))).toString());
-        asset.setValueIn((new BigDecimal(asset.getValueIn()).add(new BigDecimal(valueIn))).toString());
-        assetService.updateAsset(asset);
-    }
-
-    private void subtractFromAssetPosition(Asset asset, String amount, String valueIn) {
-        asset.setAmount((new BigDecimal(asset.getAmount()).subtract(new BigDecimal(amount))).toString());
-        asset.setValueIn((new BigDecimal(asset.getValueIn()).subtract(new BigDecimal(valueIn))).toString());
-        assetService.updateAsset(asset);
     }
 
     private boolean fieldsAreEmpty() {
