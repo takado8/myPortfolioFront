@@ -3,6 +3,7 @@ package com.takado.myportfoliofront.client;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
@@ -21,6 +22,7 @@ public class PriceClient {
 
     private final RestTemplate restTemplate;
 
+    @Nullable
     public Map<String, HashMap<String, BigDecimal>> getCoinsPrices(String vs_currency, String... coinsIds) {
         URI uri = UriComponentsBuilder.fromHttpUrl(pricesApiRoot + "/" + vs_currency + "/"
                         + String.join(",", coinsIds))
