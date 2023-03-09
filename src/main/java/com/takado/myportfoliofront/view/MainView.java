@@ -31,6 +31,7 @@ import java.math.MathContext;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.takado.myportfoliofront.config.AddressConfig.SERVER_ADDRESS;
 import static com.takado.myportfoliofront.service.PriceFormatter.formatPriceString;
 import static com.takado.myportfoliofront.service.PriceFormatter.formatProfitString;
 
@@ -264,7 +265,7 @@ public class MainView extends VerticalLayout implements SelectableGrid {
         logoutButton.addThemeVariants(ButtonVariant.LUMO_CONTRAST, ButtonVariant.LUMO_PRIMARY);
 
         logoutButton.addClickListener(e ->
-                getUI().ifPresent(page -> page.getPage().setLocation("http://localhost:8080/logout")));
+                getUI().ifPresent(page -> page.getPage().setLocation(SERVER_ADDRESS + "/logout")));
 
         String userName = authenticationService.getUserEmail();
         Dialog dialog = new Dialog();

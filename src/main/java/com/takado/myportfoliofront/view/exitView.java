@@ -8,10 +8,12 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import static com.takado.myportfoliofront.config.AddressConfig.SERVER_ADDRESS;
+
 @Route("exitPage")
 @PageTitle("Exit")
 public class exitView extends VerticalLayout {
-    private final String apiRoot = "http://localhost:8080";
+
 
     public exitView() {
         Button loginAgainButton = new Button("Login again");
@@ -19,7 +21,7 @@ public class exitView extends VerticalLayout {
         loginAgainButton.addThemeVariants(ButtonVariant.LUMO_CONTRAST, ButtonVariant.LUMO_PRIMARY);
 
         loginAgainButton.addClickListener(e ->
-                getUI().ifPresent(page -> page.getPage().setLocation(apiRoot)));
+                getUI().ifPresent(page -> page.getPage().setLocation(SERVER_ADDRESS)));
         FlexLayout toolbar = new FlexLayout(loginAgainButton);
         add(toolbar);
         setSizeFull();

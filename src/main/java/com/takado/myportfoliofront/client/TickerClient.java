@@ -14,11 +14,13 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static com.takado.myportfoliofront.config.AddressConfig.BACKEND_API_ADDRESS;
+
 @Component
 @RequiredArgsConstructor
 public class TickerClient {
     private final RestTemplate restTemplate;
-    private final static String apiRoot = "http://localhost:8081/v1/tickers";
+    private final static String apiRoot = BACKEND_API_ADDRESS + "/v1/tickers";
 
     public List<TickerDto> getAllTickers() {
         URI uri = UriComponentsBuilder.fromHttpUrl(apiRoot).build().encode().toUri();

@@ -16,11 +16,13 @@ import java.security.GeneralSecurityException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.takado.myportfoliofront.config.AddressConfig.BACKEND_API_ADDRESS;
+
 
 @Component
 @RequiredArgsConstructor
 public class AssetClient {
-    private final static String assetsApiRoot = "http://localhost:8081/v1/assets";
+    private final static String assetsApiRoot = BACKEND_API_ADDRESS + "/v1/assets";
 
     private final RestTemplate restTemplate;
     private final RequestSignatureService signatureService;

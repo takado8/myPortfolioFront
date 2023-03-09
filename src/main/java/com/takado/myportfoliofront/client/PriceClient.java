@@ -15,10 +15,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import static com.takado.myportfoliofront.config.AddressConfig.BACKEND_API_ADDRESS;
+
 @Component
 @RequiredArgsConstructor
 public class PriceClient {
-    private final static String pricesApiRoot = "http://localhost:8081/v1/prices";
+    private final static String pricesApiRoot = BACKEND_API_ADDRESS + "/v1/prices";
 
     private final RestTemplate restTemplate;
 

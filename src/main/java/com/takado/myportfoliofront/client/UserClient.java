@@ -16,12 +16,14 @@ import java.security.GeneralSecurityException;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.takado.myportfoliofront.config.AddressConfig.BACKEND_API_ADDRESS;
+
 @Component
 @RequiredArgsConstructor
 public class UserClient {
     private final RestTemplate restTemplate;
     private final RequestSignatureService signatureService;
-    private final static String apiRoot = "http://localhost:8081/v1/users";
+    private final static String apiRoot = BACKEND_API_ADDRESS + "/v1/users";
 
     @Nullable
     public UserDto createUser(String email, String nameHash, String displayedName, List<Long> assetsId) {

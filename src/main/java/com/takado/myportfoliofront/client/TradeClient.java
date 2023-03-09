@@ -17,10 +17,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.takado.myportfoliofront.config.AddressConfig.BACKEND_API_ADDRESS;
+
 @Component
 @RequiredArgsConstructor
 public class TradeClient {
-    private final static String tradesApiRoot = "http://localhost:8081/v1/trades";
+    private final static String tradesApiRoot = BACKEND_API_ADDRESS + "/v1/trades";
 
     private final RestTemplate restTemplate;
     private final RequestSignatureService signatureService;
