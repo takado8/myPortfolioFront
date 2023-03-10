@@ -9,19 +9,19 @@ function addCssBlock(block) {
  document.head.appendChild(tpl.content);
 }
 import $css_0 from 'Frontend/styles.css';
-addCssBlock(`<custom-style><style include="tradesGridStyle">${$css_0}</style></custom-style>`);
+addCssBlock(`<custom-style><style include="italicBoldFont">${$css_0}</style></custom-style>`);
 import $css_1 from 'Frontend/styles.css';
-addCssBlock(`<custom-style><style include="italicText">${$css_1}</style></custom-style>`);
+addCssBlock(`<custom-style><style include="italicFont">${$css_1}</style></custom-style>`);
 import $css_2 from 'Frontend/styles.css';
-addCssBlock(`<custom-style><style include="labelTradesStyle">${$css_2}</style></custom-style>`);
-import $css_3 from '@vaadin/vaadin-lumo-styles/badge.js';
-addCssBlock(`<custom-style><style include="lumo-badge">${$css_3}</style></custom-style>`);
+addCssBlock(`<custom-style><style include="styledBorderCorner">${$css_2}</style></custom-style>`);
+import $css_3 from 'Frontend/styles.css';
+addCssBlock(`<custom-style><style include="tradesGridStyle">${$css_3}</style></custom-style>`);
 import $css_4 from 'Frontend/styles.css';
-addCssBlock(`<custom-style><style include="italicBoldFont">${$css_4}</style></custom-style>`);
+addCssBlock(`<custom-style><style include="italicText">${$css_4}</style></custom-style>`);
 import $css_5 from 'Frontend/styles.css';
-addCssBlock(`<custom-style><style include="italicFont">${$css_5}</style></custom-style>`);
-import $css_6 from 'Frontend/styles.css';
-addCssBlock(`<custom-style><style include="styledBorderCorner">${$css_6}</style></custom-style>`);
+addCssBlock(`<custom-style><style include="labelTradesStyle">${$css_5}</style></custom-style>`);
+import $css_6 from '@vaadin/vaadin-lumo-styles/badge.js';
+addCssBlock(`<custom-style><style include="lumo-badge">${$css_6}</style></custom-style>`);
 
 import '@polymer/iron-icon/iron-icon.js';
 import '@polymer/iron-list/iron-list.js';
