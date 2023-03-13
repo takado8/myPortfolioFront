@@ -264,8 +264,7 @@ public class MainView extends VerticalLayout implements SelectableGrid {
         logoutButton.getStyle().set("cursor", "pointer");
         logoutButton.addThemeVariants(ButtonVariant.LUMO_CONTRAST, ButtonVariant.LUMO_PRIMARY);
 
-        logoutButton.addClickListener(e ->
-                getUI().ifPresent(page -> page.getPage().setLocation(SERVER_ADDRESS + "/logout")));
+        logoutButton.addClickListener(e -> getUI().ifPresent(page -> page.getPage().setLocation("/logout")));
 
         String userName = authenticationService.getUserEmail();
         Dialog dialog = new Dialog();

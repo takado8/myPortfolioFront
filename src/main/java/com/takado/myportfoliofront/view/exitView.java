@@ -20,8 +20,7 @@ public class exitView extends VerticalLayout {
         loginAgainButton.getStyle().set("cursor", "pointer");
         loginAgainButton.addThemeVariants(ButtonVariant.LUMO_CONTRAST, ButtonVariant.LUMO_PRIMARY);
 
-        loginAgainButton.addClickListener(e ->
-                getUI().ifPresent(page -> page.getPage().setLocation(SERVER_ADDRESS)));
+        loginAgainButton.addClickListener(e -> getUI().ifPresent(page -> page.getPage().setLocation("/")));
         FlexLayout toolbar = new FlexLayout(loginAgainButton);
         add(toolbar);
         setSizeFull();
