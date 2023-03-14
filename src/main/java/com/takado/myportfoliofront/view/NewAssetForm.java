@@ -3,6 +3,7 @@ package com.takado.myportfoliofront.view;
 import com.takado.myportfoliofront.control.NewAssetFormControl;
 import com.takado.myportfoliofront.domain.Asset;
 import com.takado.myportfoliofront.domain.Trade;
+import com.takado.myportfoliofront.service.GridLayoutManager;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -39,6 +40,7 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
     private final TradesGridNavigationPanel tradesGridNavigationPanel;
 
     private final NewAssetFormControl control;
+    private final GridLayoutManager mainViewGridLayoutManager;
     private final MainView mainView;
 
     private boolean isTradesGridMaximized = false;
@@ -49,10 +51,11 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
 
 
     public NewAssetForm(MainView mainView, NewAssetFormControl newAssetFormControl,
-                        TradesGridNavigationPanel tradesGridNavigationPanel) {
+                        TradesGridNavigationPanel tradesGridNavigationPanel, GridLayoutManager mainViewGridLayoutManager) {
         this.mainView = mainView;
         this.control = newAssetFormControl;
         this.tradesGridNavigationPanel = tradesGridNavigationPanel;
+        this.mainViewGridLayoutManager = mainViewGridLayoutManager;
         tradesGridNavigationPanel.addListener(this);
         setupAmountField();
         setupValueField();
@@ -140,7 +143,7 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
     }
 
     private void moveGridsToOriginalPosition() {
-        mainView.gridLayout.add(mainView.grid);
+        mainViewGridLayoutManager.gridLayoutAdd(mainView.grid);
         tradesGridLayout.add(tradesGrid);
     }
 
@@ -149,7 +152,7 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
         layout.add(tradesGrid);
         layout.add(tradesGridNavigationPanel.initPagesButtonsPanel(countNbOfPages()));
         layout.setAlignItems(FlexComponent.Alignment.CENTER);
-        mainView.gridLayout.add(layout);
+        mainViewGridLayoutManager.gridLayoutAdd(layout);
     }
 
     private int countNbOfPages() {
@@ -181,7 +184,7 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
 
     private void removeAllFromGridsLayouts() {
         mainView.gridLayout.removeAll();
-        tradesGridLayout.removeAll();
+        mainViewGridLayoutManager.gridLayoutRemoveAll();
     }
 
     private void setButtonsNormalText() {

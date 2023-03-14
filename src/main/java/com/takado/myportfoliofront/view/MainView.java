@@ -4,6 +4,7 @@ import com.takado.myportfoliofront.control.NewAssetFormControl;
 import com.takado.myportfoliofront.domain.Asset;
 import com.takado.myportfoliofront.domain.UserDto;
 import com.takado.myportfoliofront.service.*;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UIDetachedException;
 import com.vaadin.flow.component.button.Button;
@@ -31,7 +32,6 @@ import java.math.MathContext;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.takado.myportfoliofront.config.AddressConfig.SERVER_ADDRESS;
 import static com.takado.myportfoliofront.service.PriceFormatter.formatPriceString;
 import static com.takado.myportfoliofront.service.PriceFormatter.formatProfitString;
 
@@ -40,7 +40,9 @@ import static com.takado.myportfoliofront.service.PriceFormatter.formatProfitStr
 @PageTitle("myPortfolio")
 @CssImport(include = "styledBorderCorner", value = "./styles.css")
 @Theme(value = Lumo.class, variant = Lumo.DARK)
-public class MainView extends VerticalLayout implements SelectableGrid {
+//@Component
+//@RequiredArgsConstructor
+public class MainView extends VerticalLayout implements GridItemSelectedCallback, GridLayoutManager {
     private final AssetService assetService;
     private final PricesService pricesService;
     private final TradeService tradeService;
@@ -70,7 +72,8 @@ public class MainView extends VerticalLayout implements SelectableGrid {
         this.gridService = gridService;
         this.authenticationService = authenticationService;
         this.userService = userService;
-        this.newAssetForm = new NewAssetForm(this, newAssetFormControl, tradesGridNavigationPanel);
+        this.newAssetForm = new NewAssetForm(this, newAssetFormControl, tradesGridNavigationPanel,
+                this);
         setupGrid();
         HorizontalLayout toolbar = makeToolbar();
         gridLayout.add(grid);
@@ -80,7 +83,6 @@ public class MainView extends VerticalLayout implements SelectableGrid {
         add(toolbar, mainContent);
         setSizeFull();
         newAssetForm.setAsset(null);
-
         user = fetchUser();
         if (user == null) {
             user = createUserAccount();
@@ -89,6 +91,35 @@ public class MainView extends VerticalLayout implements SelectableGrid {
         assetService.fetchAssets(user.getId());
         tradeService.setUserId(user.getId());
         reloadAssetsAndPrices();
+    }
+//    @PostConstruct
+//    private void buildPage(){
+//        setupGrid();
+//        HorizontalLayout toolbar = makeToolbar();
+//        gridLayout.add(grid);
+//        gridLayout.setSizeFull();
+//        HorizontalLayout mainContent = new HorizontalLayout(gridLayout, newAssetForm);
+//        mainContent.setSizeFull();
+//        add(toolbar, mainContent);
+//        setSizeFull();
+//        newAssetForm.setAsset(null);
+//
+//        user = fetchUser();
+//        if (user == null) {
+//            user = createUserAccount();
+//            displayWelcomeMessage();
+//        }
+//        assetService.fetchAssets(user.getId());
+//        tradeService.setUserId(user.getId());
+//        reloadAssetsAndPrices();
+//    }
+//
+
+    public void gridLayoutAdd(Component... components){
+        gridLayout.add(components);
+    }
+    public void gridLayoutRemoveAll(){
+        gridLayout.removeAll();
     }
 
     public UserDto fetchUser() {
@@ -231,7 +262,7 @@ public class MainView extends VerticalLayout implements SelectableGrid {
         refreshFooterRow();
     }
 
-    public void gridItemSelected() {
+    public void gridItemSelectedCallback() {
         newAssetForm.setAsset(grid.asSingleSelect().getValue());
         switchProfitColumnVisibility();
     }

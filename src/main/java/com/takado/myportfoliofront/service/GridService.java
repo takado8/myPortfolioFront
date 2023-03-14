@@ -21,7 +21,7 @@ import static com.takado.myportfoliofront.config.Constants.TRADES_GRID_HEIGHT_MI
 public class GridService {
     private final GridValueProvider valueProvider;
 
-    public FooterRow setupMainViewGrid(Grid<Asset> grid, SelectableGrid selectable) {
+    public FooterRow setupMainViewGrid(Grid<Asset> grid, GridItemSelectedCallback selectable) {
         grid.setClassName("styledBorderCorner");
         grid.addColumn(valueProvider::getTicker)
                 .setHeader("Ticker")
@@ -58,7 +58,7 @@ public class GridService {
                 .setKey("profit")
                 .setTextAlign(ColumnTextAlign.CENTER)
                 .setComparator(Comparator.comparingDouble(asset -> Double.parseDouble(valueProvider.profitStr(asset))));
-        grid.asSingleSelect().addValueChangeListener(event -> selectable.gridItemSelected());
+        grid.asSingleSelect().addValueChangeListener(event -> selectable.gridItemSelectedCallback());
         grid.setSizeFull();
         grid.setMaxHeight(MAIN_VIEW_GRID_HEIGHT, Unit.PIXELS);
         var footerRow = grid.appendFooterRow();
