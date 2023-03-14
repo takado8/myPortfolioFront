@@ -118,6 +118,10 @@ public class MainView extends VerticalLayout implements GridItemSelectedCallback
     public void gridLayoutAdd(Component... components){
         gridLayout.add(components);
     }
+
+    public void gridLayoutBringBackMainGrid() {
+        gridLayout.add(grid);
+    }
     public void gridLayoutRemoveAll(){
         gridLayout.removeAll();
     }

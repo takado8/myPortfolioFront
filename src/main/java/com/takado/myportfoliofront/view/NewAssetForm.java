@@ -143,7 +143,7 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
     }
 
     private void moveGridsToOriginalPosition() {
-        mainViewGridLayoutManager.gridLayoutAdd(mainView.grid);
+        mainViewGridLayoutManager.gridLayoutBringBackMainGrid();
         tradesGridLayout.add(tradesGrid);
     }
 
