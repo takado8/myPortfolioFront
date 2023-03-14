@@ -187,7 +187,7 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
     }
 
     private void removeAllFromGridsLayouts() {
-        mainView.gridLayout.removeAll();
+        tradesGridLayout.removeAll();
         mainViewGridLayoutManager.gridLayoutRemoveAll();
     }
 
