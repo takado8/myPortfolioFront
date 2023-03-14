@@ -42,7 +42,8 @@ import static com.takado.myportfoliofront.service.PriceFormatter.formatProfitStr
 @Theme(value = Lumo.class, variant = Lumo.DARK)
 //@Component
 //@RequiredArgsConstructor
-public class MainView extends VerticalLayout implements GridItemSelectedCallback, GridLayoutManager {
+public class MainView extends VerticalLayout implements GridItemSelectedCallback, GridLayoutManager,
+        AssetsAndPricesLoader {
     private final AssetService assetService;
     private final PricesService pricesService;
     private final TradeService tradeService;
@@ -73,7 +74,7 @@ public class MainView extends VerticalLayout implements GridItemSelectedCallback
         this.authenticationService = authenticationService;
         this.userService = userService;
         this.newAssetForm = new NewAssetForm(this, newAssetFormControl, tradesGridNavigationPanel,
-                this);
+                this, this);
         setupGrid();
         HorizontalLayout toolbar = makeToolbar();
         gridLayout.add(grid);

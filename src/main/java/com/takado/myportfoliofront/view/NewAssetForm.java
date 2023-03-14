@@ -4,6 +4,7 @@ import com.takado.myportfoliofront.control.NewAssetFormControl;
 import com.takado.myportfoliofront.domain.Asset;
 import com.takado.myportfoliofront.domain.Trade;
 import com.takado.myportfoliofront.service.GridLayoutManager;
+import com.takado.myportfoliofront.service.AssetsAndPricesLoader;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -41,6 +42,7 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
 
     private final NewAssetFormControl control;
     private final GridLayoutManager mainViewGridLayoutManager;
+    private final AssetsAndPricesLoader assetsAndPricesLoader;
     private final MainView mainView;
 
     private boolean isTradesGridMaximized = false;
@@ -51,11 +53,13 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
 
 
     public NewAssetForm(MainView mainView, NewAssetFormControl newAssetFormControl,
-                        TradesGridNavigationPanel tradesGridNavigationPanel, GridLayoutManager mainViewGridLayoutManager) {
+                        TradesGridNavigationPanel tradesGridNavigationPanel,
+                        GridLayoutManager mainViewGridLayoutManager, AssetsAndPricesLoader reloadAssetsAndPrices) {
         this.mainView = mainView;
         this.control = newAssetFormControl;
         this.tradesGridNavigationPanel = tradesGridNavigationPanel;
         this.mainViewGridLayoutManager = mainViewGridLayoutManager;
+        this.assetsAndPricesLoader = reloadAssetsAndPrices;
         tradesGridNavigationPanel.addListener(this);
         setupAmountField();
         setupValueField();
@@ -179,7 +183,7 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
         tradesGrid.setClassName("styledBorderCorner");
         tradesGrid.setMaxHeight(MAIN_VIEW_GRID_HEIGHT, Unit.PIXELS);
         mainView.gridService.restoreTradesGridValueAndProfitColumns(tradesGrid);
-        mainView.reloadAssetsAndPrices();
+        assetsAndPricesLoader.reloadAssetsAndPrices();
     }
 
     private void removeAllFromGridsLayouts() {
@@ -218,7 +222,7 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
         Long userId = mainView.getUser().getId();
         control.addToAsset(ticker, amount, valueIn, userId);
         cleanupInputFields();
-        mainView.reloadAssetsAndPrices();
+        assetsAndPricesLoader.reloadAssetsAndPrices();
     }
 
     private void subtractFromAssetButtonClicked() {
@@ -230,7 +234,7 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
         var result = control.subtractFromAsset(ticker, amount, valueIn, userId);
         if (result) {
             cleanupInputFields();
-            mainView.reloadAssetsAndPrices();
+            assetsAndPricesLoader.reloadAssetsAndPrices();
         }
     }
 
@@ -238,7 +242,7 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
         String ticker = this.tickerBox.getValue();
         boolean result = control.deleteAsset(ticker);
         if (result) {
-            mainView.reloadAssetsAndPrices();
+            assetsAndPricesLoader.reloadAssetsAndPrices();
             cleanupAll();
         }
     }
