@@ -2,6 +2,7 @@ package com.takado.myportfoliofront.view;
 
 import com.takado.myportfoliofront.control.NewAssetFormControl;
 import com.takado.myportfoliofront.domain.Asset;
+import com.takado.myportfoliofront.domain.Trade;
 import com.takado.myportfoliofront.domain.UserDto;
 import com.takado.myportfoliofront.service.*;
 import com.vaadin.flow.component.Component;
@@ -43,7 +44,7 @@ import static com.takado.myportfoliofront.service.PriceFormatter.formatProfitStr
 //@Component
 //@RequiredArgsConstructor
 public class MainView extends VerticalLayout implements GridItemSelectedCallback, GridLayoutManager,
-        AssetsAndPricesLoader {
+        AssetsAndPricesLoader, TradesGridManager {
     private final AssetService assetService;
     private final PricesService pricesService;
     private final TradeService tradeService;
@@ -74,7 +75,7 @@ public class MainView extends VerticalLayout implements GridItemSelectedCallback
         this.authenticationService = authenticationService;
         this.userService = userService;
         this.newAssetForm = new NewAssetForm(this, newAssetFormControl, tradesGridNavigationPanel,
-                this, this);
+                this, this, this);
         setupGrid();
         HorizontalLayout toolbar = makeToolbar();
         gridLayout.add(grid);
@@ -116,15 +117,29 @@ public class MainView extends VerticalLayout implements GridItemSelectedCallback
 //    }
 //
 
+    @Override
     public void gridLayoutAdd(Component... components){
         gridLayout.add(components);
     }
 
+    @Override
     public void gridLayoutBringBackMainGrid() {
         gridLayout.add(grid);
     }
+
+    @Override
     public void gridLayoutRemoveAll(){
         gridLayout.removeAll();
+    }
+
+    @Override
+    public void restoreTradesGridValueAndProfitColumns(Grid<Trade> tradesGrid) {
+        gridService.restoreTradesGridValueAndProfitColumns(tradesGrid);
+    }
+
+    @Override
+    public void setupTradesGrid(Grid<Trade> tradesGrid) {
+        gridService.setupTradesGrid(tradesGrid);
     }
 
     public UserDto fetchUser() {
@@ -195,6 +210,7 @@ public class MainView extends VerticalLayout implements GridItemSelectedCallback
         }
     }
 
+    @Override
     public void reloadAssetsAndPrices() {
         try {
             var newAssetFormVisible = newAssetForm.isVisible();
@@ -267,6 +283,7 @@ public class MainView extends VerticalLayout implements GridItemSelectedCallback
         refreshFooterRow();
     }
 
+    @Override
     public void gridItemSelectedCallback() {
         newAssetForm.setAsset(grid.asSingleSelect().getValue());
         switchProfitColumnVisibility();

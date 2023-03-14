@@ -84,7 +84,7 @@ public class TradesGridNavigationPanel {
             }
         }
         currentPageNb = clickedButtonPageValue;
-        listener.callback();
+        listener.pageButtonClickedCallback();
     }
 
     private void setButtonStyle(Span button, int newValue, int clickedButtonPageValue) {

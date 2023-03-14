@@ -5,6 +5,7 @@ import com.takado.myportfoliofront.domain.Asset;
 import com.takado.myportfoliofront.domain.Trade;
 import com.takado.myportfoliofront.service.GridLayoutManager;
 import com.takado.myportfoliofront.service.AssetsAndPricesLoader;
+import com.takado.myportfoliofront.service.TradesGridManager;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -43,6 +44,7 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
     private final NewAssetFormControl control;
     private final GridLayoutManager mainViewGridLayoutManager;
     private final AssetsAndPricesLoader assetsAndPricesLoader;
+    private final TradesGridManager tradesGridManager;
     private final MainView mainView;
 
     private boolean isTradesGridMaximized = false;
@@ -54,12 +56,14 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
 
     public NewAssetForm(MainView mainView, NewAssetFormControl newAssetFormControl,
                         TradesGridNavigationPanel tradesGridNavigationPanel,
-                        GridLayoutManager mainViewGridLayoutManager, AssetsAndPricesLoader reloadAssetsAndPrices) {
+                        GridLayoutManager mainViewGridLayoutManager, AssetsAndPricesLoader reloadAssetsAndPrices,
+                        TradesGridManager tradesGridManager) {
         this.mainView = mainView;
         this.control = newAssetFormControl;
         this.tradesGridNavigationPanel = tradesGridNavigationPanel;
         this.mainViewGridLayoutManager = mainViewGridLayoutManager;
         this.assetsAndPricesLoader = reloadAssetsAndPrices;
+        this.tradesGridManager = tradesGridManager;
         tradesGridNavigationPanel.addListener(this);
         setupAmountField();
         setupValueField();
@@ -75,7 +79,8 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
         add(tickerBox, amountField, valueInField, buttons, spacing, labelTradesLayout, tradesGridLayout);
     }
 
-    public void callback() {
+    @Override
+    public void pageButtonClickedCallback() {
         reloadTradesGridContent();
     }
 
@@ -182,7 +187,7 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
         tradesGrid.setMinWidth(TRADES_GRID_WIDTH_MAXIMIZED, Unit.PIXELS);
         tradesGrid.setClassName("styledBorderCorner");
         tradesGrid.setMaxHeight(MAIN_VIEW_GRID_HEIGHT, Unit.PIXELS);
-        mainView.gridService.restoreTradesGridValueAndProfitColumns(tradesGrid);
+        tradesGridManager.restoreTradesGridValueAndProfitColumns(tradesGrid);
         assetsAndPricesLoader.reloadAssetsAndPrices();
     }
 
@@ -204,7 +209,7 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
     }
 
     private void setupTradesGrid() {
-        mainView.gridService.setupTradesGrid(tradesGrid);
+        tradesGridManager.setupTradesGrid(tradesGrid);
     }
 
     public void reloadTradesGridContent() {
