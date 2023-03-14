@@ -9,11 +9,11 @@ function addCssBlock(block) {
  document.head.appendChild(tpl.content);
 }
 import $css_0 from 'Frontend/styles.css';
-addCssBlock(`<custom-style><style include="italicBoldFont">${$css_0}</style></custom-style>`);
+addCssBlock(`<custom-style><style include="styledBorderCorner">${$css_0}</style></custom-style>`);
 import $css_1 from 'Frontend/styles.css';
-addCssBlock(`<custom-style><style include="italicFont">${$css_1}</style></custom-style>`);
+addCssBlock(`<custom-style><style include="italicBoldFont">${$css_1}</style></custom-style>`);
 import $css_2 from 'Frontend/styles.css';
-addCssBlock(`<custom-style><style include="styledBorderCorner">${$css_2}</style></custom-style>`);
+addCssBlock(`<custom-style><style include="italicFont">${$css_2}</style></custom-style>`);
 import $css_3 from 'Frontend/styles.css';
 addCssBlock(`<custom-style><style include="tradesGridStyle">${$css_3}</style></custom-style>`);
 import $css_4 from 'Frontend/styles.css';

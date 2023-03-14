@@ -26,8 +26,9 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
+import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
-
+import javax.annotation.PostConstruct;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.List;
@@ -35,21 +36,17 @@ import java.util.stream.Collectors;
 
 import static com.takado.myportfoliofront.service.PriceFormatter.formatPriceString;
 import static com.takado.myportfoliofront.service.PriceFormatter.formatProfitString;
-
 @Push
 @Route("")
 @PageTitle("myPortfolio")
 @CssImport(include = "styledBorderCorner", value = "./styles.css")
 @Theme(value = Lumo.class, variant = Lumo.DARK)
-//@Component
-//@RequiredArgsConstructor
 public class MainView extends VerticalLayout implements GridItemSelectedCallback, GridLayoutManager,
         AssetsAndPricesLoader, TradesGridManager {
     private final AssetService assetService;
     private final PricesService pricesService;
     private final TradeService tradeService;
     private final VsCurrencyService vsCurrencyService;
-    private final AuthenticationService authenticationService;
     private final UserService userService;
     public final GridService gridService;
     public final Grid<Asset> grid = new Grid<>();
@@ -72,9 +69,8 @@ public class MainView extends VerticalLayout implements GridItemSelectedCallback
         this.pricesService = pricesService;
         this.vsCurrencyService = vsCurrencyService;
         this.gridService = gridService;
-        this.authenticationService = authenticationService;
         this.userService = userService;
-        this.newAssetForm = new NewAssetForm(this, newAssetFormControl, tradesGridNavigationPanel,
+        this.newAssetForm = new NewAssetForm(newAssetFormControl, tradesGridNavigationPanel,
                 this, this, this);
         setupGrid();
         HorizontalLayout toolbar = makeToolbar();
@@ -85,7 +81,7 @@ public class MainView extends VerticalLayout implements GridItemSelectedCallback
         add(toolbar, mainContent);
         setSizeFull();
         newAssetForm.setAsset(null);
-        user = fetchUser();
+        user = userService.getUser();
         if (user == null) {
             user = createUserAccount();
             displayWelcomeMessage();
@@ -94,31 +90,10 @@ public class MainView extends VerticalLayout implements GridItemSelectedCallback
         tradeService.setUserId(user.getId());
         reloadAssetsAndPrices();
     }
-//    @PostConstruct
-//    private void buildPage(){
-//        setupGrid();
-//        HorizontalLayout toolbar = makeToolbar();
-//        gridLayout.add(grid);
-//        gridLayout.setSizeFull();
-//        HorizontalLayout mainContent = new HorizontalLayout(gridLayout, newAssetForm);
-//        mainContent.setSizeFull();
-//        add(toolbar, mainContent);
-//        setSizeFull();
-//        newAssetForm.setAsset(null);
-//
-//        user = fetchUser();
-//        if (user == null) {
-//            user = createUserAccount();
-//            displayWelcomeMessage();
-//        }
-//        assetService.fetchAssets(user.getId());
-//        tradeService.setUserId(user.getId());
-//        reloadAssetsAndPrices();
-//    }
-//
+
 
     @Override
-    public void gridLayoutAdd(Component... components){
+    public void gridLayoutAdd(Component... components) {
         gridLayout.add(components);
     }
 
@@ -128,7 +103,7 @@ public class MainView extends VerticalLayout implements GridItemSelectedCallback
     }
 
     @Override
-    public void gridLayoutRemoveAll(){
+    public void gridLayoutRemoveAll() {
         gridLayout.removeAll();
     }
 
@@ -142,15 +117,8 @@ public class MainView extends VerticalLayout implements GridItemSelectedCallback
         gridService.setupTradesGrid(tradesGrid);
     }
 
-    public UserDto fetchUser() {
-        var user = userService.getUser(authenticationService.getUserEmail());
-        return user == null || user.getId() == null ? null : user;
-    }
-
     public UserDto createUserAccount() {
-        return userService.createUser(authenticationService.getUserEmail(), authenticationService.getUserNameHash(),
-                authenticationService.getUserDisplayedName(),
-                assetService.getAssets().stream().map(Asset::getId).collect(Collectors.toList()));
+        return userService.createUser(assetService.getAssets().stream().map(Asset::getId).collect(Collectors.toList()));
     }
 
     public void valueCurrencyChanged() {
@@ -319,7 +287,7 @@ public class MainView extends VerticalLayout implements GridItemSelectedCallback
 
         logoutButton.addClickListener(e -> getUI().ifPresent(page -> page.getPage().setLocation("/logout")));
 
-        String userName = authenticationService.getUserEmail();
+        String userName = userService.getUserEmail();
         Dialog dialog = new Dialog();
         dialog.add(new Text("User email: " + userName));
 
@@ -335,7 +303,7 @@ public class MainView extends VerticalLayout implements GridItemSelectedCallback
 
     public void displayWelcomeMessage() {
         Dialog dialog = new Dialog();
-        dialog.add(new Text("Welcome " + authenticationService.getUserDisplayedName() + "!"));
+        dialog.add(new Text("Welcome " + userService.getUserDisplayedName() + "!"));
         dialog.open();
     }
 
