@@ -19,7 +19,8 @@ public class PricesService {
 
     public Map<String, BigDecimal> fetchPrices(String[] coinsIds) {
         var currentTime = currentTimeSeconds();
-        if (isTimeToFetchFreshData(currentTime)) {
+
+        if (isTimeToFetchFreshData(currentTime) || isLackingData(coinsIds)) {
             var newPrices = priceClient.getCoinsPrices(USD, coinsIds);
             if (newPrices != null) {
                 lastFetchedPrices.clear();
@@ -38,5 +39,14 @@ public class PricesService {
 
     long currentTimeSeconds() {
         return System.currentTimeMillis() / 1000;
+    }
+
+    private boolean isLackingData(String[] coinsIds) {
+        for (var id : coinsIds) {
+            if (!lastFetchedPrices.containsKey(id)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

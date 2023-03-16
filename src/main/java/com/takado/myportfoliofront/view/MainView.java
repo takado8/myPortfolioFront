@@ -3,7 +3,6 @@ package com.takado.myportfoliofront.view;
 import com.takado.myportfoliofront.control.NewAssetFormControl;
 import com.takado.myportfoliofront.domain.Asset;
 import com.takado.myportfoliofront.domain.Trade;
-import com.takado.myportfoliofront.domain.UserDto;
 import com.takado.myportfoliofront.service.*;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
@@ -26,9 +25,8 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
-import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
-import javax.annotation.PostConstruct;
+
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.List;
@@ -36,6 +34,7 @@ import java.util.stream.Collectors;
 
 import static com.takado.myportfoliofront.service.PriceFormatter.formatPriceString;
 import static com.takado.myportfoliofront.service.PriceFormatter.formatProfitString;
+
 @Push
 @Route("")
 @PageTitle("myPortfolio")
@@ -86,7 +85,6 @@ public class MainView extends VerticalLayout implements GridItemSelectedCallback
             userService.displayWelcomeMessage();
         }
         assetService.fetchAssets(user.getId());
-        tradeService.setUserId(user.getId());
         reloadAssetsAndPrices();
     }
 

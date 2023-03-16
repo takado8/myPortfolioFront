@@ -6,6 +6,7 @@ import com.takado.myportfoliofront.domain.Trade;
 import com.takado.myportfoliofront.service.AssetService;
 import com.takado.myportfoliofront.service.TickerService;
 import com.takado.myportfoliofront.service.TradeService;
+import com.takado.myportfoliofront.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +23,7 @@ public class NewAssetFormControl {
     private final AssetService assetService;
     private final TickerService tickerService;
     private final TradeService tradeService;
+    private final UserService userService;
 
     public List<String> getTickers() {
         return tickerService.getTickers();
@@ -30,7 +32,7 @@ public class NewAssetFormControl {
     public int countNbOfPagesInTradesGrid(String tickerString) {
         if (tickerString != null && !tickerString.isBlank()) {
             Ticker ticker = tickerService.getTicker(tickerString);
-            var tradeList = tradeService.fetchTradeList(ticker.getCoinId());
+            var tradeList = tradeService.fetchTradeList(ticker.getCoinId(), userService.getUserId());
             if (tradeList.size() <= TRADE_POSITIONS_PER_PAGE + 1) {
                 return 1;
             }
@@ -42,7 +44,7 @@ public class NewAssetFormControl {
     public List<Trade> getTradeItemsToSet(String tickerString, boolean isTradesGridMaximized, int currentPageNb) {
         if (tickerString != null && !tickerString.isBlank()) {
             Ticker ticker = tickerService.getTicker(tickerString);
-            var tradeList = tradeService.fetchTradeList(ticker.getCoinId());
+            var tradeList = tradeService.fetchTradeList(ticker.getCoinId(), userService.getUserId());
             List<Trade> itemsToSet;
             if (tradeList == null) {
                 itemsToSet = Collections.emptyList();

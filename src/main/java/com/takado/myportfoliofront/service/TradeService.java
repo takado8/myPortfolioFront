@@ -19,15 +19,18 @@ public class TradeService {
     private final Map<String, List<Trade>> tradesMap = new HashMap<>();
     private final TradeClient tradeClient;
     private final TradeMapper tradeMapper;
-    private Long userId;
+    private Long lastFetchedUserId = -1L;
 
-    public List<Trade> fetchTradeList(String coinId) {
+    public List<Trade> fetchTradeList(String coinId, Long userId) {
         if (userId != null) {
-            List<Trade> trades;
-            if (tradesMap.containsKey(coinId)){
-                trades = tradesMap.get(coinId);
+            if (!lastFetchedUserId.equals(userId)) {
+                tradesMap.clear();
+                lastFetchedUserId = userId;
             }
-            else {
+            List<Trade> trades;
+            if (tradesMap.containsKey(coinId)) {
+                trades = tradesMap.get(coinId);
+            } else {
                 trades = tradeMapper.mapToTrade(tradeClient.getTrades(userId, coinId));
                 tradesMap.put(coinId, trades);
             }
@@ -37,12 +40,11 @@ public class TradeService {
     }
 
     public void saveTrade(Trade trade) {
-        var tradeSavedInDb =  tradeMapper.mapToTrade(tradeClient.createTrade(tradeMapper.mapToDto(trade)));
-        if (tradesMap.containsKey(tradeSavedInDb.getTicker().getCoinId())){
+        var tradeSavedInDb = tradeMapper.mapToTrade(tradeClient.createTrade(tradeMapper.mapToDto(trade)));
+        if (tradesMap.containsKey(tradeSavedInDb.getTicker().getCoinId())) {
             var tradesList = tradesMap.get(tradeSavedInDb.getTicker().getCoinId());
             tradesList.add(tradeSavedInDb);
-        }
-        else {
+        } else {
             var tradesList = new ArrayList<Trade>();
             tradesList.add(tradeSavedInDb);
             tradesMap.put(tradeSavedInDb.getTicker().getCoinId(), tradesList);
