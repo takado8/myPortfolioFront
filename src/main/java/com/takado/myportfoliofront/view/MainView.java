@@ -41,7 +41,7 @@ import static com.takado.myportfoliofront.service.PriceFormatter.formatProfitStr
 @CssImport(include = "styledBorderCorner", value = "./styles.css")
 @Theme(value = Lumo.class, variant = Lumo.DARK)
 public class MainView extends VerticalLayout implements GridItemSelectedCallback, GridLayoutManager,
-        AssetsAndPricesLoader, TradesGridManager {
+        AssetsAndPricesLoader {
     private final AssetService assetService;
     private final PricesService pricesService;
     private final TradeService tradeService;
@@ -60,7 +60,8 @@ public class MainView extends VerticalLayout implements GridItemSelectedCallback
 
     public MainView(AssetService assetService, UserService userService, TradeService tradeService,
                     PricesService pricesService, GridService gridService, VsCurrencyService vsCurrencyService,
-                    TradesGridNavigationPanel tradesGridNavigationPanel, NewAssetFormControl newAssetFormControl) {
+                    TradesGridNavigationPanel tradesGridNavigationPanel, NewAssetFormControl newAssetFormControl,
+                    TradesGridManager tradesGridManager) {
         this.assetService = assetService;
         this.tradeService = tradeService;
         this.pricesService = pricesService;
@@ -68,7 +69,7 @@ public class MainView extends VerticalLayout implements GridItemSelectedCallback
         this.gridService = gridService;
         this.userService = userService;
         this.newAssetForm = new NewAssetForm(newAssetFormControl, tradesGridNavigationPanel, userService,
-                this, this, this);
+                this, this, tradesGridManager);
         setupGrid();
         HorizontalLayout toolbar = makeToolbar();
         gridLayout.add(grid);
@@ -101,16 +102,6 @@ public class MainView extends VerticalLayout implements GridItemSelectedCallback
     @Override
     public void gridLayoutRemoveAll() {
         gridLayout.removeAll();
-    }
-
-    @Override
-    public void restoreTradesGridValueAndProfitColumns(Grid<Trade> tradesGrid) {
-        gridService.restoreTradesGridValueAndProfitColumns(tradesGrid);
-    }
-
-    @Override
-    public void setupTradesGrid(Grid<Trade> tradesGrid) {
-        gridService.setupTradesGrid(tradesGrid);
     }
 
     public void valueCurrencyChanged() {
