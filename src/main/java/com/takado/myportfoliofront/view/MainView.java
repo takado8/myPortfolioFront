@@ -58,11 +58,9 @@ public class MainView extends VerticalLayout implements GridItemSelectedCallback
     private final Select<String> valueCurrency = new Select<>();
     private boolean lockPriceCurrencyChanged = false;
     private boolean lockValueCurrencyChanged = false;
-    private UserDto user;
 
-    public MainView(AssetService assetService, AuthenticationService authenticationService, UserService userService,
-                    TradeService tradeService, PricesService pricesService,
-                    GridService gridService, VsCurrencyService vsCurrencyService,
+    public MainView(AssetService assetService, UserService userService, TradeService tradeService,
+                    PricesService pricesService, GridService gridService, VsCurrencyService vsCurrencyService,
                     TradesGridNavigationPanel tradesGridNavigationPanel, NewAssetFormControl newAssetFormControl) {
         this.assetService = assetService;
         this.tradeService = tradeService;
@@ -70,7 +68,7 @@ public class MainView extends VerticalLayout implements GridItemSelectedCallback
         this.vsCurrencyService = vsCurrencyService;
         this.gridService = gridService;
         this.userService = userService;
-        this.newAssetForm = new NewAssetForm(newAssetFormControl, tradesGridNavigationPanel,
+        this.newAssetForm = new NewAssetForm(newAssetFormControl, tradesGridNavigationPanel, userService,
                 this, this, this);
         setupGrid();
         HorizontalLayout toolbar = makeToolbar();
@@ -81,16 +79,16 @@ public class MainView extends VerticalLayout implements GridItemSelectedCallback
         add(toolbar, mainContent);
         setSizeFull();
         newAssetForm.setAsset(null);
-        user = userService.getUser();
+
+        var user = userService.fetchUser();
         if (user == null) {
-            user = createUserAccount();
-            displayWelcomeMessage();
+            user = userService.createUser();
+            userService.displayWelcomeMessage();
         }
         assetService.fetchAssets(user.getId());
         tradeService.setUserId(user.getId());
         reloadAssetsAndPrices();
     }
-
 
     @Override
     public void gridLayoutAdd(Component... components) {
@@ -115,10 +113,6 @@ public class MainView extends VerticalLayout implements GridItemSelectedCallback
     @Override
     public void setupTradesGrid(Grid<Trade> tradesGrid) {
         gridService.setupTradesGrid(tradesGrid);
-    }
-
-    public UserDto createUserAccount() {
-        return userService.createUser(assetService.getAssets().stream().map(Asset::getId).collect(Collectors.toList()));
     }
 
     public void valueCurrencyChanged() {
@@ -298,16 +292,5 @@ public class MainView extends VerticalLayout implements GridItemSelectedCallback
 
         return new HorizontalLayout(filter, priceCurrency, valueCurrency,
                 addNewAssetButton, logoutButton, showUserButton);
-    }
-
-
-    public void displayWelcomeMessage() {
-        Dialog dialog = new Dialog();
-        dialog.add(new Text("Welcome " + userService.getUserDisplayedName() + "!"));
-        dialog.open();
-    }
-
-    public UserDto getUser() {
-        return user;
     }
 }

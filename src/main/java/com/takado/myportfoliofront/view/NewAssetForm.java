@@ -3,9 +3,10 @@ package com.takado.myportfoliofront.view;
 import com.takado.myportfoliofront.control.NewAssetFormControl;
 import com.takado.myportfoliofront.domain.Asset;
 import com.takado.myportfoliofront.domain.Trade;
-import com.takado.myportfoliofront.service.GridLayoutManager;
 import com.takado.myportfoliofront.service.AssetsAndPricesLoader;
+import com.takado.myportfoliofront.service.GridLayoutManager;
 import com.takado.myportfoliofront.service.TradesGridManager;
+import com.takado.myportfoliofront.service.UserService;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -18,6 +19,7 @@ import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -42,10 +44,10 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
     private final TradesGridNavigationPanel tradesGridNavigationPanel;
 
     private final NewAssetFormControl control;
+    private final UserService userService;
     private final GridLayoutManager mainViewGridLayoutManager;
     private final AssetsAndPricesLoader assetsAndPricesLoader;
     private final TradesGridManager tradesGridManager;
-    private final MainView mainView;
 
     private boolean isTradesGridMaximized = false;
 
@@ -54,12 +56,11 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
     private final Button deleteButton = new Button(DELETE_BUTTON_TEXT);
 
 
-    public NewAssetForm(MainView mainView, NewAssetFormControl newAssetFormControl,
-                        TradesGridNavigationPanel tradesGridNavigationPanel,
-                        GridLayoutManager mainViewGridLayoutManager, AssetsAndPricesLoader reloadAssetsAndPrices,
-                        TradesGridManager tradesGridManager) {
-        this.mainView = mainView;
+    public NewAssetForm(NewAssetFormControl newAssetFormControl, TradesGridNavigationPanel tradesGridNavigationPanel,
+                        UserService userService, GridLayoutManager mainViewGridLayoutManager,
+                        AssetsAndPricesLoader reloadAssetsAndPrices, TradesGridManager tradesGridManager) {
         this.control = newAssetFormControl;
+        this.userService = userService;
         this.tradesGridNavigationPanel = tradesGridNavigationPanel;
         this.mainViewGridLayoutManager = mainViewGridLayoutManager;
         this.assetsAndPricesLoader = reloadAssetsAndPrices;
@@ -224,10 +225,14 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
         var ticker = this.tickerBox.getValue();
         var amount = this.amountField.getValue();
         var valueIn = this.valueInField.getValue();
-        Long userId = mainView.getUser().getId();
-        control.addToAsset(ticker, amount, valueIn, userId);
-        cleanupInputFields();
-        assetsAndPricesLoader.reloadAssetsAndPrices();
+        Long userId = userService.getUserId();
+        if (userId != null) {
+            control.addToAsset(ticker, amount, valueIn, userId);
+            cleanupInputFields();
+            assetsAndPricesLoader.reloadAssetsAndPrices();
+        } else {
+            Notification.show("User id is unknown.");
+        }
     }
 
     private void subtractFromAssetButtonClicked() {
@@ -235,11 +240,15 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
         var ticker = tickerBox.getValue();
         var amount = amountField.getValue();
         var valueIn = valueInField.getValue();
-        var userId = mainView.getUser().getId();
-        var result = control.subtractFromAsset(ticker, amount, valueIn, userId);
-        if (result) {
-            cleanupInputFields();
-            assetsAndPricesLoader.reloadAssetsAndPrices();
+        var userId = userService.getUserId();
+        if (userId != null) {
+            var result = control.subtractFromAsset(ticker, amount, valueIn, userId);
+            if (result) {
+                cleanupInputFields();
+                assetsAndPricesLoader.reloadAssetsAndPrices();
+            }
+        } else {
+            Notification.show("User id is unknown.");
         }
     }
 
