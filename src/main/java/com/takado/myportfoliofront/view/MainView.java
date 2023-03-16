@@ -40,17 +40,15 @@ import static com.takado.myportfoliofront.service.PriceFormatter.formatProfitStr
 @PageTitle("myPortfolio")
 @CssImport(include = "styledBorderCorner", value = "./styles.css")
 @Theme(value = Lumo.class, variant = Lumo.DARK)
-public class MainView extends VerticalLayout implements GridItemSelectedCallback, GridLayoutManager,
-        AssetsAndPricesLoader {
+public class MainView extends VerticalLayout implements GridItemSelectedCallback, GridLayoutManager{
     private final AssetService assetService;
     private final PricesService pricesService;
     private final TradeService tradeService;
     private final VsCurrencyService vsCurrencyService;
     private final UserService userService;
     public final GridService gridService;
-    public final Grid<Asset> grid = new Grid<>();
     public HorizontalLayout gridLayout = new HorizontalLayout();
-    private FooterRow footerRow;
+
     private final TextField filter = new TextField();
     private final NewAssetForm newAssetForm;
     private final Select<String> priceCurrency = new Select<>();
@@ -69,10 +67,10 @@ public class MainView extends VerticalLayout implements GridItemSelectedCallback
         this.gridService = gridService;
         this.userService = userService;
         this.newAssetForm = new NewAssetForm(newAssetFormControl, tradesGridNavigationPanel, userService,
-                this, this, tradesGridManager);
+                this, tradesGridManager);
         setupGrid();
         HorizontalLayout toolbar = makeToolbar();
-        gridLayout.add(grid);
+        gridLayout.add(gridService.grid);
         gridLayout.setSizeFull();
         HorizontalLayout mainContent = new HorizontalLayout(gridLayout, newAssetForm);
         mainContent.setSizeFull();
@@ -96,7 +94,7 @@ public class MainView extends VerticalLayout implements GridItemSelectedCallback
 
     @Override
     public void gridLayoutBringBackMainGrid() {
-        gridLayout.add(grid);
+        gridLayout.add(gridService.grid);
     }
 
     @Override
@@ -109,9 +107,9 @@ public class MainView extends VerticalLayout implements GridItemSelectedCallback
         if (valueCurrency == null || lockValueCurrencyChanged) return;
         vsCurrencyService.putCurrencyOnTop(valueCurrency);
         gridService.getValueProvider().setCurrentValueCurrency(vsCurrencyService.getCurrencyFromLabel(valueCurrency));
-        grid.getColumnByKey("valueIn")
+        gridService.grid.getColumnByKey("valueIn")
                 .setHeader("Value In [" + gridService.getValueProvider().getCurrentValueCurrency() + "]");
-        grid.getColumnByKey("valueNow")
+        gridService.grid.getColumnByKey("valueNow")
                 .setHeader("Value Now [" + gridService.getValueProvider().getCurrentValueCurrency() + "]");
         lockValueCurrencyChanged = true;
         this.valueCurrency.setItems(vsCurrencyService.getCurrenciesValueLabels());
@@ -125,9 +123,9 @@ public class MainView extends VerticalLayout implements GridItemSelectedCallback
         if (priceCurrency == null || lockPriceCurrencyChanged) return;
         vsCurrencyService.putCurrencyOnTop(priceCurrency);
         gridService.getValueProvider().setCurrentPriceCurrency(vsCurrencyService.getCurrencyFromLabel(priceCurrency));
-        grid.getColumnByKey("avgPrice")
+        gridService.grid.getColumnByKey("avgPrice")
                 .setHeader("Avg Price [" + gridService.getValueProvider().getCurrentPriceCurrency() + "]");
-        grid.getColumnByKey("priceNow")
+        gridService.grid.getColumnByKey("priceNow")
                 .setHeader("Price Now [" + gridService.getValueProvider().getCurrentPriceCurrency() + "]");
         lockPriceCurrencyChanged = true;
         this.priceCurrency.setItems(vsCurrencyService.getCurrenciesPriceLabels());
@@ -137,8 +135,8 @@ public class MainView extends VerticalLayout implements GridItemSelectedCallback
     }
 
     public void filtering() {
-        grid.setItems(assetService.filterByTicker(filter.getValue()));
-        refreshFooterRow();
+        gridService.grid.setItems(assetService.filterByTicker(filter.getValue()));
+        gridService.refreshFooterRow();
     }
 
     @Scheduled(fixedDelay = 20000L)
@@ -161,14 +159,13 @@ public class MainView extends VerticalLayout implements GridItemSelectedCallback
         }
     }
 
-    @Override
     public void reloadAssetsAndPrices() {
         try {
             var newAssetFormVisible = newAssetForm.isVisible();
             var prices = pricesService.fetchPrices(assetService.getCoinsIds());
             assetService.setPrices(prices);
-            grid.setItems(assetService.getAssets());
-            refreshFooterRow();
+            gridService.grid.setItems(assetService.getAssets());
+            gridService.refreshFooterRow();
             tradeService.setPrices(prices);
             newAssetForm.reloadTradesGridContent();
             newAssetForm.setVisible(newAssetFormVisible);
@@ -176,67 +173,23 @@ public class MainView extends VerticalLayout implements GridItemSelectedCallback
         }
     }
 
-    public void refreshFooterRow() {
-        footerRow.getCell(grid.getColumnByKey("ticker")).setText("Total:");
-        footerRow.getCell(grid.getColumnByKey("valueIn")).setText(formatPriceString(totalValueIn()));
-        footerRow.getCell(grid.getColumnByKey("valueNow")).setText(formatPriceString(totalValueNow()));
-        var columnProfit = grid.getColumnByKey("profit");
-        if (columnProfit != null) {
-            footerRow.getCell(columnProfit).setComponent(getTotalProfitBadge());
-        }
-    }
-
-    private Span getTotalProfitBadge() {
-        var totalProfit = totalProfit();
-        Span badge = new Span(formatProfitString(totalProfit) + "%");
-        badge.getElement().getThemeList().add("badge " + (totalProfit.doubleValue() >= 0 ? "success" : "error"));
-        return badge;
-    }
-
-    public List<Asset> getAssetsFromGrid() {
-        return grid.getDataProvider().fetch(new Query<>()).collect(Collectors.toList());
-    }
-
-    public BigDecimal totalValueIn() {
-        return getAssetsFromGrid().stream()
-                .map(gridService.getValueProvider()::valueIn)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-    }
-
-    public BigDecimal totalValueNow() {
-        return getAssetsFromGrid().stream()
-                .map(gridService.getValueProvider()::valueNow)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-    }
-
-    public BigDecimal totalProfit() {
-        try {
-            return totalValueNow()
-                    .divide(totalValueIn(), MathContext.DECIMAL128)
-                    .multiply(BigDecimal.valueOf(100))
-                    .subtract(BigDecimal.valueOf(100));
-        } catch (ArithmeticException e) {
-            return BigDecimal.ZERO;
-        }
-    }
-
     public void setupGrid() {
-        footerRow = gridService.setupMainViewGrid(grid, this);
+        gridService.setupMainViewGrid(this);
     }
 
     private void switchProfitColumnVisibility() {
-        var profitColumn = grid.getColumnByKey("profit");
+        var profitColumn = gridService.grid.getColumnByKey("profit");
         if (newAssetForm.isVisible() && profitColumn != null) {
-            grid.removeColumn(profitColumn);
+            gridService.grid.removeColumn(profitColumn);
         } else if (profitColumn == null && !newAssetForm.isVisible()) {
-            gridService.mainViewGridRestoreProfitColumn(grid);
+            gridService.mainViewGridRestoreProfitColumn(gridService.grid);
         }
-        refreshFooterRow();
+        gridService.refreshFooterRow();
     }
 
     @Override
     public void gridItemSelectedCallback() {
-        newAssetForm.setAsset(grid.asSingleSelect().getValue());
+        newAssetForm.setAsset(gridService.grid.asSingleSelect().getValue());
         switchProfitColumnVisibility();
     }
 
@@ -259,7 +212,7 @@ public class MainView extends VerticalLayout implements GridItemSelectedCallback
         addNewAssetButton.getStyle().set("cursor", "pointer");
         addNewAssetButton.addThemeVariants(ButtonVariant.LUMO_CONTRAST, ButtonVariant.LUMO_PRIMARY);
         addNewAssetButton.addClickListener(e -> {
-            grid.asSingleSelect().clear();
+            gridService.grid.asSingleSelect().clear();
             newAssetForm.setAsset(new Asset());
             switchProfitColumnVisibility();
         });

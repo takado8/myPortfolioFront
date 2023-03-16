@@ -3,10 +3,7 @@ package com.takado.myportfoliofront.control;
 import com.takado.myportfoliofront.domain.Asset;
 import com.takado.myportfoliofront.domain.Ticker;
 import com.takado.myportfoliofront.domain.Trade;
-import com.takado.myportfoliofront.service.AssetService;
-import com.takado.myportfoliofront.service.TickerService;
-import com.takado.myportfoliofront.service.TradeService;
-import com.takado.myportfoliofront.service.UserService;
+import com.takado.myportfoliofront.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +21,8 @@ public class NewAssetFormControl {
     private final TickerService tickerService;
     private final TradeService tradeService;
     private final UserService userService;
+    private final PricesService pricesService;
+    private final GridService gridService;
 
     public List<String> getTickers() {
         return tickerService.getTickers();
@@ -121,5 +120,21 @@ public class NewAssetFormControl {
             return true;
         }
         return false;
+    }
+
+    public void setupTradesPrices() {
+        var prices = pricesService.fetchPrices(assetService.getCoinsIds());
+        tradeService.setPrices(prices);
+    }
+
+    public void setupTradesAndAssetsPrices() {
+        var prices = pricesService.fetchPrices(assetService.getCoinsIds());
+        assetService.setPrices(prices);
+        tradeService.setPrices(prices);
+    }
+
+    public void reloadAssets(){
+        gridService.grid.setItems(assetService.getAssets());
+        gridService.refreshFooterRow();
     }
 }

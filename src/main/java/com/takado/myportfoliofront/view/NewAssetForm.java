@@ -3,7 +3,6 @@ package com.takado.myportfoliofront.view;
 import com.takado.myportfoliofront.control.NewAssetFormControl;
 import com.takado.myportfoliofront.domain.Asset;
 import com.takado.myportfoliofront.domain.Trade;
-import com.takado.myportfoliofront.service.AssetsAndPricesLoader;
 import com.takado.myportfoliofront.service.GridLayoutManager;
 import com.takado.myportfoliofront.service.TradesGridManager;
 import com.takado.myportfoliofront.service.UserService;
@@ -46,7 +45,6 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
     private final NewAssetFormControl control;
     private final UserService userService;
     private final GridLayoutManager mainViewGridLayoutManager;
-    private final AssetsAndPricesLoader assetsAndPricesLoader;
     private final TradesGridManager tradesGridManager;
 
     private boolean isTradesGridMaximized = false;
@@ -58,12 +56,11 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
 
     public NewAssetForm(NewAssetFormControl newAssetFormControl, TradesGridNavigationPanel tradesGridNavigationPanel,
                         UserService userService, GridLayoutManager mainViewGridLayoutManager,
-                        AssetsAndPricesLoader reloadAssetsAndPrices, TradesGridManager tradesGridManager) {
+                        TradesGridManager tradesGridManager) {
         this.control = newAssetFormControl;
         this.userService = userService;
         this.tradesGridNavigationPanel = tradesGridNavigationPanel;
         this.mainViewGridLayoutManager = mainViewGridLayoutManager;
-        this.assetsAndPricesLoader = reloadAssetsAndPrices;
         this.tradesGridManager = tradesGridManager;
         tradesGridNavigationPanel.addListener(this);
         setupAmountField();
@@ -189,7 +186,9 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
         tradesGrid.setClassName("styledBorderCorner");
         tradesGrid.setMaxHeight(MAIN_VIEW_GRID_HEIGHT, Unit.PIXELS);
         tradesGridManager.restoreTradesGridValueAndProfitColumns(tradesGrid);
-        assetsAndPricesLoader.reloadAssetsAndPrices();
+//        assetsAndPricesLoader.reloadAssetsAndPrices();
+        control.setupTradesPrices();
+        reloadTradesGridContent();
     }
 
     private void removeAllFromGridsLayouts() {
@@ -220,6 +219,13 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
         tradesGrid.setItems(itemsToSet);
     }
 
+    private void refreshAfterAssetChanges(){
+        control.setupTradesAndAssetsPrices();
+        control.reloadAssets();
+        reloadTradesGridContent();
+        setVisible(true);
+    }
+
     private void addToAssetButtonClicked() {
         if (fieldsAreEmpty()) return;
         var ticker = this.tickerBox.getValue();
@@ -229,7 +235,8 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
         if (userId != null) {
             control.addToAsset(ticker, amount, valueIn, userId);
             cleanupInputFields();
-            assetsAndPricesLoader.reloadAssetsAndPrices();
+//            assetsAndPricesLoader.reloadAssetsAndPrices();
+            refreshAfterAssetChanges();
         } else {
             Notification.show("User id is unknown.");
         }
@@ -245,7 +252,8 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
             var result = control.subtractFromAsset(ticker, amount, valueIn, userId);
             if (result) {
                 cleanupInputFields();
-                assetsAndPricesLoader.reloadAssetsAndPrices();
+//                assetsAndPricesLoader.reloadAssetsAndPrices();
+                refreshAfterAssetChanges();
             }
         } else {
             Notification.show("User id is unknown.");
@@ -256,7 +264,8 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
         String ticker = this.tickerBox.getValue();
         boolean result = control.deleteAsset(ticker);
         if (result) {
-            assetsAndPricesLoader.reloadAssetsAndPrices();
+//            assetsAndPricesLoader.reloadAssetsAndPrices();
+            refreshAfterAssetChanges();
             cleanupAll();
         }
     }
