@@ -23,11 +23,18 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.spring.annotation.UIScope;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.util.List;
 
 import static com.takado.myportfoliofront.config.Constants.*;
 
+@UIScope
+@Component
+@RequiredArgsConstructor
 @JsModule("@vaadin/vaadin-lumo-styles/badge.js")
 @CssImport(include = "tradesGridStyle", value = "./styles.css")
 @CssImport(include = "italicText", value = "./styles.css")
@@ -41,7 +48,6 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
     private final Grid<Trade> tradesGrid = new Grid<>(Trade.class, false);
     private final HorizontalLayout tradesGridLayout = new HorizontalLayout();
     private final TradesGridNavigationPanel tradesGridNavigationPanel;
-
     private final NewAssetFormControl control;
     private final UserService userService;
     private final GridLayoutManager mainViewGridLayoutManager;
@@ -53,15 +59,8 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
     private final Button subtractButton = new Button(SUBTRACT_BUTTON_TEXT, new Icon(VaadinIcon.MINUS));
     private final Button deleteButton = new Button(DELETE_BUTTON_TEXT);
 
-
-    public NewAssetForm(NewAssetFormControl newAssetFormControl, TradesGridNavigationPanel tradesGridNavigationPanel,
-                        UserService userService, GridLayoutManager mainViewGridLayoutManager,
-                        TradesGridManager tradesGridManager) {
-        this.control = newAssetFormControl;
-        this.userService = userService;
-        this.tradesGridNavigationPanel = tradesGridNavigationPanel;
-        this.mainViewGridLayoutManager = mainViewGridLayoutManager;
-        this.tradesGridManager = tradesGridManager;
+    @PostConstruct
+    private void initialize() {
         tradesGridNavigationPanel.addListener(this);
         setupAmountField();
         setupValueField();
@@ -71,7 +70,6 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
         HorizontalLayout buttons = setupButtonsLayout();
         HorizontalLayout labelTradesLayout = setupLabelTradesLayout();
         Label spacing = setupSpacing();
-
         tradesGridLayout.add(tradesGrid);
         tradesGridLayout.setSizeFull();
         add(tickerBox, amountField, valueInField, buttons, spacing, labelTradesLayout, tradesGridLayout);

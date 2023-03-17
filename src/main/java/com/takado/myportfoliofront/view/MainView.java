@@ -25,8 +25,10 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
+import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 
+import javax.annotation.PostConstruct;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.List;
@@ -40,15 +42,15 @@ import static com.takado.myportfoliofront.service.PriceFormatter.formatProfitStr
 @PageTitle("myPortfolio")
 @CssImport(include = "styledBorderCorner", value = "./styles.css")
 @Theme(value = Lumo.class, variant = Lumo.DARK)
-public class MainView extends VerticalLayout implements GridItemSelectedCallback, GridLayoutManager{
+@RequiredArgsConstructor
+public class MainView extends VerticalLayout implements GridItemSelectedCallback {
     private final AssetService assetService;
     private final PricesService pricesService;
     private final TradeService tradeService;
     private final VsCurrencyService vsCurrencyService;
     private final UserService userService;
     public final GridService gridService;
-    public HorizontalLayout gridLayout = new HorizontalLayout();
-
+    private final GridLayoutManager gridLayoutManager;
     private final TextField filter = new TextField();
     private final NewAssetForm newAssetForm;
     private final Select<String> priceCurrency = new Select<>();
@@ -56,23 +58,14 @@ public class MainView extends VerticalLayout implements GridItemSelectedCallback
     private boolean lockPriceCurrencyChanged = false;
     private boolean lockValueCurrencyChanged = false;
 
-    public MainView(AssetService assetService, UserService userService, TradeService tradeService,
-                    PricesService pricesService, GridService gridService, VsCurrencyService vsCurrencyService,
-                    TradesGridNavigationPanel tradesGridNavigationPanel, NewAssetFormControl newAssetFormControl,
-                    TradesGridManager tradesGridManager) {
-        this.assetService = assetService;
-        this.tradeService = tradeService;
-        this.pricesService = pricesService;
-        this.vsCurrencyService = vsCurrencyService;
-        this.gridService = gridService;
-        this.userService = userService;
-        this.newAssetForm = new NewAssetForm(newAssetFormControl, tradesGridNavigationPanel, userService,
-                this, tradesGridManager);
+    @PostConstruct
+    private void initialize() {
         setupGrid();
         HorizontalLayout toolbar = makeToolbar();
-        gridLayout.add(gridService.grid);
-        gridLayout.setSizeFull();
-        HorizontalLayout mainContent = new HorizontalLayout(gridLayout, newAssetForm);
+        gridLayoutManager.initNewLayout();
+        gridLayoutManager.gridLayoutAdd(gridService.grid);
+        gridLayoutManager.gridLayoutSetSizeFull();
+        HorizontalLayout mainContent = new HorizontalLayout(gridLayoutManager.getGridLayout(), newAssetForm);
         mainContent.setSizeFull();
         add(toolbar, mainContent);
         setSizeFull();
@@ -85,21 +78,6 @@ public class MainView extends VerticalLayout implements GridItemSelectedCallback
         }
         assetService.fetchAssets(user.getId());
         reloadAssetsAndPrices();
-    }
-
-    @Override
-    public void gridLayoutAdd(Component... components) {
-        gridLayout.add(components);
-    }
-
-    @Override
-    public void gridLayoutBringBackMainGrid() {
-        gridLayout.add(gridService.grid);
-    }
-
-    @Override
-    public void gridLayoutRemoveAll() {
-        gridLayout.removeAll();
     }
 
     public void valueCurrencyChanged() {
