@@ -3,7 +3,7 @@ package com.takado.myportfoliofront.config;
 public class Constants {
     public final static float TRADES_GRID_HEIGHT_MINIMIZED = 30;
     public final static float MAIN_VIEW_GRID_MAX_HEIGHT = 100;
-    public final static float TRADES_GRID_WIDTH_MAXIMIZED = 70;
+    public final static float TRADES_GRID_WIDTH_MAXIMIZED = 50;
     public final static float NEW_ASSET_FORM_MAX_WIDTH = 48;
 
     public final static String ADD_BUTTON_TEXT = "Add to position";

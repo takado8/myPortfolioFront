@@ -26,6 +26,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 
 import javax.annotation.PostConstruct;
 
+import java.util.ConcurrentModificationException;
+
 import static com.takado.myportfoliofront.service.PriceFormatter.formatPriceString;
 import static com.takado.myportfoliofront.service.PriceFormatter.formatProfitString;
 
@@ -124,7 +126,7 @@ public class MainView extends VerticalLayout implements GridItemSelectedCallback
                     });
             });
         } catch (IllegalStateException | NullPointerException ignored) {
-        } catch (UIDetachedException e) {
+        } catch (UIDetachedException | ConcurrentModificationException e) {
             System.out.println(e.getMessage());
         }
     }

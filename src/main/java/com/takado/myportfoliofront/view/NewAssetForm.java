@@ -18,7 +18,6 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -30,6 +29,7 @@ import javax.annotation.PostConstruct;
 import java.util.List;
 
 import static com.takado.myportfoliofront.config.Constants.*;
+import static com.vaadin.flow.component.orderedlayout.FlexComponent.*;
 
 @UIScope
 @Component
@@ -37,6 +37,7 @@ import static com.takado.myportfoliofront.config.Constants.*;
 @JsModule("@vaadin/vaadin-lumo-styles/badge.js")
 @CssImport(include = "tradesGridStyle", value = "./styles.css")
 @CssImport(include = "italicText", value = "./styles.css")
+@CssImport(include = "noPaddingOrMargin", value = "./styles.css")
 @CssImport(include = "labelTradesStyle", value = "./styles.css")
 @CssImport(include = "lumo-badge", value = "@vaadin/vaadin-lumo-styles/badge.js")
 public class NewAssetForm extends FormLayout implements PageButtonClickedEventListener {
@@ -50,7 +51,6 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
     private final NewAssetFormControl control;
     private final UserService userService;
     private final GridLayoutManager mainViewGridLayoutManager;
-//    private final TradesGridManager tradesGridManager;
 
     private boolean isTradesGridMaximized = false;
 
@@ -72,7 +72,14 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
         Label spacing = setupSpacing();
         tradesGridLayout.add(tradesGrid);
         tradesGridLayout.setSizeFull();
-        add(tickerBox, amountField, valueInField, buttons, spacing, labelTradesLayout, tradesGridLayout);
+        VerticalLayout layout = new VerticalLayout();
+        layout.add(tickerBox, amountField, valueInField, buttons, spacing, labelTradesLayout, tradesGridLayout);
+        layout.setJustifyContentMode(JustifyContentMode.START);
+        layout.setSpacing(false);
+        layout.setAlignItems(Alignment.STRETCH);
+        layout.setClassName("noPaddingOrMargin");
+        layout.setMaxWidth(NEW_ASSET_FORM_MAX_WIDTH, Unit.VW);
+        add(layout);
     }
 
     @Override
@@ -101,8 +108,8 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
 
         labelTradesLayout.setClassName("labelTradesStyle");
         labelTradesLayout.add(gridLabel, showAllButton);
-        labelTradesLayout.setAlignSelf(FlexComponent.Alignment.END, gridLabel);
-        labelTradesLayout.setAlignSelf(FlexComponent.Alignment.CENTER, showAllButton);
+        labelTradesLayout.setAlignSelf(Alignment.END, gridLabel);
+        labelTradesLayout.setAlignSelf(Alignment.CENTER, showAllButton);
         labelTradesLayout.setSizeFull();
         return labelTradesLayout;
     }
@@ -156,7 +163,7 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
         VerticalLayout layout = new VerticalLayout();
         layout.add(tradesGrid);
         layout.add(tradesGridNavigationPanel.initPagesButtonsPanel(countNbOfPages()));
-        layout.setAlignItems(FlexComponent.Alignment.CENTER);
+        layout.setAlignItems(Alignment.CENTER);
         mainViewGridLayoutManager.gridLayoutAdd(layout);
     }
 

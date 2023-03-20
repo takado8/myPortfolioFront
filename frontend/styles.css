@@ -29,3 +29,8 @@
     font-weight: bolder !important;
     font-size: 1.1em !important;
 }
+
+.noPaddingOrMargin {
+    margin: 0;
+    padding: 0;
+}
