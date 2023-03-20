@@ -4,6 +4,8 @@ import com.takado.myportfoliofront.domain.Asset;
 import com.takado.myportfoliofront.domain.Ticker;
 import com.takado.myportfoliofront.domain.Trade;
 import com.takado.myportfoliofront.service.*;
+import com.takado.myportfoliofront.service.grid.GridService;
+import com.vaadin.flow.component.grid.Grid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -136,5 +138,13 @@ public class NewAssetFormControl {
     public void reloadAssets(){
         gridService.grid.setItems(assetService.getAssets());
         gridService.refreshFooterRow();
+    }
+
+    public void restoreTradesGridValueAndProfitColumns(Grid<Trade> tradesGrid) {
+        gridService.restoreTradesGridValueAndProfitColumns(tradesGrid);
+    }
+
+    public void setupTradesGrid(Grid<Trade> tradesGrid) {
+        gridService.setupTradesGrid(tradesGrid);
     }
 }

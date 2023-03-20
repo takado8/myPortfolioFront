@@ -1,4 +1,4 @@
-package com.takado.myportfoliofront.service;
+package com.takado.myportfoliofront.service.grid;
 
 import com.takado.myportfoliofront.client.PriceClient;
 import com.takado.myportfoliofront.domain.Asset;

@@ -1,4 +1,4 @@
-package com.takado.myportfoliofront.service;
+package com.takado.myportfoliofront.service.grid;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;

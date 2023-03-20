@@ -1,25 +1,21 @@
 package com.takado.myportfoliofront.view;
 
-import com.takado.myportfoliofront.control.NewAssetFormControl;
 import com.takado.myportfoliofront.domain.Asset;
-import com.takado.myportfoliofront.domain.Trade;
 import com.takado.myportfoliofront.service.*;
-import com.vaadin.flow.component.Component;
+import com.takado.myportfoliofront.service.grid.GridItemSelectedCallback;
+import com.takado.myportfoliofront.service.grid.GridLayoutManager;
+import com.takado.myportfoliofront.service.grid.GridService;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UIDetachedException;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.grid.FooterRow;
-import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.provider.Query;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
@@ -29,10 +25,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import javax.annotation.PostConstruct;
-import java.math.BigDecimal;
-import java.math.MathContext;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.takado.myportfoliofront.service.PriceFormatter.formatPriceString;
 import static com.takado.myportfoliofront.service.PriceFormatter.formatProfitString;

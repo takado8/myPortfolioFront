@@ -3,8 +3,7 @@ package com.takado.myportfoliofront.view;
 import com.takado.myportfoliofront.control.NewAssetFormControl;
 import com.takado.myportfoliofront.domain.Asset;
 import com.takado.myportfoliofront.domain.Trade;
-import com.takado.myportfoliofront.service.GridLayoutManager;
-import com.takado.myportfoliofront.service.TradesGridManager;
+import com.takado.myportfoliofront.service.grid.GridLayoutManager;
 import com.takado.myportfoliofront.service.UserService;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
@@ -51,7 +50,7 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
     private final NewAssetFormControl control;
     private final UserService userService;
     private final GridLayoutManager mainViewGridLayoutManager;
-    private final TradesGridManager tradesGridManager;
+//    private final TradesGridManager tradesGridManager;
 
     private boolean isTradesGridMaximized = false;
 
@@ -183,7 +182,7 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
         tradesGrid.setMinWidth(TRADES_GRID_WIDTH_MAXIMIZED, Unit.PIXELS);
         tradesGrid.setClassName("styledBorderCorner");
         tradesGrid.setMaxHeight(MAIN_VIEW_GRID_HEIGHT, Unit.PIXELS);
-        tradesGridManager.restoreTradesGridValueAndProfitColumns(tradesGrid);
+        control.restoreTradesGridValueAndProfitColumns(tradesGrid);
 //        assetsAndPricesLoader.reloadAssetsAndPrices();
         control.setupTradesPrices();
         reloadTradesGridContent();
@@ -207,7 +206,7 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
     }
 
     private void setupTradesGrid() {
-        tradesGridManager.setupTradesGrid(tradesGrid);
+        control.setupTradesGrid(tradesGrid);
     }
 
     public void reloadTradesGridContent() {
