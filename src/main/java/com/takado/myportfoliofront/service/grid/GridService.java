@@ -18,7 +18,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.takado.myportfoliofront.config.Constants.MAIN_VIEW_GRID_HEIGHT;
+import static com.takado.myportfoliofront.config.Constants.MAIN_VIEW_GRID_MAX_HEIGHT;
 import static com.takado.myportfoliofront.config.Constants.TRADES_GRID_HEIGHT_MINIMIZED;
 import static com.takado.myportfoliofront.service.PriceFormatter.formatPriceString;
 import static com.takado.myportfoliofront.service.PriceFormatter.formatProfitString;
@@ -71,7 +71,7 @@ public class GridService {
                 .setComparator(Comparator.comparingDouble(asset -> Double.parseDouble(valueProvider.profitStr(asset))));
         grid.asSingleSelect().addValueChangeListener(event -> selectable.gridItemSelectedCallback());
         grid.setSizeFull();
-        grid.setMaxHeight(MAIN_VIEW_GRID_HEIGHT, Unit.PIXELS);
+        grid.setMaxHeight(MAIN_VIEW_GRID_MAX_HEIGHT, Unit.VH);
         footerRow = grid.appendFooterRow();
     }
 
@@ -112,7 +112,7 @@ public class GridService {
                 .setAutoWidth(true)
                 .setComparator(Comparator.comparing(trade -> trade.getType().toString()))
                 .setTextAlign(ColumnTextAlign.CENTER);
-        tradesGrid.setMaxHeight(TRADES_GRID_HEIGHT_MINIMIZED, Unit.PIXELS);
+        tradesGrid.setMaxHeight(TRADES_GRID_HEIGHT_MINIMIZED, Unit.VH);
     }
 
     public void restoreTradesGridValueAndProfitColumns(Grid<Trade> tradesGrid) {

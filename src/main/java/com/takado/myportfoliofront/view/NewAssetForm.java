@@ -65,6 +65,7 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
         setupValueField();
         setupTickerBox();
         setupTradesGrid();
+        setMaxWidth(NEW_ASSET_FORM_MAX_WIDTH, Unit.VW);
         reloadTradesGridContent();
         HorizontalLayout buttons = setupButtonsLayout();
         HorizontalLayout labelTradesLayout = setupLabelTradesLayout();
@@ -172,18 +173,17 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
         tradesGrid.removeColumnByKey("value");
         tradesGrid.removeColumnByKey("profit");
         tradesGrid.setClassName("tradesGridStyle");
-        tradesGrid.setMaxHeight(TRADES_GRID_HEIGHT_MINIMIZED, Unit.PIXELS);
+        tradesGrid.setMaxHeight(TRADES_GRID_HEIGHT_MINIMIZED, Unit.VH);
     }
 
     private void maximizeTradesGrid() {
         removeAllFromGridsLayouts();
         moveTradesGridToMainGridPosition();
         setButtonsShortText();
-        tradesGrid.setMinWidth(TRADES_GRID_WIDTH_MAXIMIZED, Unit.PIXELS);
         tradesGrid.setClassName("styledBorderCorner");
-        tradesGrid.setMaxHeight(MAIN_VIEW_GRID_HEIGHT, Unit.PIXELS);
+        tradesGrid.setMinWidth(TRADES_GRID_WIDTH_MAXIMIZED, Unit.VW);
+        tradesGrid.setMaxHeight(MAIN_VIEW_GRID_MAX_HEIGHT, Unit.VH);
         control.restoreTradesGridValueAndProfitColumns(tradesGrid);
-//        assetsAndPricesLoader.reloadAssetsAndPrices();
         control.setupTradesPrices();
         reloadTradesGridContent();
     }
