@@ -119,7 +119,7 @@ public class MainView extends VerticalLayout implements GridItemSelectedCallback
 
     @Scheduled(fixedDelay = 20000L)
     public void scheduledRefresh() {
-        if (newAssetForm.isVisible() || !filter.getValue().isBlank()) return;
+        if (!filter.getValue().isBlank()) return;
         try {
             getUI().ifPresent(ui -> {
                 if (ui.isAttached())
