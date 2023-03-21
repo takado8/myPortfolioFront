@@ -45,19 +45,18 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
     private final ComboBox<String> tickerBox = new ComboBox<>("Ticker");
     private final TextField amountField = new TextField("Amount");
     private final TextField valueInField = new TextField("Value in");
+    private final Button addButton = new Button(ADD_BUTTON_TEXT_SHORT, new Icon(VaadinIcon.PLUS));
+    private final Button subtractButton = new Button(SUBTRACT_BUTTON_TEXT_SHORT, new Icon(VaadinIcon.MINUS));
+    private final Button deleteButton = new Button(DELETE_BUTTON_TEXT_SHORT);
     private final Grid<Trade> tradesGrid = new Grid<>(Trade.class, false);
     private final HorizontalLayout tradesGridLayout = new HorizontalLayout();
     private final VerticalLayout mainLayout = new VerticalLayout();
+
     private final TradesGridNavigationPanel tradesGridNavigationPanel;
     private final NewAssetFormControl control;
-    private final UserService userService;
     private final GridLayoutManager mainViewGridLayoutManager;
 
     private boolean isTradesGridMaximized = false;
-
-    private final Button addButton = new Button(ADD_BUTTON_TEXT, new Icon(VaadinIcon.PLUS));
-    private final Button subtractButton = new Button(SUBTRACT_BUTTON_TEXT, new Icon(VaadinIcon.MINUS));
-    private final Button deleteButton = new Button(DELETE_BUTTON_TEXT);
 
     @PostConstruct
     private void initialize() {
@@ -67,6 +66,7 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
         setupTickerBox();
         setupTradesGrid();
         setMaxWidth(NEW_ASSET_FORM_MAX_WIDTH, Unit.VW);
+        setMinWidth(NEW_ASSET_FORM_MIN_WIDTH, Unit.VW);
         reloadTradesGridContent();
         HorizontalLayout buttons = setupButtonsLayout();
         HorizontalLayout labelTradesLayout = setupLabelTradesLayout();
@@ -79,6 +79,7 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
         mainLayout.setAlignItems(Alignment.STRETCH);
         mainLayout.setClassName("noPaddingOrMargin");
         mainLayout.setMaxWidth(NEW_ASSET_FORM_MAX_WIDTH, Unit.VW);
+        mainLayout.setMinWidth(NEW_ASSET_FORM_MIN_WIDTH, Unit.VW);
         add(mainLayout);
     }
 
@@ -175,30 +176,28 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
     private void minimizeTradesGrid() {
         removeAllFromGridsLayouts();
         moveGridsToOriginalPosition();
-        setButtonsNormalText();
         tradesGrid.setMinWidth(null);
         tradesGrid.removeColumnByKey("value");
         tradesGrid.removeColumnByKey("profit");
         tradesGrid.setClassName("tradesGridStyle");
         tradesGrid.setMaxHeight(TRADES_GRID_HEIGHT_MINIMIZED, Unit.VH);
-        mainLayout.setMinWidth("unset");
+        mainLayout.setMinWidth(NEW_ASSET_FORM_MIN_WIDTH, Unit.VW);
         mainLayout.setMaxWidth(NEW_ASSET_FORM_MAX_WIDTH, Unit.VW);
-        setMinWidth("unset");
+        setMinWidth(NEW_ASSET_FORM_MIN_WIDTH, Unit.VW);
         setMaxWidth(NEW_ASSET_FORM_MAX_WIDTH, Unit.VW);
     }
 
     private void maximizeTradesGrid() {
         removeAllFromGridsLayouts();
         moveTradesGridToMainGridPosition();
-        setButtonsShortText();
         tradesGrid.setClassName("styledBorderCorner");
         tradesGrid.setMinWidth(TRADES_GRID_WIDTH_MAXIMIZED, Unit.VW);
         tradesGrid.setMaxWidth(TRADES_GRID_MAX_WIDTH_MAXIMIZED, Unit.VW);
         tradesGrid.setMaxHeight(MAIN_VIEW_GRID_MAX_HEIGHT, Unit.VH);
         setMaxWidth("unset");
-        setMinWidth(NEW_ASSET_FORM_MIN_WIDTH, Unit.VW);
+        setMinWidth(NEW_ASSET_FORM_MIN_WIDTH_SHORT, Unit.VW);
         mainLayout.setMaxWidth("unset");
-        mainLayout.setMinWidth(NEW_ASSET_FORM_MIN_WIDTH, Unit.VW);
+        mainLayout.setMinWidth(NEW_ASSET_FORM_MIN_WIDTH_SHORT, Unit.VW);
         control.restoreTradesGridValueAndProfitColumns(tradesGrid);
         control.setupTradesPrices();
         reloadTradesGridContent();
@@ -207,18 +206,6 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
     private void removeAllFromGridsLayouts() {
         tradesGridLayout.removeAll();
         mainViewGridLayoutManager.gridLayoutRemoveAll();
-    }
-
-    private void setButtonsNormalText() {
-        deleteButton.setText(DELETE_BUTTON_TEXT);
-        addButton.setText(ADD_BUTTON_TEXT);
-        subtractButton.setText(SUBTRACT_BUTTON_TEXT);
-    }
-
-    private void setButtonsShortText() {
-        deleteButton.setText(DELETE_BUTTON_TEXT_SHORT);
-        addButton.setText(ADD_BUTTON_TEXT_SHORT);
-        subtractButton.setText(SUBTRACT_BUTTON_TEXT_SHORT);
     }
 
     private void setupTradesGrid() {
@@ -244,11 +231,10 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
         var ticker = this.tickerBox.getValue();
         var amount = this.amountField.getValue();
         var valueIn = this.valueInField.getValue();
-        Long userId = userService.getUserId();
+        Long userId = control.getUserId();
         if (userId != null) {
             control.addToAsset(ticker, amount, valueIn, userId);
             cleanupInputFields();
-//            assetsAndPricesLoader.reloadAssetsAndPrices();
             refreshAfterAssetChanges();
         } else {
             Notification.show("User id is unknown.");
@@ -260,12 +246,11 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
         var ticker = tickerBox.getValue();
         var amount = amountField.getValue();
         var valueIn = valueInField.getValue();
-        var userId = userService.getUserId();
+        var userId = control.getUserId();
         if (userId != null) {
             var result = control.subtractFromAsset(ticker, amount, valueIn, userId);
             if (result) {
                 cleanupInputFields();
-//                assetsAndPricesLoader.reloadAssetsAndPrices();
                 refreshAfterAssetChanges();
             }
         } else {
@@ -277,7 +262,6 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
         String ticker = this.tickerBox.getValue();
         boolean result = control.deleteAsset(ticker);
         if (result) {
-//            assetsAndPricesLoader.reloadAssetsAndPrices();
             refreshAfterAssetChanges();
             cleanupAll();
         }

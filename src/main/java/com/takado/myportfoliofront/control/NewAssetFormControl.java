@@ -147,4 +147,8 @@ public class NewAssetFormControl {
     public void setupTradesGrid(Grid<Trade> tradesGrid) {
         gridService.setupTradesGrid(tradesGrid);
     }
+
+    public Long getUserId() {
+        return userService.getUserId();
+    }
 }
