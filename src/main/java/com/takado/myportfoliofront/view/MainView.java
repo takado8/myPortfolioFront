@@ -162,7 +162,7 @@ public class MainView extends VerticalLayout implements GridItemSelectedCallback
     @Override
     public void gridItemSelectedCallback() {
         newAssetForm.setAsset(gridService.grid.asSingleSelect().getValue());
-        switchProfitColumnVisibility();
+//        switchProfitColumnVisibility();
     }
 
     public HorizontalLayout makeToolbar() {
@@ -186,7 +186,7 @@ public class MainView extends VerticalLayout implements GridItemSelectedCallback
         addNewAssetButton.addClickListener(e -> {
             gridService.grid.asSingleSelect().clear();
             newAssetForm.setAsset(new Asset());
-            switchProfitColumnVisibility();
+//            switchProfitColumnVisibility();
         });
 
         Button logoutButton = new Button("Logout");
