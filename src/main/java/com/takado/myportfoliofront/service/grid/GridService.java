@@ -1,7 +1,9 @@
 package com.takado.myportfoliofront.service.grid;
 
 import com.takado.myportfoliofront.domain.Asset;
+import com.takado.myportfoliofront.domain.Ticker;
 import com.takado.myportfoliofront.domain.Trade;
+import com.takado.myportfoliofront.service.AssetService;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.FooterRow;
@@ -16,6 +18,7 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.takado.myportfoliofront.config.Constants.MAIN_VIEW_GRID_MAX_HEIGHT;
@@ -28,8 +31,11 @@ import static com.takado.myportfoliofront.service.PriceFormatter.formatProfitStr
 @RequiredArgsConstructor
 public class GridService {
     private final GridValueProvider valueProvider;
+    private final AssetService assetService;
     public Grid<Asset> grid = new Grid<>();
     private FooterRow footerRow;
+    private Ticker selected;
+    private boolean isCallbackDisabled = false;
 
     public void setupMainViewGrid(GridItemSelectedCallback selectable) {
         grid = new Grid<>();
@@ -69,21 +75,17 @@ public class GridService {
                 .setKey("profit")
                 .setTextAlign(ColumnTextAlign.CENTER)
                 .setComparator(Comparator.comparingDouble(asset -> Double.parseDouble(valueProvider.profitStr(asset))));
-        grid.asSingleSelect().addValueChangeListener(event -> selectable.gridItemSelectedCallback());
+        grid.asSingleSelect().addValueChangeListener(event -> {
+            if (isCallbackDisabled) return;
+            selectable.gridItemSelectedCallback();
+        });
         grid.setSizeFull();
         grid.setMaxHeight(MAIN_VIEW_GRID_MAX_HEIGHT, Unit.VH);
+        grid.setVerticalScrollingEnabled(false);
+        grid.setColumnReorderingAllowed(true);
         footerRow = grid.appendFooterRow();
     }
-
-    public void mainViewGridRestoreProfitColumn(Grid<Asset> grid) {
-        grid.addColumn(valueProvider.assetProfitComponentRenderer())
-                .setHeader("Profit [+%]")
-                .setKey("profit")
-                .setTextAlign(ColumnTextAlign.CENTER)
-                .setComparator(Comparator.comparingDouble(asset ->
-                        Double.parseDouble(valueProvider.profitStr(asset))));
-    }
-
+    
     public void setupTradesGrid(Grid<Trade> tradesGrid) {
         tradesGrid.setClassName("tradesGridStyle");
         tradesGrid.addColumn(Trade::getLocalDateTimeString)
@@ -113,6 +115,8 @@ public class GridService {
                 .setComparator(Comparator.comparing(trade -> trade.getType().toString()))
                 .setTextAlign(ColumnTextAlign.CENTER);
         tradesGrid.setMaxHeight(TRADES_GRID_HEIGHT_MINIMIZED, Unit.VH);
+        tradesGrid.setVerticalScrollingEnabled(false);
+        tradesGrid.setColumnReorderingAllowed(true);
     }
 
     public void restoreTradesGridValueAndProfitColumns(Grid<Trade> tradesGrid) {
@@ -153,9 +157,11 @@ public class GridService {
                 .map(getValueProvider()::valueNow)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
+
     public List<Asset> getAssetsFromGrid() {
         return grid.getDataProvider().fetch(new Query<>()).collect(Collectors.toList());
     }
+
     private Span getTotalProfitBadge() {
         var totalProfit = totalProfit();
         Span badge = new Span(formatProfitString(totalProfit) + "%");
@@ -172,5 +178,34 @@ public class GridService {
         } catch (ArithmeticException e) {
             return BigDecimal.ZERO;
         }
+    }
+
+    public void setItems(Set<Asset> assets) {
+        deselectMainGridItem();
+        grid.setItems(assets);
+        reselectMainGridItem();
+    }
+
+    public void deselectMainGridItem() {
+        setCallbackDisabled(true);
+        try {
+            selected = grid.asSingleSelect().getValue().getTicker();
+        } catch (NullPointerException ignore) {
+        }
+        grid.getDataProvider().refreshAll();
+        setCallbackDisabled(false);
+    }
+
+    public void reselectMainGridItem() {
+        if (selected != null) {
+            setCallbackDisabled(true);
+            grid.getDataProvider().refreshAll();
+            grid.select(assetService.findByTicker(selected.getTicker()));
+            setCallbackDisabled(false);
+        }
+    }
+
+    public void setCallbackDisabled(boolean disabled) {
+        isCallbackDisabled = disabled;
     }
 }

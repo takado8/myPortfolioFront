@@ -19,20 +19,19 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.spring.annotation.UIScope;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
-
 import javax.annotation.PostConstruct;
 
 import java.util.ConcurrentModificationException;
 
-import static com.takado.myportfoliofront.service.PriceFormatter.formatPriceString;
-import static com.takado.myportfoliofront.service.PriceFormatter.formatProfitString;
 
 @Push
 @Route("")
+@UIScope
 @PageTitle("myPortfolio")
 @CssImport(include = "styledBorderCorner", value = "./styles.css")
 @Theme(value = Lumo.class, variant = Lumo.DARK)
@@ -111,36 +110,38 @@ public class MainView extends VerticalLayout implements GridItemSelectedCallback
         gridService.refreshFooterRow();
     }
 
-    @Scheduled(fixedDelay = 20000L)
+    @Scheduled(fixedDelay = 60000L)
     public void scheduledRefresh() {
-        if (!filter.getValue().isBlank()) return;
+        if (!filter.getValue().isBlank() || !isVisible()) return; // || newAssetForm.isVisible()
         try {
+            reloadData();
             getUI().ifPresent(ui -> {
-                if (ui.isAttached())
-                    ui.access(() -> {
-                        reloadAssetsAndPrices();
-                        try {
-                            Thread.sleep(300L);
-                        } catch (InterruptedException ignored) {
-                        }
-                    });
+                if (ui.isAttached()){
+                    ui.access(this::reloadUI);}
             });
         } catch (IllegalStateException | NullPointerException ignored) {
         } catch (UIDetachedException | ConcurrentModificationException e) {
             System.out.println(e.getMessage());
         }
     }
+    private void reloadData() {
+        var prices = pricesService.fetchPrices(assetService.getCoinsIds());
+        assetService.setPrices(prices);
+        tradeService.setPrices(prices);
+    }
+    private void reloadUI() {
+        var newAssetFormVisible = newAssetForm.isVisible();
+        gridService.setItems(assetService.getAssets());
+        gridService.refreshFooterRow();
+        newAssetForm.reloadTradesGridContent();
+        newAssetForm.setVisible(newAssetFormVisible);
+
+    }
 
     public void reloadAssetsAndPrices() {
         try {
-            var newAssetFormVisible = newAssetForm.isVisible();
-            var prices = pricesService.fetchPrices(assetService.getCoinsIds());
-            assetService.setPrices(prices);
-            gridService.grid.setItems(assetService.getAssets());
-            gridService.refreshFooterRow();
-            tradeService.setPrices(prices);
-            newAssetForm.reloadTradesGridContent();
-            newAssetForm.setVisible(newAssetFormVisible);
+            reloadData();
+            reloadUI();
         } catch (NullPointerException ignored) {
         }
     }
@@ -149,20 +150,9 @@ public class MainView extends VerticalLayout implements GridItemSelectedCallback
         gridService.setupMainViewGrid(this);
     }
 
-    private void switchProfitColumnVisibility() {
-        var profitColumn = gridService.grid.getColumnByKey("profit");
-        if (newAssetForm.isVisible() && profitColumn != null) {
-            gridService.grid.removeColumn(profitColumn);
-        } else if (profitColumn == null && !newAssetForm.isVisible()) {
-            gridService.mainViewGridRestoreProfitColumn(gridService.grid);
-        }
-        gridService.refreshFooterRow();
-    }
-
     @Override
     public void gridItemSelectedCallback() {
         newAssetForm.setAsset(gridService.grid.asSingleSelect().getValue());
-//        switchProfitColumnVisibility();
     }
 
     public HorizontalLayout makeToolbar() {
@@ -186,13 +176,11 @@ public class MainView extends VerticalLayout implements GridItemSelectedCallback
         addNewAssetButton.addClickListener(e -> {
             gridService.grid.asSingleSelect().clear();
             newAssetForm.setAsset(new Asset());
-//            switchProfitColumnVisibility();
         });
 
         Button logoutButton = new Button("Logout");
         logoutButton.getStyle().set("cursor", "pointer");
         logoutButton.addThemeVariants(ButtonVariant.LUMO_CONTRAST, ButtonVariant.LUMO_PRIMARY);
-
         logoutButton.addClickListener(e -> getUI().ifPresent(page -> page.getPage().setLocation("/logout")));
 
         String userName = userService.getUserEmail();

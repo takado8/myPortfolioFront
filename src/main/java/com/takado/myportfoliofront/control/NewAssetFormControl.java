@@ -151,4 +151,12 @@ public class NewAssetFormControl {
     public Long getUserId() {
         return userService.getUserId();
     }
+
+    public void deselectMainGridItem() {
+        gridService.deselectMainGridItem();
+    }
+
+    public void reselectMainGridItem() {
+        gridService.reselectMainGridItem();
+    }
 }

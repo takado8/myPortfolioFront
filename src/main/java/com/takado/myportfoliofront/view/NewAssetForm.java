@@ -185,9 +185,11 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
         mainLayout.setMaxWidth(NEW_ASSET_FORM_MAX_WIDTH, Unit.VW);
         setMinWidth(NEW_ASSET_FORM_MIN_WIDTH, Unit.VW);
         setMaxWidth(NEW_ASSET_FORM_MAX_WIDTH, Unit.VW);
+        control.reselectMainGridItem();
     }
 
     private void maximizeTradesGrid() {
+        control.deselectMainGridItem();
         removeAllFromGridsLayouts();
         moveTradesGridToMainGridPosition();
         tradesGrid.setClassName("styledBorderCorner");
