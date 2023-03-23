@@ -19,11 +19,9 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.spring.annotation.UIScope;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
 import lombok.RequiredArgsConstructor;
-import org.springframework.scheduling.annotation.Scheduled;
 import javax.annotation.PostConstruct;
 
 import java.util.ConcurrentModificationException;
@@ -31,7 +29,6 @@ import java.util.ConcurrentModificationException;
 
 @Push
 @Route("")
-@UIScope
 @PageTitle("myPortfolio")
 @CssImport(include = "styledBorderCorner", value = "./styles.css")
 @Theme(value = Lumo.class, variant = Lumo.DARK)
@@ -42,7 +39,8 @@ public class MainView extends VerticalLayout implements GridItemSelectedCallback
     private final TradeService tradeService;
     private final VsCurrencyService vsCurrencyService;
     private final UserService userService;
-    public final GridService gridService;
+    private final GridService gridService;
+    private final SchedulerService schedulerService;
     private final GridLayoutManager gridLayoutManager;
     private final TextField filter = new TextField();
     private final NewAssetForm newAssetForm;
@@ -70,6 +68,7 @@ public class MainView extends VerticalLayout implements GridItemSelectedCallback
             userService.displayWelcomeMessage();
         }
         assetService.fetchAssets(user.getId());
+        schedulerService.setScheduledRefresh(this::scheduledRefresh);
         reloadAssetsAndPrices();
     }
 
@@ -110,20 +109,20 @@ public class MainView extends VerticalLayout implements GridItemSelectedCallback
         gridService.refreshFooterRow();
     }
 
-    @Scheduled(fixedDelay = 60000L)
     public void scheduledRefresh() {
-        if (!filter.getValue().isBlank() || !isVisible()) return; // || newAssetForm.isVisible()
+        if (!filter.getValue().isBlank()) return;
         try {
             reloadData();
             getUI().ifPresent(ui -> {
-                if (ui.isAttached()){
-                    ui.access(this::reloadUI);}
+                if (ui.isAttached())
+                    ui.access(this::reloadUI);
             });
         } catch (IllegalStateException | NullPointerException ignored) {
         } catch (UIDetachedException | ConcurrentModificationException e) {
             System.out.println(e.getMessage());
         }
     }
+
     private void reloadData() {
         var prices = pricesService.fetchPrices(assetService.getCoinsIds());
         assetService.setPrices(prices);
