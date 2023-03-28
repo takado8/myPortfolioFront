@@ -6,7 +6,7 @@ public class Constants {
     public final static float TRADES_GRID_WIDTH_MAXIMIZED = 20;
     public final static float TRADES_GRID_MAX_WIDTH_MAXIMIZED = 75;
     public final static float NEW_ASSET_FORM_MAX_WIDTH = 42;
-    public final static float NEW_ASSET_FORM_MIN_WIDTH = 40;
+    public final static float NEW_ASSET_FORM_MIN_WIDTH = 41;
     public final static float NEW_ASSET_FORM_MIN_WIDTH_SHORT = 25;
 
     public final static String ADD_BUTTON_TEXT = "Add to position";
