@@ -53,14 +53,11 @@ public class NewAssetFormControl {
                 tradeList.sort(Comparator.comparing(Trade::getDateTime).reversed());
                 if (isTradesGridMaximized) {
                     if (tradeList.size() > TRADE_POSITIONS_PER_PAGE + 1) {
-                        int startIdx = (currentPageNb - 1) * TRADE_POSITIONS_PER_PAGE + currentPageNb - 2;
-                        int endIdx = currentPageNb * TRADE_POSITIONS_PER_PAGE + currentPageNb - 2;
+                        int startIdx = (currentPageNb - 1) * TRADE_POSITIONS_PER_PAGE;
+                        int endIdx = currentPageNb * TRADE_POSITIONS_PER_PAGE - 1;
                         int lastIdx = tradeList.size() - 1;
                         if (endIdx >= lastIdx) {
                             endIdx = lastIdx;
-                        }
-                        if (startIdx < 0) {
-                            startIdx = 0;
                         }
                         itemsToSet = tradeList.subList(startIdx, endIdx + 1);
                     } else {

@@ -21,6 +21,7 @@ public class TradesGridNavigationPanel {
     PageButtonClickedEventListener listener;
 
     public HorizontalLayout initPagesButtonsPanel(int buttonsCount) {
+        currentPageNb = 1;
         if (buttonsCount > 7){
             buttonsCount = 7;
             isButtonsScrollingEnabled = true;
