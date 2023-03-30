@@ -238,6 +238,7 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
             control.addToAsset(ticker, amount, valueIn, userId);
             cleanupInputFields();
             refreshAfterAssetChanges();
+            tradesGridNavigationPanel.refreshPagesButtonsPanel(countNbOfPages());
         } else {
             Notification.show("User id is unknown.");
         }

@@ -8,6 +8,7 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,15 +16,57 @@ import java.util.List;
 @CssImport(include = "italicBoldFont", value = "./styles.css")
 @CssImport(include = "italicFont", value = "./styles.css")
 public class TradesGridNavigationPanel {
+    private final static int MAX_BUTTONS_COUNT = 7; // should be an odd number
     private final List<Span> buttons = new ArrayList<>();
     private int currentPageNb = 1;
     private boolean isButtonsScrollingEnabled = false;
     PageButtonClickedEventListener listener;
+    private  HorizontalLayout buttonsLayout;
+
+    @PostConstruct
+    private void postConstruct() throws Exception {
+        if (MAX_BUTTONS_COUNT % 2 == 0) {
+            throw new Exception("MAX_BUTTONS_COUNT should be an odd number. in com.takado.myportfoliofront.view.TradesGridNavigationPanel");
+        }
+    }
 
     public HorizontalLayout initPagesButtonsPanel(int buttonsCount) {
         currentPageNb = 1;
-        if (buttonsCount > 7){
-            buttonsCount = 7;
+        buttonsCount = adjustButtonsCount(buttonsCount);
+        buttons.clear();
+        buttonsLayout = new HorizontalLayout();
+        buttonsLayout.setMaxHeight(40F, Unit.PIXELS);
+        buttonsLayout.setAlignItems(FlexComponent.Alignment.CENTER);
+        buttonsLayout.setSpacing(false);
+        buttonsLayout.setPadding(false);
+        buttonsLayout.setMargin(false);
+        buttonsLayout.getThemeList().add("spacing-s");
+        createButtons(buttonsCount);
+        return buttonsLayout;
+    }
+
+    public void refreshPagesButtonsPanel(int buttonsCount) {
+        if (buttonsLayout != null) {
+            buttonsCount = adjustButtonsCount(buttonsCount);
+            buttons.clear();
+            buttonsLayout.removeAll();
+            createButtons(buttonsCount);
+        }
+    }
+
+    private void createButtons(int buttonsCount) {
+        if (buttonsLayout != null) {
+            for (int i = 0; i < buttonsCount; i++) {
+                Span button = makeButton("" + (i + 1), "" + i, i == currentPageNb - 1);
+                buttons.add(button);
+                buttonsLayout.add(button);
+            }
+        }
+    }
+
+    private int adjustButtonsCount(int buttonsCount) {
+        if (buttonsCount > MAX_BUTTONS_COUNT){
+            buttonsCount = MAX_BUTTONS_COUNT;
             isButtonsScrollingEnabled = true;
         }else {
             isButtonsScrollingEnabled = false;
@@ -31,20 +74,7 @@ public class TradesGridNavigationPanel {
         if (buttonsCount < 2){
             buttonsCount = 0;
         }
-        buttons.clear();
-        HorizontalLayout layout = new HorizontalLayout();
-        layout.setMaxHeight(40F, Unit.PIXELS);
-        layout.setAlignItems(FlexComponent.Alignment.CENTER);
-        layout.setSpacing(false);
-        layout.setPadding(false);
-        layout.setMargin(false);
-        layout.getThemeList().add("spacing-s");
-        for (int i = 0; i < buttonsCount; i++) {
-            Span button = makeButton("" + (i + 1), "" + i, i == 0);
-            buttons.add(button);
-            layout.add(button);
-        }
-        return layout;
+        return buttonsCount;
     }
 
     private Span makeButton(String txt, String id, boolean bold) {
@@ -68,7 +98,6 @@ public class TradesGridNavigationPanel {
 
     private void buttonClicked(ClickEvent<Span> buttonClickEvent) {
         var clickedButton = buttonClickEvent.getSource();
-
         var clickedButtonPageValue = Integer.parseInt(clickedButton.getText());
 
         if (isButtonsScrollingEnabled) {
@@ -99,8 +128,9 @@ public class TradesGridNavigationPanel {
     }
 
     private int getButtonsSlideStep(int clickedButtonPageValue) {
-        var middleButtonMinValue = 4;
-        var middleButton = buttons.get(3);
+        int middleButtonIdx = (MAX_BUTTONS_COUNT - 1) / 2;
+        var middleButtonMinValue = middleButtonIdx + 1;
+        var middleButton = buttons.get(middleButtonIdx);
         var middleButtonPageValue = Integer.parseInt(middleButton.getText());
 
         if (clickedButtonPageValue < middleButtonMinValue) {
