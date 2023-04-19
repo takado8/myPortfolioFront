@@ -4,7 +4,6 @@ import com.takado.myportfoliofront.control.NewAssetFormControl;
 import com.takado.myportfoliofront.domain.Asset;
 import com.takado.myportfoliofront.domain.Trade;
 import com.takado.myportfoliofront.service.grid.GridLayoutManager;
-import com.takado.myportfoliofront.service.UserService;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -81,6 +80,7 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
         mainLayout.setMaxWidth(NEW_ASSET_FORM_MAX_WIDTH, Unit.VW);
         mainLayout.setMinWidth(NEW_ASSET_FORM_MIN_WIDTH, Unit.VW);
         add(mainLayout);
+        control.setNbOfTradesDisplayed();
     }
 
     @Override

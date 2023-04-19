@@ -13,17 +13,17 @@ addCssBlock(`<custom-style><style include="italicBoldFont">${$css_0}</style></cu
 import $css_1 from 'Frontend/styles.css';
 addCssBlock(`<custom-style><style include="italicFont">${$css_1}</style></custom-style>`);
 import $css_2 from 'Frontend/styles.css';
-addCssBlock(`<custom-style><style include="styledBorderCorner">${$css_2}</style></custom-style>`);
+addCssBlock(`<custom-style><style include="tradesGridStyle">${$css_2}</style></custom-style>`);
 import $css_3 from 'Frontend/styles.css';
-addCssBlock(`<custom-style><style include="tradesGridStyle">${$css_3}</style></custom-style>`);
+addCssBlock(`<custom-style><style include="italicText">${$css_3}</style></custom-style>`);
 import $css_4 from 'Frontend/styles.css';
-addCssBlock(`<custom-style><style include="italicText">${$css_4}</style></custom-style>`);
+addCssBlock(`<custom-style><style include="noPaddingOrMargin">${$css_4}</style></custom-style>`);
 import $css_5 from 'Frontend/styles.css';
-addCssBlock(`<custom-style><style include="noPaddingOrMargin">${$css_5}</style></custom-style>`);
-import $css_6 from 'Frontend/styles.css';
-addCssBlock(`<custom-style><style include="labelTradesStyle">${$css_6}</style></custom-style>`);
-import $css_7 from '@vaadin/vaadin-lumo-styles/badge.js';
-addCssBlock(`<custom-style><style include="lumo-badge">${$css_7}</style></custom-style>`);
+addCssBlock(`<custom-style><style include="labelTradesStyle">${$css_5}</style></custom-style>`);
+import $css_6 from '@vaadin/vaadin-lumo-styles/badge.js';
+addCssBlock(`<custom-style><style include="lumo-badge">${$css_6}</style></custom-style>`);
+import $css_7 from 'Frontend/styles.css';
+addCssBlock(`<custom-style><style include="styledBorderCorner">${$css_7}</style></custom-style>`);
 
 import '@polymer/iron-icon/iron-icon.js';
 import '@polymer/iron-list/iron-list.js';
