@@ -23,6 +23,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
+		// Use https connection
+		.requiresChannel(channel -> channel.anyRequest().requiresSecure())
                 // Allow all flow internal requests.
                 .authorizeRequests().requestMatchers(SecurityConfiguration::isFrameworkInternalRequest).permitAll()
                 // Allow exit page
