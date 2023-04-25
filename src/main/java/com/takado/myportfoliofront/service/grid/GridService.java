@@ -12,6 +12,7 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.data.provider.Query;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -188,10 +189,8 @@ public class GridService {
 
     public void deselectMainGridItem() {
         setCallbackDisabled(true);
-        try {
-            selected = grid.asSingleSelect().getValue().getTicker();
-        } catch (NullPointerException ignore) {
-        }
+        var asset = grid.asSingleSelect().getValue();
+        setSelected(asset == null ? null : asset.getTicker());
         grid.getDataProvider().refreshAll();
         setCallbackDisabled(false);
     }
@@ -203,6 +202,10 @@ public class GridService {
             grid.select(assetService.findByTicker(selected.getTicker()));
             setCallbackDisabled(false);
         }
+    }
+
+    private void setSelected(@Nullable Ticker selected) {
+        this.selected = selected;
     }
 
     public void setCallbackDisabled(boolean disabled) {

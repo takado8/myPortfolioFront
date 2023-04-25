@@ -151,7 +151,11 @@ public class MainView extends VerticalLayout implements GridItemSelectedCallback
 
     @Override
     public void gridItemSelectedCallback() {
-        newAssetForm.setAsset(gridService.grid.asSingleSelect().getValue());
+        var asset = gridService.grid.asSingleSelect().getValue();
+//        System.out.println("main:");
+//
+//        gridService.setSelected(asset == null ? null : asset.getTicker());
+        newAssetForm.setAsset(asset);
     }
 
     public HorizontalLayout makeToolbar() {
