@@ -28,7 +28,7 @@ import java.util.ConcurrentModificationException;
 
 
 @Push
-@Route("")
+@Route("home")
 @PageTitle("myPortfolio")
 @CssImport(include = "styledBorderCorner", value = "./styles.css")
 @Theme(value = Lumo.class, variant = Lumo.DARK)

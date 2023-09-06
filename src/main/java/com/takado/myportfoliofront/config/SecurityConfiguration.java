@@ -27,6 +27,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .authorizeRequests().requestMatchers(SecurityConfiguration::isFrameworkInternalRequest).permitAll()
                 // Allow exit page
                 .antMatchers(new String[]{"/exitPage", "/not-restricted"}).permitAll()
+                //allow login page
+                .antMatchers(new String[]{"/", "/not-restricted"}).permitAll()
                 // Restrict access to our application.
                 .and().authorizeRequests().anyRequest().authenticated()
 
