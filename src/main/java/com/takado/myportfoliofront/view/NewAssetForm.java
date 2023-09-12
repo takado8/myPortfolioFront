@@ -20,19 +20,17 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Scope;
-import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
 
 import static com.takado.myportfoliofront.config.Constants.*;
-import static com.vaadin.flow.component.orderedlayout.FlexComponent.*;
+import static com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
+import static com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 
-//@UIScope
 @Scope("prototype")
 @Component
 @RequiredArgsConstructor
@@ -224,7 +222,7 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
         tradesGrid.setItems(itemsToSet);
     }
 
-    private void refreshAfterAssetChanges(){
+    private void refreshAfterAssetChanges() {
         control.setupTradesAndAssetsPrices();
         control.reloadAssets();
         reloadTradesGridContent();

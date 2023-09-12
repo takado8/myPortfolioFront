@@ -16,25 +16,15 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
-import com.vaadin.flow.router.PageTitle;
-
-import com.vaadin.flow.router.Route;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.annotation.RequestScope;
-import org.springframework.web.context.annotation.SessionScope;
 
 import javax.annotation.PostConstruct;
-
 import java.util.ConcurrentModificationException;
 
-//
-//@Push
-//@Route("home")
+
 @Component
-//@PageTitle("myPortfolio")
-//@Scope("prototype")
 @RequestScope
 @CssImport(include = "styledBorderCorner", value = "./styles.css")
 @RequiredArgsConstructor
@@ -134,6 +124,7 @@ public class MainView extends VerticalLayout implements GridItemSelectedCallback
         assetService.setPrices(prices);
         tradeService.setPrices(prices);
     }
+
     private void reloadUI() {
         var newAssetFormVisible = newAssetForm.isVisible();
         gridService.setItems(assetService.getAssets());

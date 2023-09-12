@@ -5,15 +5,13 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
-import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.InputStreamFactory;
 import com.vaadin.flow.server.StreamResource;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.security.core.context.SecurityContextHolder;
+
 import java.io.IOException;
 
 
@@ -21,7 +19,7 @@ import java.io.IOException;
 @PageTitle("Login")
 public class loginView extends VerticalLayout {
 
-    public loginView(){
+    public loginView() {
         ClassPathResource resource = new ClassPathResource("google-icon.png");
         InputStreamFactory inputStreamFactory = () -> {
             try {
