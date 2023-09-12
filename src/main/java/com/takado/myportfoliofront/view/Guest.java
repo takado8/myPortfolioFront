@@ -20,7 +20,7 @@ public class Guest extends VerticalLayout {
 
     @PostConstruct
     public void initialize() {
-        mainView.setIsGuest(true);
+        mainView.setGuestRestrictions(true);
         add(mainView);
         setSizeFull();
     }

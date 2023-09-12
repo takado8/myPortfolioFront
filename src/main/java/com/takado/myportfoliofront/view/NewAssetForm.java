@@ -57,6 +57,7 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
     private final GridLayoutManager mainViewGridLayoutManager;
 
     private boolean isTradesGridMaximized = false;
+    private boolean isGuest = true;
 
     @PostConstruct
     private void initialize() {
@@ -126,6 +127,11 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
         deleteButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
         deleteButton.getStyle().set("cursor", "pointer");
         deleteButton.addClickListener(event -> deleteAsset());
+        if (isGuest){
+            addButton.setEnabled(false);
+            subtractButton.setEnabled(false);
+            deleteButton.setEnabled(false);
+        }
         return new HorizontalLayout(addButton, subtractButton, deleteButton);
     }
 
@@ -307,5 +313,25 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
             amountField.focus();
         }
         reloadTradesGridContent();
+    }
+
+    public void setGuestRestrictions(boolean isGuest) {
+        if (isGuest){
+            DisableButtonsForGuest();
+        }else {
+            enableButtons();
+        }
+    }
+
+    private void DisableButtonsForGuest(){
+        addButton.setEnabled(false);
+        subtractButton.setEnabled(false);
+        deleteButton.setEnabled(false);
+    }
+
+    private void enableButtons() {
+        addButton.setEnabled(true);
+        subtractButton.setEnabled(true);
+        deleteButton.setEnabled(true);
     }
 }

@@ -43,7 +43,6 @@ public class MainView extends VerticalLayout implements GridItemSelectedCallback
     private final Select<String> valueCurrency = new Select<>();
     private boolean lockPriceCurrencyChanged = false;
     private boolean lockValueCurrencyChanged = false;
-    private boolean isGuest = true;
 
     @PostConstruct
     private void initialize() {
@@ -149,9 +148,6 @@ public class MainView extends VerticalLayout implements GridItemSelectedCallback
     @Override
     public void gridItemSelectedCallback() {
         var asset = gridService.grid.asSingleSelect().getValue();
-//        System.out.println("main:");
-//
-//        gridService.setSelected(asset == null ? null : asset.getTicker());
         newAssetForm.setAsset(asset);
     }
 
@@ -196,11 +192,8 @@ public class MainView extends VerticalLayout implements GridItemSelectedCallback
                 addNewAssetButton, logoutButton, showUserButton);
     }
 
-    public void setIsGuest(boolean isGuest) {
-        this.isGuest = isGuest;
+    public void setGuestRestrictions(boolean isGuest) {
+        newAssetForm.setGuestRestrictions(isGuest);
     }
 
-    public boolean isGuest() {
-        return isGuest;
-    }
 }

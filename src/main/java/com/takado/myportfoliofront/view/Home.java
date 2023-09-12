@@ -21,7 +21,7 @@ public class Home extends VerticalLayout {
 
     @PostConstruct
     public void initialize() {
-        mainView.setIsGuest(false);
+        mainView.setGuestRestrictions(false);
         add(mainView);
         setSizeFull();
     }
