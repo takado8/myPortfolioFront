@@ -18,15 +18,15 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private static final String LOGIN_URL = "/oauth2/authorization/google";
     private static final String LOGOUT_URL = "/logout";
-    private static final String LOGOUT_SUCCESS_URL = "/exitPage";
+    private static final String LOGOUT_SUCCESS_URL = "/";
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
                 // Allow all flow internal requests.
                 .authorizeRequests().requestMatchers(SecurityConfiguration::isFrameworkInternalRequest).permitAll()
-                // Allow exit page
-                .antMatchers(new String[]{"/exitPage", "/not-restricted"}).permitAll()
+                // Allow guest page
+                .antMatchers(new String[]{"/guest", "/not-restricted"}).permitAll()
                 //allow login page
                 .antMatchers(new String[]{"/", "/not-restricted"}).permitAll()
                 // Restrict access to our application.

@@ -19,11 +19,11 @@ addCssBlock(`<custom-style><style include="labelTradesStyle">${$css_3}</style></
 import $css_4 from '@vaadin/vaadin-lumo-styles/badge.js';
 addCssBlock(`<custom-style><style include="lumo-badge">${$css_4}</style></custom-style>`);
 import $css_5 from 'Frontend/styles.css';
-addCssBlock(`<custom-style><style include="styledBorderCorner">${$css_5}</style></custom-style>`);
+addCssBlock(`<custom-style><style include="italicBoldFont">${$css_5}</style></custom-style>`);
 import $css_6 from 'Frontend/styles.css';
-addCssBlock(`<custom-style><style include="italicBoldFont">${$css_6}</style></custom-style>`);
+addCssBlock(`<custom-style><style include="italicFont">${$css_6}</style></custom-style>`);
 import $css_7 from 'Frontend/styles.css';
-addCssBlock(`<custom-style><style include="italicFont">${$css_7}</style></custom-style>`);
+addCssBlock(`<custom-style><style include="styledBorderCorner">${$css_7}</style></custom-style>`);
 
 import '@polymer/iron-icon/iron-icon.js';
 import '@polymer/iron-list/iron-list.js';

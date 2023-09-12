@@ -22,6 +22,8 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -30,7 +32,8 @@ import java.util.List;
 import static com.takado.myportfoliofront.config.Constants.*;
 import static com.vaadin.flow.component.orderedlayout.FlexComponent.*;
 
-@UIScope
+//@UIScope
+@Scope("prototype")
 @Component
 @RequiredArgsConstructor
 @JsModule("@vaadin/vaadin-lumo-styles/badge.js")

@@ -13,25 +13,30 @@ import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
+
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.theme.Theme;
-import com.vaadin.flow.theme.lumo.Lumo;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+import org.springframework.web.context.annotation.RequestScope;
+import org.springframework.web.context.annotation.SessionScope;
+
 import javax.annotation.PostConstruct;
 
 import java.util.ConcurrentModificationException;
 
-
-@Push
-@Route("home")
-@PageTitle("myPortfolio")
+//
+//@Push
+//@Route("home")
+@Component
+//@PageTitle("myPortfolio")
+//@Scope("prototype")
+@RequestScope
 @CssImport(include = "styledBorderCorner", value = "./styles.css")
-@Theme(value = Lumo.class, variant = Lumo.DARK)
 @RequiredArgsConstructor
 public class MainView extends VerticalLayout implements GridItemSelectedCallback {
     private final AssetService assetService;
@@ -48,6 +53,7 @@ public class MainView extends VerticalLayout implements GridItemSelectedCallback
     private final Select<String> valueCurrency = new Select<>();
     private boolean lockPriceCurrencyChanged = false;
     private boolean lockValueCurrencyChanged = false;
+    private boolean isGuest = true;
 
     @PostConstruct
     private void initialize() {
@@ -197,5 +203,13 @@ public class MainView extends VerticalLayout implements GridItemSelectedCallback
 
         return new HorizontalLayout(filter, priceCurrency, valueCurrency,
                 addNewAssetButton, logoutButton, showUserButton);
+    }
+
+    public void setIsGuest(boolean isGuest) {
+        this.isGuest = isGuest;
+    }
+
+    public boolean isGuest() {
+        return isGuest;
     }
 }
