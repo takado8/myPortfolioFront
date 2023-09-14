@@ -26,3 +26,4 @@ node_modules/
 .gradle/
 .idea/
 build/
+target/
