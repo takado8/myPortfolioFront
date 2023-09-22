@@ -13,25 +13,20 @@ import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
-import com.vaadin.flow.router.PageTitle;
-import com.vaadin.flow.router.Route;
-import com.vaadin.flow.theme.Theme;
-import com.vaadin.flow.theme.lumo.Lumo;
 import lombok.RequiredArgsConstructor;
-import javax.annotation.PostConstruct;
+import org.springframework.stereotype.Component;
+import org.springframework.web.context.annotation.RequestScope;
 
+import javax.annotation.PostConstruct;
 import java.util.ConcurrentModificationException;
 
 
-@Push
-@Route("")
-@PageTitle("myPortfolio")
+@Component
+@RequestScope
 @CssImport(include = "styledBorderCorner", value = "./styles.css")
-@Theme(value = Lumo.class, variant = Lumo.DARK)
 @RequiredArgsConstructor
 public class MainView extends VerticalLayout implements GridItemSelectedCallback {
     private final AssetService assetService;
@@ -128,6 +123,7 @@ public class MainView extends VerticalLayout implements GridItemSelectedCallback
         assetService.setPrices(prices);
         tradeService.setPrices(prices);
     }
+
     private void reloadUI() {
         var newAssetFormVisible = newAssetForm.isVisible();
         gridService.setItems(assetService.getAssets());
@@ -152,9 +148,6 @@ public class MainView extends VerticalLayout implements GridItemSelectedCallback
     @Override
     public void gridItemSelectedCallback() {
         var asset = gridService.grid.asSingleSelect().getValue();
-//        System.out.println("main:");
-//
-//        gridService.setSelected(asset == null ? null : asset.getTicker());
         newAssetForm.setAsset(asset);
     }
 
@@ -198,4 +191,9 @@ public class MainView extends VerticalLayout implements GridItemSelectedCallback
         return new HorizontalLayout(filter, priceCurrency, valueCurrency,
                 addNewAssetButton, logoutButton, showUserButton);
     }
+
+    public void setGuestRestrictions(boolean isGuest) {
+        newAssetForm.setGuestRestrictions(isGuest);
+    }
+
 }

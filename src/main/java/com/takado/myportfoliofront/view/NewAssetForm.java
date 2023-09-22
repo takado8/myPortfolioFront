@@ -20,17 +20,18 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
 
 import static com.takado.myportfoliofront.config.Constants.*;
-import static com.vaadin.flow.component.orderedlayout.FlexComponent.*;
+import static com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
+import static com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 
-@UIScope
+@Scope("prototype")
 @Component
 @RequiredArgsConstructor
 @JsModule("@vaadin/vaadin-lumo-styles/badge.js")
@@ -56,6 +57,7 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
     private final GridLayoutManager mainViewGridLayoutManager;
 
     private boolean isTradesGridMaximized = false;
+    private boolean isGuest = true;
 
     @PostConstruct
     private void initialize() {
@@ -125,6 +127,11 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
         deleteButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
         deleteButton.getStyle().set("cursor", "pointer");
         deleteButton.addClickListener(event -> deleteAsset());
+        if (isGuest){
+            addButton.setEnabled(false);
+            subtractButton.setEnabled(false);
+            deleteButton.setEnabled(false);
+        }
         return new HorizontalLayout(addButton, subtractButton, deleteButton);
     }
 
@@ -221,7 +228,7 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
         tradesGrid.setItems(itemsToSet);
     }
 
-    private void refreshAfterAssetChanges(){
+    private void refreshAfterAssetChanges() {
         control.setupTradesAndAssetsPrices();
         control.reloadAssets();
         reloadTradesGridContent();
@@ -306,5 +313,25 @@ public class NewAssetForm extends FormLayout implements PageButtonClickedEventLi
             amountField.focus();
         }
         reloadTradesGridContent();
+    }
+
+    public void setGuestRestrictions(boolean isGuest) {
+        if (isGuest){
+            DisableButtonsForGuest();
+        }else {
+            enableButtons();
+        }
+    }
+
+    private void DisableButtonsForGuest(){
+        addButton.setEnabled(false);
+        subtractButton.setEnabled(false);
+        deleteButton.setEnabled(false);
+    }
+
+    private void enableButtons() {
+        addButton.setEnabled(true);
+        subtractButton.setEnabled(true);
+        deleteButton.setEnabled(true);
     }
 }

@@ -26,6 +26,4 @@ node_modules/
 .gradle/
 .idea/
 build/
-#keystore files
-*.p12
 target/
