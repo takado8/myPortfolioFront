@@ -3,9 +3,10 @@ package com.takado.myportfoliofront.control;
 import com.takado.myportfoliofront.domain.Asset;
 import com.takado.myportfoliofront.domain.Ticker;
 import com.takado.myportfoliofront.domain.Trade;
-import com.takado.myportfoliofront.service.AssetService;
-import com.takado.myportfoliofront.service.TickerService;
-import com.takado.myportfoliofront.service.TradeService;
+import com.takado.myportfoliofront.service.*;
+import com.takado.myportfoliofront.service.grid.GridService;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.grid.Grid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -14,7 +15,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import static com.takado.myportfoliofront.config.Constants.TRADE_POSITIONS_PER_PAGE;
+import static com.takado.myportfoliofront.config.Constants.*;
 
 @Service
 @RequiredArgsConstructor
@@ -22,19 +23,59 @@ public class NewAssetFormControl {
     private final AssetService assetService;
     private final TickerService tickerService;
     private final TradeService tradeService;
+    private final UserService userService;
+    private final PricesService pricesService;
+    private final GridService gridService;
+    private int nbOfTradesPerPage = 0;
+    private int nbOfRecentTradesDisplayed = 0;
 
     public List<String> getTickers() {
         return tickerService.getTickers();
     }
 
+    public void setNbOfTradesDisplayed() {
+        try {
+            UI.getCurrent().getPage().retrieveExtendedClientDetails(receiver -> {
+                int screenHeight = receiver.getScreenHeight();
+                int positionsPerPage = 0;
+                int nbOfRecentTrades = 0;
+                if (getScreenSizeNbOfTradesDisplayed().containsKey(screenHeight)) {
+                    positionsPerPage = getScreenSizeNbOfTradesDisplayed().get(screenHeight)[0];
+                    nbOfRecentTrades = getScreenSizeNbOfTradesDisplayed().get(screenHeight)[1];
+                } else {
+                    System.out.println("\nScreen height of " + screenHeight + " not supported. Setting closest known value.");
+                    int closestScreenHeightDiff = Integer.MAX_VALUE;
+                    for (var entry : getScreenSizeNbOfTradesDisplayed().entrySet()) {
+                        int height = entry.getKey();
+                        int diff = screenHeight - height;
+                        if (diff > 0 && diff < closestScreenHeightDiff) {
+                            closestScreenHeightDiff = diff;
+                            positionsPerPage = entry.getValue()[0];
+                            nbOfRecentTrades = entry.getValue()[1];
+                        }
+                    }
+                    if (positionsPerPage == 0) {
+                        positionsPerPage = DEFAULT_TRADE_POSITIONS_PER_PAGE;
+                        nbOfRecentTrades = DEFAULT_NB_OF_RECENT_TRADES_DISPLAYED;
+                    }
+                }
+                nbOfTradesPerPage = positionsPerPage;
+                nbOfRecentTradesDisplayed = nbOfRecentTrades;
+            });
+        } catch (Exception ignore) {
+            nbOfTradesPerPage = DEFAULT_TRADE_POSITIONS_PER_PAGE;
+            nbOfRecentTradesDisplayed = DEFAULT_NB_OF_RECENT_TRADES_DISPLAYED;
+        }
+    }
+
     public int countNbOfPagesInTradesGrid(String tickerString) {
         if (tickerString != null && !tickerString.isBlank()) {
             Ticker ticker = tickerService.getTicker(tickerString);
-            var tradeList = tradeService.fetchTradeList(ticker.getCoinId());
-            if (tradeList.size() <= TRADE_POSITIONS_PER_PAGE + 1) {
+            var tradeList = tradeService.fetchTradeList(ticker.getCoinId(), userService.getUserId());
+            if (tradeList.size() <= nbOfTradesPerPage + 1) {
                 return 1;
             }
-            return (int) Math.ceil((float) tradeList.size() / TRADE_POSITIONS_PER_PAGE);
+            return (int) Math.ceil((float) tradeList.size() / nbOfTradesPerPage);
         }
         return 1;
     }
@@ -42,29 +83,27 @@ public class NewAssetFormControl {
     public List<Trade> getTradeItemsToSet(String tickerString, boolean isTradesGridMaximized, int currentPageNb) {
         if (tickerString != null && !tickerString.isBlank()) {
             Ticker ticker = tickerService.getTicker(tickerString);
-            var tradeList = tradeService.fetchTradeList(ticker.getCoinId());
+            var tradeList = tradeService.fetchTradeList(ticker.getCoinId(), userService.getUserId());
             List<Trade> itemsToSet;
             if (tradeList == null) {
                 itemsToSet = Collections.emptyList();
             } else {
                 tradeList.sort(Comparator.comparing(Trade::getDateTime).reversed());
                 if (isTradesGridMaximized) {
-                    if (tradeList.size() > TRADE_POSITIONS_PER_PAGE + 1) {
-                        int startIdx = (currentPageNb - 1) * TRADE_POSITIONS_PER_PAGE + currentPageNb - 2;
-                        int endIdx = currentPageNb * TRADE_POSITIONS_PER_PAGE + currentPageNb - 2;
+                    if (tradeList.size() > nbOfTradesPerPage + 1) {
+                        int startIdx = (currentPageNb - 1) * nbOfTradesPerPage;
+                        int endIdx = currentPageNb * nbOfTradesPerPage - 1;
                         int lastIdx = tradeList.size() - 1;
                         if (endIdx >= lastIdx) {
                             endIdx = lastIdx;
-                        }
-                        if (startIdx < 0) {
-                            startIdx = 0;
                         }
                         itemsToSet = tradeList.subList(startIdx, endIdx + 1);
                     } else {
                         itemsToSet = tradeList;
                     }
                 } else {
-                    itemsToSet = tradeList.size() > 3 ? tradeList.subList(0, 3) : tradeList;
+                    itemsToSet = tradeList.size() > nbOfRecentTradesDisplayed ?
+                            tradeList.subList(0, nbOfRecentTradesDisplayed) : tradeList;
                 }
             }
             return itemsToSet;
@@ -119,5 +158,41 @@ public class NewAssetFormControl {
             return true;
         }
         return false;
+    }
+
+    public void setupTradesPrices() {
+        var prices = pricesService.fetchPrices(assetService.getCoinsIds());
+        tradeService.setPrices(prices);
+    }
+
+    public void setupTradesAndAssetsPrices() {
+        var prices = pricesService.fetchPrices(assetService.getCoinsIds());
+        assetService.setPrices(prices);
+        tradeService.setPrices(prices);
+    }
+
+    public void reloadAssets() {
+        gridService.grid.setItems(assetService.getAssets());
+        gridService.refreshFooterRow();
+    }
+
+    public void restoreTradesGridValueAndProfitColumns(Grid<Trade> tradesGrid) {
+        gridService.restoreTradesGridValueAndProfitColumns(tradesGrid);
+    }
+
+    public void setupTradesGrid(Grid<Trade> tradesGrid) {
+        gridService.setupTradesGrid(tradesGrid);
+    }
+
+    public Long getUserId() {
+        return userService.getUserId();
+    }
+
+    public void deselectMainGridItem() {
+        gridService.deselectMainGridItem();
+    }
+
+    public void reselectMainGridItem() {
+        gridService.reselectMainGridItem();
     }
 }

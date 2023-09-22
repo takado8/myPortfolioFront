@@ -2,29 +2,53 @@ package com.takado.myportfoliofront.service;
 
 import com.takado.myportfoliofront.client.UserClient;
 import com.takado.myportfoliofront.domain.UserDto;
+import com.vaadin.flow.component.Text;
+import com.vaadin.flow.component.dialog.Dialog;
+import lombok.RequiredArgsConstructor;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.Collections;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
-    private UserClient userClient;
+    private final UserClient userClient;
+    private final AuthenticationService authenticationService;
+    private UserDto user;
 
-    public UserService(UserClient userClient) {
-        this.userClient = userClient;
-    }
-
-    public UserDto createUser(String email, String nameHash, String displayedName, List<Long> assetsId) {
-        return userClient.createUser(email, nameHash, displayedName, assetsId);
+    public UserDto createUser() {
+        user = userClient.createUser(authenticationService.getUserEmail(), authenticationService.getUserNameHash(),
+                authenticationService.getUserDisplayedName(), Collections.emptyList());
+        return user;
     }
 
     @Nullable
-    public UserDto getUser(String email) {
-        return userClient.getUser(email);
+    public UserDto fetchUser() {
+        var fetchedUser = userClient.getUser(authenticationService.getUserEmail());
+        if (fetchedUser == null || fetchedUser.getId() == null) {
+            return null;
+        }
+        user = fetchedUser;
+        return user;
     }
 
-    public void setUserClient(UserClient userClient) {
-        this.userClient = userClient;
+    @Nullable
+    public Long getUserId() {
+        return user == null || user.getId() == null ? null : user.getId();
+    }
+
+    public String getUserEmail() {
+        return authenticationService.getUserEmail();
+    }
+
+    public String getUserDisplayedName() {
+        return authenticationService.getUserDisplayedName();
+    }
+
+    public void displayWelcomeMessage() {
+        Dialog dialog = new Dialog();
+        dialog.add(new Text("Welcome " + getUserDisplayedName() + "!"));
+        dialog.open();
     }
 }

@@ -3,6 +3,7 @@ package com.takado.myportfoliofront.service;
 import com.takado.myportfoliofront.client.PriceClient;
 import com.takado.myportfoliofront.domain.Ticker;
 import com.takado.myportfoliofront.domain.Asset;
+import com.takado.myportfoliofront.service.grid.GridValueProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

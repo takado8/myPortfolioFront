@@ -1,18 +1,16 @@
 package com.takado.myportfoliofront.view;
 
 import com.takado.myportfoliofront.client.UserClient;
-import com.takado.myportfoliofront.domain.UserDto;
 import com.takado.myportfoliofront.service.*;
+import com.takado.myportfoliofront.service.grid.GridService;
+import com.takado.myportfoliofront.service.grid.GridValueProvider;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.util.Collections;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
 
 @SpringBootTest
 class MainViewTest {
