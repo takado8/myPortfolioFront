@@ -4,14 +4,13 @@
 
 Webiste demo is live - [check it out](https://kornelgut-cryptoportfolio.pl/)
 
-* Uses Google OAuth2 for authentication and account creation.
-* Uses https connection with ssl certificate
-* Uses digital signatures to secure endpoint calls.
-
+* Google OAuth2 for authentication and account creation.
+* Https connection with ssl certificate.
+* Digital signatures for secure endpoint calls.
 
 [Check out backend](https://github.com/takado8/myPortfolioBackend)
 
-![myPortfolioFrontImg2](https://user-images.githubusercontent.com/39505866/140618945-6a4407b3-a30b-4cd2-a9f1-067da67f3804.jpg)
-
-![myPortfolioFrontImg](https://user-images.githubusercontent.com/39505866/140618956-eee7b914-c0b6-48f9-99dd-16dc5b6412ee.jpg)
+![portfoliofront1](https://github.com/takado8/myPortfolioFront/assets/39505866/b83c5cca-b99d-4ad7-a0f7-e96705a696df)
+![portfoliofront2](https://github.com/takado8/myPortfolioFront/assets/39505866/21a3729d-6abc-439a-82b0-b5c25030c0ce)
+![portfoliofront3](https://github.com/takado8/myPortfolioFront/assets/39505866/c19afa42-2f2f-4a4b-a1c6-629d2b179f91)
 
